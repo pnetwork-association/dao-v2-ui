@@ -1,0 +1,38 @@
+import { BigNumber } from 'bignumber.js'
+import { useMemo } from 'react'
+import { useAccount, useBalance } from 'wagmi'
+
+import settings from '../settings'
+import { formatAssetAmount } from '../utils/amount'
+
+const useBalances = () => {
+  const { address } = useAccount()
+
+  const { data: pntBalanceData } = useBalance({
+    token: settings.contracts.pnt,
+    address
+  })
+
+  const { data: daoPntBalanceData } = useBalance({
+    token: settings.contracts.daoPnt,
+    address
+  })
+
+  const pntBalance = useMemo(
+    () => (pntBalanceData ? BigNumber(pntBalanceData?.value.toString()).dividedBy(10 ** 18) : BigNumber(null)),
+    [pntBalanceData]
+  )
+  const daoPntBalance = useMemo(
+    () => (daoPntBalanceData ? BigNumber(daoPntBalanceData?.value.toString()).dividedBy(10 ** 18) : BigNumber(null)),
+    [daoPntBalanceData]
+  )
+
+  return {
+    daoPntBalance: daoPntBalance.toFixed(),
+    formattedDaoPntBalance: formatAssetAmount(daoPntBalance, 'daoPNT'),
+    formattedPntBalance: formatAssetAmount(pntBalance, 'PNT'),
+    pntBalance: pntBalance.toFixed()
+  }
+}
+
+export { useBalances }
