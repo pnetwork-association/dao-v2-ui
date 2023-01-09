@@ -9,6 +9,7 @@ import { publicProvider } from 'wagmi/providers/public'
 
 import { styleRainbowKit } from '../theme/rainbow-configs'
 
+import CryptoCompareProvider from './context/CryptoCompare'
 import Avatar from './base/Avatar'
 import Overview from './pages/Overview'
 import Lending from './pages/Lending'
@@ -55,7 +56,9 @@ const App = () => {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains} theme={rainbowTheme} avatar={Avatar}>
-        <RouterProvider router={router} />
+        <CryptoCompareProvider>
+          <RouterProvider router={router} />
+        </CryptoCompareProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   )

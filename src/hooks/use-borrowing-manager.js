@@ -10,12 +10,15 @@ import {
 } from 'wagmi'
 import { ethers } from 'ethers'
 import BigNumber from 'bignumber.js'
+import { groupBy } from 'lodash'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
 import { useEpochs } from './use-epochs'
 import { formatAssetAmount } from '../utils/amount'
+import { useRates } from './use-crypto-compare'
+import { formatCurrency } from '../utils/amount'
 
 const useLend = () => {
   const [amount, setAmount] = useState('0')
@@ -341,12 +344,21 @@ const useAccountUtilizationRatio = () => {
   }, {})
 }
 
-const useClaimableInterestsAssets = () => {
+const useClaimableInterestsAssetsByEpochs = () => {
   const assets = settings.assets
     .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
-    .sort((_a, _b) => (_a.name < _b.name ? -1 : 1))
+    .sort((_a, _b) => _a.name.localeCompare(_b.name))
   const { address } = useAccount()
   const { currentEpoch } = useEpochs()
+
+  // TODO: use assets above when test tokens will be removed
+  const rates = useRates(
+    settings.assets
+      .filter(({ symbol }) => !symbol.includes('TST'))
+      .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
+      .map(({ symbolPrice }) => symbolPrice), // TODO: remove TST check
+    { apiKey: process.env.REACT_APP_CRYPTO_COMPARE_API_KEY }
+  )
 
   const { data } = useContractRead({
     address: settings.contracts.borrowingManager,
@@ -366,22 +378,95 @@ const useClaimableInterestsAssets = () => {
           const asset = assets[_index]
           const amount = BigNumber(_value.toString()).dividedBy(10 ** asset.decimals)
 
+          let rate = rates ? rates[asset.symbolPrice] : null
+
+          let countervalue = null
+
+          // TODO remove it
+          if (asset.symbol === 'TST1') {
+            rate = 0.18
+          }
+          // TODO remove it
+          if (asset.symbol === 'TST2') {
+            rate = 2.34
+          }
+
+          if (rate) {
+            countervalue = BigNumber(amount).multipliedBy(rate).toFixed(2)
+          }
+
           return {
             amount,
+            countervalue,
             formattedAmount: formatAssetAmount(amount, asset.symbol),
+            formattedCountervalue: countervalue ? formatCurrency(countervalue, 'USD') : null,
             ...asset
           }
         })
+        .sort((_a, _b) => (BigNumber(_a.amount).isGreaterThan(_b.amount) ? -1 : 1))
+
       return _acc
     }, {})
-  }, [assets, currentEpoch, data])
+  }, [rates, assets, currentEpoch, data])
 }
 
-const useClaimInterest = () => {
+const useClaimableInterestsAssetsByAssets = () => {
+  const rates = useRates()
+  const assets = useClaimableInterestsAssetsByEpochs()
+  const flatAssets = assets ? Object.values(assets).flat() : []
+  const assetsByAddress = groupBy(flatAssets, 'address')
+
+  const assetsAmount = Object.keys(assetsByAddress).reduce((_acc, _address) => {
+    _acc[_address] = assetsByAddress[_address].reduce((_iacc, { amount }) => {
+      _iacc = _iacc.plus(amount)
+      return _iacc
+    }, new BigNumber(0))
+
+    return _acc
+  }, {})
+
+  return useMemo(
+    () =>
+      settings.assets
+        .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
+        .map((_asset) => {
+          const amount = assetsAmount[_asset.address]
+
+          let rate = rates ? rates[_asset.symbolPrice] : null
+
+          let countervalue = null
+
+          // TODO remove it
+          if (_asset.symbol === 'TST1') {
+            rate = 0.18
+          }
+          // TODO remove it
+          if (_asset.symbol === 'TST2') {
+            rate = 2.34
+          }
+
+          if (rate) {
+            countervalue = BigNumber(amount).multipliedBy(rate).toFixed(2)
+          }
+
+          return {
+            amount,
+            countervalue,
+            formattedAmount: formatAssetAmount(amount, _asset.symbol),
+            formattedCountervalue: countervalue ? formatCurrency(countervalue, 'USD') : null,
+            ..._asset
+          }
+        })
+        .sort((_a, _b) => (BigNumber(_a.amount).isGreaterThan(_b.amount) ? -1 : 1)),
+    [assetsAmount, rates]
+  )
+}
+
+const useClaimInterestByEpoch = () => {
   const { error, data, writeAsync } = useContractWrite({
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
-    functionName: 'claimInterest',
+    functionName: 'claimInterestByEpoch',
     mode: 'recklesslyUnprepared'
   })
 
@@ -409,8 +494,9 @@ export {
   useAccountLoanEndEpoch,
   useAccountLoanStartEpoch,
   useAccountUtilizationRatio,
-  useClaimableInterestsAssets,
-  useClaimInterest,
+  useClaimableInterestsAssetsByAssets,
+  useClaimableInterestsAssetsByEpochs,
+  useClaimInterestByEpoch,
   useLend,
   //useTotalAssetInterestAmountByEpoch,
   useTotalBorrowedAmountByEpoch,

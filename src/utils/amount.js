@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { format } from 'currency-formatter'
 
 export const formatAssetAmount = (_amount, _symbol, _opts = {}) => {
   const { decimals = 3, checkApproximation = false } = _opts
@@ -36,3 +37,13 @@ export const shouldBeApproximated = (_amount, _decimals) => {
   const full = BigNumber(_amount).toFixed().split('.')
   return full[1] ? full[1].length > _decimals : false
 }
+
+export const formatCurrency = (_amount, _currency) =>
+  BigNumber(_amount).isNaN()
+    ? `- ${_currency}`
+    : format(BigNumber(_amount).toFixed(), {
+        code: _currency,
+        decimal: '.',
+        thousand: ',',
+        format: _currency ? '%s %v' : '%v'
+      })

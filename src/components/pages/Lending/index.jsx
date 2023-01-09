@@ -9,7 +9,6 @@ import { useEpochs } from '../../../hooks/use-epochs'
 import {
   useAccountLendedAmountByStartAndEndLoanEpochs,
   useAccountLoanStartEpoch,
-  useClaimableInterestsAssets,
   useTotalLendedAmountByStartAndEndEpochs,
   useUtilizationRatio,
   useUtilizationRatioInTheCurrentEpoch
@@ -58,7 +57,7 @@ const Lending = () => {
   const utilizationRatioCurrentEpoch = useUtilizationRatioInTheCurrentEpoch()
   const accountLendedAmountByStartAndEndLoanEpochs = useAccountLendedAmountByStartAndEndLoanEpochs()
   const totalLendedAmountByEpochsRange = useTotalLendedAmountByStartAndEndEpochs()
-  const assets = useClaimableInterestsAssets()
+
   const accountLoanStartEpoch = useAccountLoanStartEpoch()
 
   const labels = useMemo(
@@ -238,7 +237,7 @@ const Lending = () => {
         )}
       </Box>
       <div className="mt-5">
-        <ClaimInterests assetsByEpochs={assets} />
+        <ClaimInterests />
       </div>
       <LendModal show={showLendModal} onClose={() => setShowLendModal(false)} />
     </PageTemplate>
