@@ -143,7 +143,6 @@ const LendModal = ({ show, onClose }) => {
     apy,
     setAmount: setAmountEstimatedApy,
     setDuration: setDurationEstimateApy,
-    formattedApy,
     formattedStartEpoch,
     formattedEndEpoch,
     endEpoch,
@@ -187,12 +186,12 @@ const LendModal = ({ show, onClose }) => {
           label: 'Avg APY',
           borderColor: 'rgb(75, 192, 192)',
           yAxisID: 'y1',
-          data: !BigNumber(apy).isNaN() ? Array(chartEpochs.length).fill(apy) : null,
+          data: !BigNumber(apy?.value).isNaN() ? Array(chartEpochs.length).fill(apy?.value) : null,
           borderDash: [6, 6]
         }
       ]
     }
-  }, [chartEpochs, userWeightPercentages, currentEpoch, startEpoch, apy])
+  }, [chartEpochs, userWeightPercentages, currentEpoch, startEpoch, apy?.value])
 
   useEffect(() => {
     if (lendError) {
@@ -330,7 +329,7 @@ const LendModal = ({ show, onClose }) => {
           <Text>APY</Text>
         </Col>
         <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{formattedApy}</Text>
+          <Text variant={'text2'}>{apy?.formattedValue}</Text>
         </Col>
       </Row>
       <Row>

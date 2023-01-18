@@ -9,6 +9,7 @@ import {
   useAccountLendedAmountByStartAndEndLoanEpochs,
   useAccountLoanEndEpoch,
   useAccountLoanStartEpoch,
+  useApy,
   useTotalLendedAmountByStartAndEndEpochs,
   useUtilizationRatio,
   useUtilizationRatioInTheCurrentEpoch
@@ -61,7 +62,7 @@ const Lending = () => {
 
   const { formattedValue: formattedValueAccountLoanStartEpoch } = useAccountLoanStartEpoch()
   const { formattedValue: formattedValueAccountLoanEndEpoch } = useAccountLoanEndEpoch()
-
+  const { formattedValue: formattedValueApy } = useApy()
   const accountLoanStartEpoch = useAccountLoanStartEpoch()
 
   const labels = useMemo(
@@ -202,7 +203,7 @@ const Lending = () => {
             <Text>Estimated APY</Text>
           </Col>
           <Col xs={4} className="text-end">
-            <Text variant={'text2'}>TODO%</Text>
+            <Text variant={'text2'}>{formattedValueApy}</Text>
           </Col>
         </Row>
         <Line />

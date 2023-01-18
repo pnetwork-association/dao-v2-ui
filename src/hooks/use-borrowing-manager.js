@@ -611,7 +611,7 @@ const useEstimateApy = () => {
     const userWeightPercentages = []
     let totalUserRevenues = new BigNumber(0)
 
-    const totalWeightsWithReset = totalWeights.slice().map((_val) => BigNumber(_val))
+    const totalWeightsWithReset = totalWeights ? totalWeights.slice().map((_val) => BigNumber(_val)) : []
     if (resetEpochs) {
       for (let epoch = resetEpochs[0]; epoch <= resetEpochs[1]; epoch++) {
         if (totalWeightsWithReset[epoch].isGreaterThan(0)) {
@@ -656,14 +656,89 @@ const useEstimateApy = () => {
   return {
     setAmount,
     setDuration,
-    apy: apy.toFixed(2),
-    formattedApy: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-',
+    apy: {
+      value: apy.toFixed(2),
+      formattedValue: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-'
+    },
     startEpoch,
     endEpoch,
     formattedStartEpoch: startEpoch || startEpoch === 0 ? `#${startEpoch}` : '-',
     formattedEndEpoch: endEpoch || endEpoch === 0 ? `#${endEpoch}` : '-',
     userWeightPercentages
   }
+}
+
+const useApy = () => {
+  const { currentEpoch } = useEpochs()
+  const { address } = useAccount()
+  const { value: startEpoch } = useAccountLoanStartEpoch()
+  const { value: endEpoch } = useAccountLoanEndEpoch()
+
+  const { PNT: pntUsd } = useRates(['PNT'], { apiKey: process.env.REACT_APP_CRYPTO_COMPARE_API_KEY })
+
+  const [_startEpoch, _endEpoch] = useMemo(
+    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
+    [currentEpoch]
+  )
+
+  const { data } = useContractReads({
+    cacheTime: 1000 * 60 * 2,
+    contracts: [
+      {
+        address: settings.contracts.stakingManager,
+        abi: StakingManagerABI,
+        functionName: 'addressStakeLocks',
+        args: [address, 0],
+        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+      },
+      {
+        address: settings.contracts.borrowingManager,
+        abi: BorrowingManagerABI,
+        functionName: 'totalWeightByEpochsRange',
+        args: [_startEpoch, _endEpoch],
+        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+      },
+      {
+        address: settings.contracts.borrowingManager,
+        abi: BorrowingManagerABI,
+        functionName: 'weightByEpochsRangeOf',
+        args: [address, _startEpoch, _endEpoch],
+        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+      }
+    ]
+  })
+
+  const lock = useMemo(() => (data ? data[0] : []), [data])
+  const totalWeights = useMemo(() => (data ? data[1].map((_val) => BigNumber(_val)) : []), [data])
+  const userWeights = useMemo(() => (data ? data[2].map((_val) => BigNumber(_val)) : []), [data])
+
+  return useMemo(() => {
+    const lockAmount = BigNumber(lock?.amount?.toString()).dividedBy(10 ** 18)
+    const mr = 150 // total revenues per epoch
+
+    const poolRevenues = []
+    let totalUserRevenues = new BigNumber(0)
+    for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
+      poolRevenues[epoch] = BigNumber(mr).multipliedBy(0.5) // getPoolRevenuesForEpoch(epoca, mr) total in dollar of the interests earned by the BorrowingManager
+
+      const userWeight = userWeights[epoch]
+      const userWeightPercentage =
+        !totalWeights[epoch] || totalWeights[epoch].isNaN() || totalWeights[epoch].isEqualTo(0)
+          ? new BigNumber(1)
+          : userWeight.dividedBy(totalWeights[epoch])
+
+      const userEpochRevenues = poolRevenues[epoch].multipliedBy(userWeightPercentage)
+      totalUserRevenues = totalUserRevenues.plus(userEpochRevenues)
+    }
+
+    const totalUserRevenuesAnnualized = totalUserRevenues.multipliedBy(24).dividedBy(endEpoch - startEpoch + 1)
+    const apy = BigNumber(totalUserRevenuesAnnualized).dividedBy(lockAmount.multipliedBy(pntUsd))
+
+    return {
+      apy: apy.toFixed(),
+      formattedValue: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-'
+    }
+  }, [pntUsd, totalWeights, startEpoch, endEpoch, userWeights, lock])
 }
 
 export {
@@ -673,6 +748,7 @@ export {
   useAccountLoanEndEpoch,
   useAccountLoanStartEpoch,
   useAccountUtilizationRatio,
+  useApy,
   useClaimableInterestsAssetsByAssets,
   useClaimableInterestsAssetsByEpochs,
   useClaimInterestByEpoch,
