@@ -1,7 +1,21 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { toast } from 'react-toastify'
-import styled from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
+import {
+  Chart as ChartJS,
+  LinearScale,
+  CategoryScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Legend,
+  Tooltip,
+  LineController,
+  BarController
+} from 'chart.js'
+import { Chart } from 'react-chartjs-2'
+import BigNumber from 'bignumber.js'
 
 import { useBalances } from '../../../hooks/use-balances'
 import {
@@ -11,7 +25,7 @@ import {
   useEstimateApy
 } from '../../../hooks/use-borrowing-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
-import { SECONDS_IN_ONE_DAY } from '../../../utils/time'
+import { range, SECONDS_IN_ONE_DAY } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
 
 import AdvancedInput from '../../base/AdvancedInput'
@@ -30,7 +44,80 @@ const MaxButton = styled(MiniButton)`
   }
 `
 
+const ChartContainer = styled.div`
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 250px;
+`
+
+ChartJS.register(
+  LinearScale,
+  CategoryScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Legend,
+  Tooltip,
+  LineController,
+  BarController
+)
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  fill: false,
+  interaction: {
+    intersect: false
+  },
+  radius: 0,
+  plugins: {
+    legend: {
+      display: false
+    },
+    tooltip: {
+      callbacks: {
+        label: (_context) => {
+          const label = _context.dataset.label || ''
+          const value = BigNumber(_context.parsed.y).toFixed(2)
+          return `${label} ${value}%`
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      type: 'linear',
+      display: true,
+      min: 0,
+      position: 'left',
+      title: {
+        display: true,
+        text: 'Your pool weight (%)'
+      }
+    },
+    y1: {
+      type: 'linear',
+      display: true,
+      position: 'right',
+      min: 0,
+      suggestedMax: 30,
+      grid: {
+        drawOnChartArea: false
+      },
+      title: {
+        display: true,
+        text: 'Avg APY (estimated)'
+      }
+    }
+  }
+}
+
+// const skipped = (ctx, value) => (ctx.p0.skip || ctx.p1.skip ? value : undefined)
+// const down = (ctx, value) => (ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined)
+
 const LendModal = ({ show, onClose }) => {
+  const theme = useContext(ThemeContext)
   const { currentEpoch, epochDuration, formattedCurrentEpoch, formattedEpochDuration } = useEpochs()
   const { pntBalance, formattedPntBalance, formattedDaoPntBalance } = useBalances()
   const {
@@ -53,14 +140,59 @@ const LendModal = ({ show, onClose }) => {
   const { formattedValue: formattedLendedAmountCurrentEpoch } = useAccountLendedAmountInTheCurrentEpoch()
   const { formattedValue: formattedLendedAmountNextEpoch } = useAccountLendedAmountInTheNextEpochOf()
   const {
+    apy,
     setAmount: setAmountEstimatedApy,
     setDuration: setDurationEstimateApy,
     formattedApy,
     formattedStartEpoch,
     formattedEndEpoch,
     endEpoch,
-    startEpoch
+    startEpoch,
+    userWeightPercentages
   } = useEstimateApy()
+
+  const chartEpochs = useMemo(() => {
+    if (!(currentEpoch || currentEpoch === 0) || !(endEpoch || endEpoch === 0)) return []
+
+    if (endEpoch - currentEpoch < 6) {
+      return range(currentEpoch, currentEpoch + 7)
+    }
+
+    return range(currentEpoch, endEpoch + 1)
+  }, [currentEpoch, endEpoch])
+
+  const chartData = useMemo(() => {
+    let effectiveUserWeightPercentages = userWeightPercentages.filter((_, _epoch) => _epoch >= currentEpoch)
+
+    if (startEpoch > currentEpoch) {
+      effectiveUserWeightPercentages = [0, ...effectiveUserWeightPercentages]
+    }
+
+    return {
+      labels: chartEpochs.map((_epoch) => `Epoch #${_epoch}`),
+      datasets: [
+        {
+          label: 'Pool Weight',
+          data: effectiveUserWeightPercentages.map((_val) => _val * 100),
+          borderColor: 'rgb(75, 192, 192)',
+          type: 'bar',
+          /*segment: {
+            borderColor: (ctx) => skipped(ctx, 'red') || down(ctx, 'yellow'),
+            borderDash: (ctx) => skipped(ctx, [6, 6])
+          },*/
+          spanGaps: true
+        },
+        {
+          type: 'line',
+          label: 'Avg APY',
+          borderColor: 'rgb(75, 192, 192)',
+          yAxisID: 'y1',
+          data: !BigNumber(apy).isNaN() ? Array(chartEpochs.length).fill(apy) : null,
+          borderDash: [6, 6]
+        }
+      ]
+    }
+  }, [chartEpochs, userWeightPercentages, currentEpoch, startEpoch, apy])
 
   useEffect(() => {
     if (lendError) {
@@ -121,7 +253,7 @@ const LendModal = ({ show, onClose }) => {
   )
 
   return (
-    <Modal show={show} title="Lend PNT in pNetwork DAO" onClose={onClose} size="lg">
+    <Modal show={show} title="Lend PNT in pNetwork DAO" onClose={onClose} size="xl">
       <Row className="mt-2">
         <Col xs={6}>
           <Text>PNT balance</Text>
@@ -202,6 +334,13 @@ const LendModal = ({ show, onClose }) => {
         </Col>
       </Row>
       <Row>
+        <Col>
+          <ChartContainer className="mt-2">
+            <Chart type="bar" data={chartData} options={chartOptions} />
+          </ChartContainer>
+        </Col>
+      </Row>
+      <Row className="mt-2">
         <Col xs={6}>
           <Text>Number of epochs</Text>
         </Col>

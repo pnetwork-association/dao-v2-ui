@@ -58,7 +58,7 @@ const useLend = () => {
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
   const lendEnabled = useMemo(
-    () => onChainAmount.gt(0) && approved && onChainAmount.lte(pntBalanceData.value) && epochs > 0,
+    () => onChainAmount.gt(0) && approved && pntBalanceData && onChainAmount.lte(pntBalanceData.value) && epochs > 0,
     [onChainAmount, approved, pntBalanceData, epochs]
   )
   const { config: lendConfigs } = usePrepareContractWrite({
@@ -544,21 +544,21 @@ const useEstimateApy = () => {
         abi: StakingManagerABI,
         functionName: 'addressStakeLocks',
         args: [address, 0],
-        enabled: address && _startEpoch && _endEpoch
+        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
       },
       {
         address: settings.contracts.borrowingManager,
         abi: BorrowingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
-        enabled: _startEpoch && _endEpoch
+        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
       },
       {
         address: settings.contracts.borrowingManager,
         abi: BorrowingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
-        enabled: _startEpoch && _endEpoch
+        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
       }
     ]
   })
@@ -600,15 +600,15 @@ const useEstimateApy = () => {
     return { startEpoch: startEpoch.toNumber(), endEpoch: endEpoch.toNumber(), resetEpochs }
   }, [lock, currentEpoch, duration, epochDuration, startFirstEpochTimestamp])
 
-  const apy = useMemo(() => {
-    if (!totalWeights || !userWeights) return BigNumber()
-    if (BigNumber(amount).isEqualTo(0)) return BigNumber()
-    if (endEpoch - startEpoch <= 0) return BigNumber(0)
+  const { apy, userWeightPercentages } = useMemo(() => {
+    if (BigNumber(amount).isEqualTo(0)) return { apy: BigNumber(), userWeightPercentages: [] }
+    if (endEpoch - startEpoch <= 0) return { apy: BigNumber(0), userWeightPercentages: [] }
 
     const lockAmount = BigNumber(lock?.amount?.toString())
     const mr = 150 // total revenues per epoch
 
     const poolRevenues = []
+    const userWeightPercentages = []
     let totalUserRevenues = new BigNumber(0)
 
     const totalWeightsWithReset = totalWeights.slice().map((_val) => BigNumber(_val))
@@ -624,17 +624,22 @@ const useEstimateApy = () => {
       poolRevenues[epoch] = BigNumber(mr).multipliedBy(0.5) // getPoolRevenuesForEpoch(epoca, mr) total in dollar of the interests earned by the BorrowingManager
 
       const userWeight = BigNumber(amount)
-        .plus(BigNumber(lockAmount).dividedToIntegerBy(10 ** 18))
+        .plus(!lockAmount.isNaN() ? lockAmount.dividedToIntegerBy(10 ** 18) : 0)
         .multipliedBy(endEpoch - epoch + 1)
 
-      totalWeightsWithReset[epoch] = totalWeightsWithReset[epoch]
-        ? totalWeightsWithReset[epoch].plus(userWeight)
-        : userWeight
+      totalWeightsWithReset[epoch] =
+        totalWeightsWithReset[epoch] && !totalWeightsWithReset[epoch].isNaN()
+          ? totalWeightsWithReset[epoch].plus(userWeight)
+          : userWeight
 
       const userWeightPercentage =
-        !totalWeightsWithReset[epoch] || totalWeightsWithReset[epoch].isEqualTo(0)
-          ? 1
+        !totalWeightsWithReset[epoch] ||
+        totalWeightsWithReset[epoch].isNaN() ||
+        totalWeightsWithReset[epoch].isEqualTo(0)
+          ? new BigNumber(1)
           : userWeight.dividedBy(totalWeightsWithReset[epoch])
+
+      userWeightPercentages[epoch] = userWeightPercentage.toNumber()
 
       const userEpochRevenues = poolRevenues[epoch].multipliedBy(userWeightPercentage)
       totalUserRevenues = totalUserRevenues.plus(userEpochRevenues)
@@ -642,18 +647,22 @@ const useEstimateApy = () => {
 
     const totalUserRevenuesAnnualized = totalUserRevenues.multipliedBy(24).dividedBy(endEpoch - startEpoch + 1)
 
-    return BigNumber(totalUserRevenuesAnnualized).dividedBy(BigNumber(amount).multipliedBy(pntUsd))
+    return {
+      apy: BigNumber(totalUserRevenuesAnnualized).dividedBy(BigNumber(amount).multipliedBy(pntUsd)),
+      userWeightPercentages
+    }
   }, [amount, pntUsd, totalWeights, startEpoch, endEpoch, resetEpochs, userWeights, lock])
 
   return {
     setAmount,
     setDuration,
-    apy: apy.toFixed(),
+    apy: apy.toFixed(2),
     formattedApy: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-',
     startEpoch,
     endEpoch,
     formattedStartEpoch: startEpoch || startEpoch === 0 ? `#${startEpoch}` : '-',
-    formattedEndEpoch: endEpoch || endEpoch === 0 ? `#${endEpoch}` : '-'
+    formattedEndEpoch: endEpoch || endEpoch === 0 ? `#${endEpoch}` : '-',
+    userWeightPercentages
   }
 }
 

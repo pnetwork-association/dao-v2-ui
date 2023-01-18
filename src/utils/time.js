@@ -25,4 +25,8 @@ const parseSeconds = (_seconds) => {
   } else return `${Math.round(_seconds)} seconds`
 }
 
-export { parseSeconds, SECONDS_IN_ONE_DAY }
+const range = (_start, _end, _step = 1) => {
+  return Array.from(Array.from(Array(Math.ceil((_end - _start) / _step)).keys()), (x) => _start + x * _step)
+}
+
+export { parseSeconds, range, SECONDS_IN_ONE_DAY }
