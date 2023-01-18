@@ -2,9 +2,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "AmountNotAvailableInEpoch",
@@ -13,6 +13,11 @@
   {
     "inputs": [],
     "name": "InvalidAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidEpoch",
     "type": "error"
   },
   {
@@ -33,9 +38,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "NothingToRelease",
@@ -165,8 +170,20 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
         "internalType": "uint256",
-        "name": "epoch",
+        "name": "startEpoch",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "endEpoch",
         "type": "uint256"
       },
       {
@@ -176,7 +193,7 @@
         "type": "uint256"
       }
     ],
-    "name": "LendedAmountIncreased",
+    "name": "Lended",
     "type": "event"
   },
   {
@@ -332,9 +349,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "numberOfEpochs",
-        "type": "uint256"
+        "type": "uint16"
       },
       {
         "internalType": "address",
@@ -355,14 +372,14 @@
     "name": "borrow",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "",
-        "type": "uint256"
+        "type": "uint16"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "stateMutability": "nonpayable",
@@ -371,17 +388,17 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "borrowableAmountByEpoch",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
@@ -395,17 +412,17 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "borrowedAmountByEpochOf",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
@@ -419,12 +436,35 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "claimInterestByEpoch",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "startEpoch",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "endEpoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "claimInterestByEpochsRange",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -442,9 +482,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "claimableAssetAmountByEpochOf",
@@ -471,14 +511,14 @@
         "type": "address[]"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "startEpoch",
-        "type": "uint256"
+        "type": "uint16"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "endEpoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "claimableAssetsAmountByEpochsRangeOf",
@@ -500,9 +540,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       },
       {
         "internalType": "uint256",
@@ -648,6 +688,11 @@
         "internalType": "address",
         "name": "epochsManager_",
         "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_lendMaxEpochs",
+        "type": "uint16"
       }
     ],
     "name": "initialize",
@@ -679,91 +724,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "lender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "epoch",
-        "type": "uint256"
-      }
-    ],
-    "name": "lendedAmountByEpochOf",
+    "inputs": [],
+    "name": "lendMaxEpochs",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "lender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "startEpoch",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "endEpoch",
-        "type": "uint256"
-      }
-    ],
-    "name": "lendedAmountByEpochsRangeOf",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "lender",
-        "type": "address"
-      }
-    ],
-    "name": "loanEndEpochOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "lender",
-        "type": "address"
-      }
-    ],
-    "name": "loanStartEpochOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "stateMutability": "view",
@@ -790,9 +757,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "release",
@@ -896,9 +863,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "totalAssetInterestAmountByEpoch",
@@ -915,17 +882,17 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "totalBorrowedAmountByEpoch",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
@@ -934,9 +901,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "totalLendedAmountByEpoch",
@@ -953,22 +920,65 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "startEpoch",
-        "type": "uint256"
+        "type": "uint16"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "endEpoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "totalLendedAmountByEpochsRange",
     "outputs": [
       {
-        "internalType": "uint256[]",
+        "internalType": "uint24[]",
         "name": "",
-        "type": "uint256[]"
+        "type": "uint24[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "epoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "totalWeightByEpoch",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "startEpoch",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "endEpoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "totalWeightByEpochsRange",
+    "outputs": [
+      {
+        "internalType": "uint32[]",
+        "name": "",
+        "type": "uint32[]"
       }
     ],
     "stateMutability": "view",
@@ -1021,9 +1031,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "epoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "utilizationRatioByEpoch",
@@ -1040,14 +1050,14 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "startEpoch",
-        "type": "uint256"
+        "type": "uint16"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "endEpoch",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "name": "utilizationRatioByEpochsRange",
@@ -1056,6 +1066,59 @@
         "internalType": "uint256[]",
         "name": "",
         "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "epoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "weightByEpochOf",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "startEpoch",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "endEpoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "weightByEpochsRangeOf",
+    "outputs": [
+      {
+        "internalType": "uint32[]",
+        "name": "",
+        "type": "uint32[]"
       }
     ],
     "stateMutability": "view",

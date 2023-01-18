@@ -1,27 +1,28 @@
-import React, { useContext, useMemo, useState } from 'react'
-import { Row, Col } from 'react-bootstrap'
-import styled, { ThemeContext } from 'styled-components'
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js'
-import { Bar } from 'react-chartjs-2'
 import BigNumber from 'bignumber.js'
+import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js'
+import React, { useContext, useMemo, useState } from 'react'
+import { Col, Row } from 'react-bootstrap'
+import { Bar } from 'react-chartjs-2'
+import styled, { ThemeContext } from 'styled-components'
 
-import { useEpochs } from '../../../hooks/use-epochs'
 import {
   useAccountLendedAmountByStartAndEndLoanEpochs,
+  useAccountLoanEndEpoch,
   useAccountLoanStartEpoch,
   useTotalLendedAmountByStartAndEndEpochs,
   useUtilizationRatio,
   useUtilizationRatioInTheCurrentEpoch
 } from '../../../hooks/use-borrowing-manager'
+import { useEpochs } from '../../../hooks/use-epochs'
 
-import PageTemplate from '../../templates/PageTemplate'
-import Line from '../../base/Line'
 import Box from '../../base/Box'
-import Text from '../../base/Text'
-import Icon from '../../base/Icon'
-import LendModal from '../../complex/LendModal'
 import ButtonSecondary from '../../base/ButtonSecondary'
+import Icon from '../../base/Icon'
+import Line from '../../base/Line'
+import Text from '../../base/Text'
 import ClaimInterests from '../../complex/ClaimInterests'
+import LendModal from '../../complex/LendModal'
+import PageTemplate from '../../templates/PageTemplate'
 
 const StyledIcon = styled(Icon)`
   width: 20px;
@@ -57,6 +58,9 @@ const Lending = () => {
   const utilizationRatioCurrentEpoch = useUtilizationRatioInTheCurrentEpoch()
   const accountLendedAmountByStartAndEndLoanEpochs = useAccountLendedAmountByStartAndEndLoanEpochs()
   const totalLendedAmountByEpochsRange = useTotalLendedAmountByStartAndEndEpochs()
+
+  const { formattedValue: formattedValueAccountLoanStartEpoch } = useAccountLoanStartEpoch()
+  const { formattedValue: formattedValueAccountLoanEndEpoch } = useAccountLoanEndEpoch()
 
   const accountLoanStartEpoch = useAccountLoanStartEpoch()
 
@@ -207,11 +211,7 @@ const Lending = () => {
             <Text>Your loan starts at epoch</Text>
           </Col>
           <Col xs={6} className="text-end">
-            <Text variant={'text2'}>
-              {accountLendedAmountByStartAndEndLoanEpochs
-                ? `#${Object.keys(accountLendedAmountByStartAndEndLoanEpochs).at(0)}`
-                : '-'}
-            </Text>
+            <Text variant={'text2'}>{formattedValueAccountLoanStartEpoch}</Text>
           </Col>
         </Row>
         <Line />
@@ -220,11 +220,7 @@ const Lending = () => {
             <Text>Your loan ends at epoch</Text>
           </Col>
           <Col xs={6} className="text-end">
-            <Text variant={'text2'}>
-              {accountLendedAmountByStartAndEndLoanEpochs
-                ? `#${Object.keys(accountLendedAmountByStartAndEndLoanEpochs).at(-1)}`
-                : '-'}
-            </Text>
+            <Text variant={'text2'}>{formattedValueAccountLoanEndEpoch}</Text>
           </Col>
         </Row>
         <Line />

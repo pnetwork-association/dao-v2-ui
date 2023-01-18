@@ -6,11 +6,11 @@ const settings = {
     stakingManager: '0xeb10e80D99655B51E3a981E888a73D0B21e21A6C',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
     // TODO: use real ones once deployed on mainnet
-    borrowingManager: '0x7E6507fB2E1B1d82cd20B9df43545fA9b9Bf6a7f',
-    epochsManager: '0x80b9747358884DbAA68fC091DcaF8FA312784e53',
-    registrationManager: '0x966099A9d34B211Aa305FB909d57E5d1f3Ef9F54',
-    testToken1: '0x93d8754B51c20830A3e11181380e62b6E22685B7',
-    testToken2: '0x83c337bD39B4F73C0AfAD630C75a7efF7aF9f831'
+    borrowingManager: '0x4842Fd97c4ACeFD844F8e95574bE3e19324Eb7Ff',
+    epochsManager: '0x9Bf2c0B1De94A659eF0aFAEfe2628358078D2656',
+    registrationManager: '0x493D953b6C44f50838C62E5C7111c328399B999b',
+    testToken1: '0x6a30CAa093f256bEC4154C310E306d24fe1F87B1',
+    testToken2: '0x73F29eDa3cd83662AF9a74966884385fA09415FE'
   },
   stakingManager: {
     minStakeDays: 7
@@ -68,7 +68,7 @@ const settings = {
       symbolPrice: 'USDC'
     },
     {
-      address: '0x93d8754B51c20830A3e11181380e62b6E22685B7',
+      address: '0x6a30CAa093f256bEC4154C310E306d24fe1F87B1',
       name: 'Test Token 1',
       decimals: 18,
       symbol: 'TST1',
@@ -76,7 +76,7 @@ const settings = {
       borrowingManagerClaimEnabled: true
     },
     {
-      address: '0x83c337bD39B4F73C0AfAD630C75a7efF7aF9f831',
+      address: '0x73F29eDa3cd83662AF9a74966884385fA09415FE',
       name: 'Test Token 2',
       decimals: 18,
       symbol: 'TST2',

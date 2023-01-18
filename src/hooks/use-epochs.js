@@ -1,10 +1,10 @@
+import moment from 'moment'
 import { useMemo } from 'react'
 import { useContractReads } from 'wagmi'
-import moment from 'moment'
 
 import settings from '../settings'
-import { parseSeconds } from '../utils/time'
 import EpochsManagerABI from '../utils/abis/EpochsManager.json'
+import { parseSeconds } from '../utils/time'
 
 const useEpochs = () => {
   const { data } = useContractReads({
@@ -25,7 +25,7 @@ const useEpochs = () => {
       {
         address: settings.contracts.epochsManager,
         abi: EpochsManagerABI,
-        functionName: 'startFirstEpochDate',
+        functionName: 'startFirstEpochTimestamp',
         args: []
       }
     ]
@@ -33,33 +33,33 @@ const useEpochs = () => {
 
   const currentEpoch = useMemo(() => (data && data[0] ? data[0].toNumber() : null), [data])
   const epochDuration = useMemo(() => (data && data[1] ? data[1].toNumber() : null), [data])
-  const startFirstEpochDate = useMemo(() => (data && data[2] ? data[2].toNumber() : null), [data])
+  const startFirstEpochTimestamp = useMemo(() => (data && data[2] ? data[2].toNumber() : null), [data])
 
   const secondsPassedUntilNow = useMemo(
-    () => (startFirstEpochDate ? moment().unix() - startFirstEpochDate : null),
-    [startFirstEpochDate]
+    () => (startFirstEpochTimestamp ? moment().unix() - startFirstEpochTimestamp : null),
+    [startFirstEpochTimestamp]
   )
   const secondsPassedUntilStartCurrentEpoch = useMemo(
     () =>
-      (currentEpoch || currentEpoch === 0) && epochDuration && startFirstEpochDate
+      (currentEpoch || currentEpoch === 0) && epochDuration && startFirstEpochTimestamp
         ? currentEpoch > 0
           ? currentEpoch * epochDuration
-          : moment().unix() - startFirstEpochDate
+          : moment().unix() - startFirstEpochTimestamp
         : null,
-    [currentEpoch, epochDuration, startFirstEpochDate]
+    [currentEpoch, epochDuration, startFirstEpochTimestamp]
   )
 
   const currentEpochEndsIn = useMemo(
     () =>
       (currentEpoch || currentEpoch === 0) &&
-      startFirstEpochDate &&
+      startFirstEpochTimestamp &&
       secondsPassedUntilNow &&
       secondsPassedUntilStartCurrentEpoch
         ? currentEpoch === 0
-          ? epochDuration - (moment().unix() - startFirstEpochDate)
+          ? epochDuration - (moment().unix() - startFirstEpochTimestamp)
           : epochDuration - (secondsPassedUntilNow - secondsPassedUntilStartCurrentEpoch)
         : null,
-    [currentEpoch, epochDuration, secondsPassedUntilNow, secondsPassedUntilStartCurrentEpoch, startFirstEpochDate]
+    [currentEpoch, epochDuration, secondsPassedUntilNow, secondsPassedUntilStartCurrentEpoch, startFirstEpochTimestamp]
   )
 
   const currentEpochEndsAt = useMemo(
@@ -78,7 +78,7 @@ const useEpochs = () => {
       : '-',
     formattedCurrentEpochEndIn: currentEpochEndsIn ? parseSeconds(currentEpochEndsIn) : '-',
     formattedEpochDuration: epochDuration ? parseSeconds(epochDuration) : '-',
-    startFirstEpochDate
+    startFirstEpochTimestamp
   }
 }
 

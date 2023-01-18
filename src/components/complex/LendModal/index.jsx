@@ -1,30 +1,26 @@
 import React, { useCallback, useEffect } from 'react'
-import { Row, Col } from 'react-bootstrap'
-import styled from 'styled-components'
+import { Col, Row } from 'react-bootstrap'
 import { toast } from 'react-toastify'
+import styled from 'styled-components'
 
-import {
-  useLend,
-  useAccountLendedAmountInTheCurrentEpoch,
-  useAccountLendedAmountInTheNextEpochOf
-} from '../../../hooks/use-borrowing-manager'
 import { useBalances } from '../../../hooks/use-balances'
+import {
+  useAccountLendedAmountInTheCurrentEpoch,
+  useAccountLendedAmountInTheNextEpochOf,
+  useLend,
+  useEstimateApy
+} from '../../../hooks/use-borrowing-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
-import { toastifyTransaction } from '../../../utils/transaction'
 import { SECONDS_IN_ONE_DAY } from '../../../utils/time'
+import { toastifyTransaction } from '../../../utils/transaction'
 
-import Modal from '../../base/Modal'
-import Text from '../../base/Text'
-import Button from '../../base/Button'
-import MiniButton from '../../base/MiniButton'
-import Line from '../../base/Line'
 import AdvancedInput from '../../base/AdvancedInput'
-// import Input from '../../base/Input'
+import Button from '../../base/Button'
+import Line from '../../base/Line'
+import MiniButton from '../../base/MiniButton'
+import Modal from '../../base/Modal'
 import Slider from '../../base/Slider'
-
-/*const InfoText = styled(Text)`
-  font-size: 12px;
-`*/
+import Text from '../../base/Text'
 
 const MaxButton = styled(MiniButton)`
   margin-left: 0.75rem;
@@ -33,11 +29,6 @@ const MaxButton = styled(MiniButton)`
     bottom: 157px;
   }
 `
-
-/*const ReceiverInput = styled(Input)`
-  height: 50px;
-  font-size: 17px;
-`*/
 
 const LendModal = ({ show, onClose }) => {
   const { currentEpoch, epochDuration, formattedCurrentEpoch, formattedEpochDuration } = useEpochs()
@@ -49,7 +40,6 @@ const LendModal = ({ show, onClose }) => {
     approveEnabled,
     approveError,
     duration,
-    epochs,
     isApproving,
     isLending,
     lend,
@@ -62,6 +52,15 @@ const LendModal = ({ show, onClose }) => {
   } = useLend()
   const { formattedValue: formattedLendedAmountCurrentEpoch } = useAccountLendedAmountInTheCurrentEpoch()
   const { formattedValue: formattedLendedAmountNextEpoch } = useAccountLendedAmountInTheNextEpochOf()
+  const {
+    setAmount: setAmountEstimatedApy,
+    setDuration: setDurationEstimateApy,
+    formattedApy,
+    formattedStartEpoch,
+    formattedEndEpoch,
+    endEpoch,
+    startEpoch
+  } = useEstimateApy()
 
   useEffect(() => {
     if (lendError) {
@@ -92,21 +91,33 @@ const LendModal = ({ show, onClose }) => {
   useEffect(() => {
     if (!show) {
       setAmount('0')
+      setAmountEstimatedApy('0')
       setDuration(7)
     }
-  }, [show, setAmount, setDuration])
+  }, [show, setAmount, setDuration, setAmountEstimatedApy])
 
   const onMax = useCallback(() => {
     setAmount(pntBalance)
-  }, [pntBalance, setAmount])
+    setAmountEstimatedApy(pntBalance)
+  }, [pntBalance, setAmount, setAmountEstimatedApy])
 
   const onChangeDuration = useCallback(
     (_days) => {
       setDuration(_days)
+      setDurationEstimateApy(_days)
       const newEpochs = Math.floor((_days * SECONDS_IN_ONE_DAY) / epochDuration) - 1
       setEpochs(newEpochs < currentEpoch ? currentEpoch : newEpochs)
     },
-    [epochDuration, currentEpoch, setDuration, setEpochs]
+    [epochDuration, currentEpoch, setDuration, setEpochs, setDurationEstimateApy]
+  )
+
+  const onChangeAmount = useCallback(
+    (_e) => {
+      const newAmount = _e.target.value
+      setAmount(newAmount)
+      setAmountEstimatedApy(newAmount)
+    },
+    [setAmount, setAmountEstimatedApy]
   )
 
   return (
@@ -165,7 +176,7 @@ const LendModal = ({ show, onClose }) => {
           <AdvancedInput
             contentLeft={<MaxButton onClick={onMax}>MAX</MaxButton>}
             value={amount}
-            onChange={(_e) => setAmount(_e.target.value)}
+            onChange={onChangeAmount}
           />
         </Col>
       </Row>
@@ -179,7 +190,7 @@ const LendModal = ({ show, onClose }) => {
       </Row>
       <Row className="mb-2">
         <Col>
-          <Slider min={1} max={730} defaultValue={duration} value={duration} onChange={onChangeDuration} />
+          <Slider min={7} max={730} defaultValue={duration} value={duration} onChange={onChangeDuration} />
         </Col>
       </Row>
       <Row className="mt-3">
@@ -187,7 +198,7 @@ const LendModal = ({ show, onClose }) => {
           <Text>APY</Text>
         </Col>
         <Col xs={6} className="text-end">
-          <Text variant={'text2'}>TODO%</Text>
+          <Text variant={'text2'}>{formattedApy}</Text>
         </Col>
       </Row>
       <Row>
@@ -195,7 +206,7 @@ const LendModal = ({ show, onClose }) => {
           <Text>Number of epochs</Text>
         </Col>
         <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{epochs}</Text>
+          <Text variant={'text2'}>{endEpoch - startEpoch + 1}</Text>
         </Col>
       </Row>
       <Row>
@@ -203,7 +214,7 @@ const LendModal = ({ show, onClose }) => {
           <Text>Lending starts at epoch</Text>
         </Col>
         <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{currentEpoch || currentEpoch === 0 ? `#${currentEpoch + 1}` : '-'}</Text>
+          <Text variant={'text2'}>{formattedStartEpoch}</Text>
         </Col>
       </Row>
       <Row>
@@ -211,7 +222,7 @@ const LendModal = ({ show, onClose }) => {
           <Text>Lending ends at epoch</Text>
         </Col>
         <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{currentEpoch || currentEpoch === 0 ? `#${currentEpoch + epochs}` : '-'}</Text>
+          <Text variant={'text2'}>{formattedEndEpoch}</Text>
         </Col>
       </Row>
       {/*<Row className="mt-1">

@@ -352,7 +352,7 @@
   },
   {
     "inputs": [],
-    "name": "startFirstEpochDate",
+    "name": "startFirstEpochTimestamp",
     "outputs": [
       {
         "internalType": "uint256",

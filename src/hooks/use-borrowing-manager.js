@@ -4,6 +4,7 @@ import {
   useAccount,
   useBalance,
   useContractRead,
+  useContractReads,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction
@@ -14,6 +15,7 @@ import { groupBy } from 'lodash'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
+import StakingManagerABI from '../utils/abis/StakingManager.json'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
 import { useEpochs } from './use-epochs'
 import { formatAssetAmount } from '../utils/amount'
@@ -136,40 +138,66 @@ const useAccountLendedAmountInTheNextEpochOf = () => {
 
 const useAccountLoanEndEpoch = () => {
   const { address } = useAccount()
+  const { currentEpoch } = useEpochs()
 
   const { data } = useContractRead({
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
-    functionName: 'loanEndEpochOf',
-    args: [address]
+    functionName: 'weightByEpochsRangeOf',
+    args: [address, 0, currentEpoch + 23],
+    enabled: (currentEpoch || currentEpoch === 0) && address
   })
 
+  const endEpoch = useMemo(
+    () => (data ? data.length - 1 - data.findIndex((_, _index) => data[data.length - 1 - _index] > 0) : null),
+    [data]
+  )
+
   return {
-    formattedValue: data || data?.toNumber() === 0 ? `#${data.toNumber()}` : '-',
-    value: data ? data.toNumber() : null
+    formattedValue: endEpoch || endEpoch === 0 ? `#${endEpoch}` : '-',
+    value: endEpoch ? endEpoch : null
   }
 }
 
 const useAccountLoanStartEpoch = () => {
   const { address } = useAccount()
+  const { currentEpoch } = useEpochs()
 
   const { data } = useContractRead({
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
-    functionName: 'loanStartEpochOf',
-    args: [address]
+    functionName: 'weightByEpochsRangeOf',
+    args: [address, 0, currentEpoch + 23],
+    enabled: (currentEpoch || currentEpoch === 0) && address
   })
 
+  const startEpoch = useMemo(() => {
+    if (!data) return null
+    let isFirst = false
+    const index = data.findIndex((_, _index) => {
+      const weight = data[data.length - 1 - _index]
+      if (weight > 0 && !isFirst) {
+        isFirst = true
+        return false
+      }
+      if (weight === 0 && isFirst) {
+        return true
+      }
+      return false
+    })
+    return data.length - index
+  }, [data])
+
   return {
-    formattedValue: data || data?.toNumber() === 0 ? `#${data.toNumber()}` : '-',
-    value: data ? data.toNumber() : 0
+    formattedValue: startEpoch || startEpoch === 0 ? `#${startEpoch}` : '-',
+    value: startEpoch ? startEpoch : null
   }
 }
 
 const useAccountLendedAmountByEpoch = (_epoch) => {
-  const { address } = useAccount()
+  // const { address } = useAccount()
 
-  const { data } = useContractRead({
+  /*const { data } = useContractRead({
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
     functionName: 'lendedAmountByEpochOf',
@@ -181,6 +209,10 @@ const useAccountLendedAmountByEpoch = (_epoch) => {
   return {
     value: amount.toFixed(),
     formattedValue: formatAssetAmount(amount, 'PNT')
+  }*/
+  return {
+    value: 0,
+    formattedValue: 'TODO'
   }
 }
 
@@ -217,11 +249,13 @@ const useTotalBorrowedAmountByEpoch = (_epoch) => {
 }
 
 const useAccountLendedAmountByStartAndEndLoanEpochs = () => {
-  const { address } = useAccount()
-  const { value: startEpoch } = useAccountLoanStartEpoch()
-  const { value: endEpoch } = useAccountLoanEndEpoch()
+  // const { address } = useAccount()
+  // const { value: startEpoch } = useAccountLoanStartEpoch()
+  // const { value: endEpoch } = useAccountLoanEndEpoch()
 
-  const { data } = useContractRead({
+  return null
+
+  /*const { data } = useContractRead({
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
     functionName: 'lendedAmountByEpochsRangeOf',
@@ -244,7 +278,7 @@ const useAccountLendedAmountByStartAndEndLoanEpochs = () => {
     }, {})
   }, [data, startEpoch])
 
-  return lendedAmount
+  return lendedAmount*/
 }
 
 const useTotalLendedAmountByStartAndEndEpochs = () => {
@@ -487,6 +521,142 @@ const useClaimInterestByEpoch = () => {
   })
 }*/
 
+const useEstimateApy = () => {
+  // const { value: startEpoch } = useAccountLoanStartEpoch()
+  // const { value: endEpoch } = useAccountLoanEndEpoch()
+  const { currentEpoch, epochDuration, startFirstEpochTimestamp } = useEpochs()
+  const { address } = useAccount()
+  const [duration, setDuration] = useState(0) // in days
+  const [amount, setAmount] = useState(0)
+
+  const { PNT: pntUsd } = useRates(['PNT'], { apiKey: process.env.REACT_APP_CRYPTO_COMPARE_API_KEY })
+
+  const [_startEpoch, _endEpoch] = useMemo(
+    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
+    [currentEpoch]
+  )
+
+  const { data } = useContractReads({
+    cacheTime: 1000 * 60 * 2,
+    contracts: [
+      {
+        address: settings.contracts.stakingManager,
+        abi: StakingManagerABI,
+        functionName: 'addressStakeLocks',
+        args: [address, 0],
+        enabled: address && _startEpoch && _endEpoch
+      },
+      {
+        address: settings.contracts.borrowingManager,
+        abi: BorrowingManagerABI,
+        functionName: 'totalWeightByEpochsRange',
+        args: [_startEpoch, _endEpoch],
+        enabled: _startEpoch && _endEpoch
+      },
+      {
+        address: settings.contracts.borrowingManager,
+        abi: BorrowingManagerABI,
+        functionName: 'weightByEpochsRangeOf',
+        args: [address, _startEpoch, _endEpoch],
+        enabled: _startEpoch && _endEpoch
+      }
+    ]
+  })
+
+  const lock = useMemo(() => (data ? data[0] : []), [data])
+  const totalWeights = useMemo(() => (data ? data[1] : []), [data])
+  const userWeights = useMemo(() => (data ? data[2] : []), [data])
+
+  const { startEpoch, endEpoch, resetEpochs } = useMemo(() => {
+    const lockDate = BigNumber(lock?.lockDate?.toString())
+    const lockDuration = BigNumber(lock?.duration?.toString())
+
+    const lockTime = BigNumber(duration).multipliedBy(SECONDS_IN_ONE_DAY)
+
+    const stakeEpoch = lockDate.minus(startFirstEpochTimestamp).dividedToIntegerBy(epochDuration)
+    const oldStartEpoch = stakeEpoch.plus(1)
+    const oldEndEpoch = stakeEpoch
+      .plus(lockDate.plus(lockDuration).minus(startFirstEpochTimestamp).dividedToIntegerBy(epochDuration))
+      .minus(1)
+    const newStartEpoch = BigNumber(currentEpoch).plus(1)
+    const newEndEpoch = BigNumber(currentEpoch).plus(lockTime.dividedToIntegerBy(epochDuration)).minus(1)
+
+    let startEpoch = BigNumber(currentEpoch).plus(1)
+    let endEpoch = lockTime.dividedToIntegerBy(epochDuration)
+    let resetEpochs = null
+
+    if (newStartEpoch.isLessThanOrEqualTo(oldEndEpoch) && newEndEpoch.isLessThanOrEqualTo(oldEndEpoch)) {
+      startEpoch = oldStartEpoch
+      endEpoch = oldEndEpoch
+      resetEpochs = [startEpoch.toNumber(), endEpoch.toNumber()]
+    }
+
+    if (newStartEpoch.isLessThanOrEqualTo(oldEndEpoch) && newEndEpoch.isGreaterThan(oldEndEpoch)) {
+      startEpoch = oldStartEpoch
+      endEpoch = newEndEpoch
+      resetEpochs = [oldStartEpoch.toNumber(), oldEndEpoch.toNumber()]
+    }
+
+    return { startEpoch: startEpoch.toNumber(), endEpoch: endEpoch.toNumber(), resetEpochs }
+  }, [lock, currentEpoch, duration, epochDuration, startFirstEpochTimestamp])
+
+  const apy = useMemo(() => {
+    if (!totalWeights || !userWeights) return BigNumber()
+    if (BigNumber(amount).isEqualTo(0)) return BigNumber()
+    if (endEpoch - startEpoch <= 0) return BigNumber(0)
+
+    const lockAmount = BigNumber(lock?.amount?.toString())
+    const mr = 150 // total revenues per epoch
+
+    const poolRevenues = []
+    let totalUserRevenues = new BigNumber(0)
+
+    const totalWeightsWithReset = totalWeights.slice().map((_val) => BigNumber(_val))
+    if (resetEpochs) {
+      for (let epoch = resetEpochs[0]; epoch <= resetEpochs[1]; epoch++) {
+        if (totalWeightsWithReset[epoch].isGreaterThan(0)) {
+          totalWeightsWithReset[epoch] = totalWeightsWithReset[epoch].minus(userWeights[epoch])
+        }
+      }
+    }
+
+    for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
+      poolRevenues[epoch] = BigNumber(mr).multipliedBy(0.5) // getPoolRevenuesForEpoch(epoca, mr) total in dollar of the interests earned by the BorrowingManager
+
+      const userWeight = BigNumber(amount)
+        .plus(BigNumber(lockAmount).dividedToIntegerBy(10 ** 18))
+        .multipliedBy(endEpoch - epoch + 1)
+
+      totalWeightsWithReset[epoch] = totalWeightsWithReset[epoch]
+        ? totalWeightsWithReset[epoch].plus(userWeight)
+        : userWeight
+
+      const userWeightPercentage =
+        !totalWeightsWithReset[epoch] || totalWeightsWithReset[epoch].isEqualTo(0)
+          ? 1
+          : userWeight.dividedBy(totalWeightsWithReset[epoch])
+
+      const userEpochRevenues = poolRevenues[epoch].multipliedBy(userWeightPercentage)
+      totalUserRevenues = totalUserRevenues.plus(userEpochRevenues)
+    }
+
+    const totalUserRevenuesAnnualized = totalUserRevenues.multipliedBy(24).dividedBy(endEpoch - startEpoch + 1)
+
+    return BigNumber(totalUserRevenuesAnnualized).dividedBy(BigNumber(amount).multipliedBy(pntUsd))
+  }, [amount, pntUsd, totalWeights, startEpoch, endEpoch, resetEpochs, userWeights, lock])
+
+  return {
+    setAmount,
+    setDuration,
+    apy: apy.toFixed(),
+    formattedApy: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-',
+    startEpoch,
+    endEpoch,
+    formattedStartEpoch: startEpoch || startEpoch === 0 ? `#${startEpoch}` : '-',
+    formattedEndEpoch: endEpoch || endEpoch === 0 ? `#${endEpoch}` : '-'
+  }
+}
+
 export {
   useAccountLendedAmountByStartAndEndLoanEpochs,
   useAccountLendedAmountInTheCurrentEpoch,
@@ -503,5 +673,6 @@ export {
   useTotalLendedAmountByEpoch,
   useTotalLendedAmountByStartAndEndEpochs,
   useUtilizationRatio,
-  useUtilizationRatioInTheCurrentEpoch
+  useUtilizationRatioInTheCurrentEpoch,
+  useEstimateApy
 }
