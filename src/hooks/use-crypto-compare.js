@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import axios from 'axios'
 
 import { CryptoCompareContext } from '../components/context/CryptoCompare'
@@ -15,12 +15,11 @@ export function useRates(_symbols = [], _opts = {}) {
         )
 
         const ratesToStore = Object.keys(data).reduce((_acc, _symbol) => {
-          // console.log(data[_symbol])
           if (!data[_symbol]) return _acc
           _acc[_symbol] = data[_symbol]?.USD
           return _acc
         }, {})
-        setRates(ratesToStore)
+        setRates({ ...rates, ...ratesToStore })
       } catch (_err) {
         console.error(_err)
       }
@@ -35,5 +34,14 @@ export function useRates(_symbols = [], _opts = {}) {
     }
   }, [_symbols, apiKey, rates, setRates])
 
-  return rates
+  return useMemo(
+    () =>
+      Object.keys(rates).reduce((_acc, _symbol) => {
+        if (_symbols.includes(_symbol)) {
+          _acc[_symbol] = rates[_symbol]
+        }
+        return _acc
+      }, {}),
+    [rates, _symbols]
+  )
 }
