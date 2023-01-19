@@ -3,6 +3,18 @@ import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { ToastContainer } from 'react-toastify'
 import styled from 'styled-components'
+import {
+  Chart as ChartJS,
+  LinearScale,
+  CategoryScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Legend,
+  Tooltip,
+  LineController,
+  BarController
+} from 'chart.js'
 
 import ThemeProvider, { ThemedGlobalStyle } from './theme/ThemeProvider'
 import store from './store'
@@ -17,6 +29,18 @@ import 'react-toastify/dist/ReactToastify.css'
 import 'rc-slider/assets/index.css'
 
 window.Buffer = window.Buffer || require('buffer').Buffer
+
+ChartJS.register(
+  LinearScale,
+  CategoryScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Legend,
+  Tooltip,
+  LineController,
+  BarController
+)
 
 const StyledContainer = styled(ToastContainer)`
   &&&.Toastify__toast-container {

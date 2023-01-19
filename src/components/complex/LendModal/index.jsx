@@ -1,26 +1,14 @@
-import React, { useCallback, useContext, useEffect, useMemo } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import styled, { ThemeContext } from 'styled-components'
-import {
-  Chart as ChartJS,
-  LinearScale,
-  CategoryScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Legend,
-  Tooltip,
-  LineController,
-  BarController
-} from 'chart.js'
 import { Chart } from 'react-chartjs-2'
 import BigNumber from 'bignumber.js'
 
 import { useBalances } from '../../../hooks/use-balances'
 import {
-  useAccountLendedAmountInTheCurrentEpoch,
-  useAccountLendedAmountInTheNextEpochOf,
+  // useAccountLendedAmountInTheCurrentEpoch,
+  // useAccountLendedAmountInTheNextEpochOf,
   useLend,
   useEstimateApy
 } from '../../../hooks/use-borrowing-manager'
@@ -51,18 +39,6 @@ const ChartContainer = styled.div`
   height: 250px;
 `
 
-ChartJS.register(
-  LinearScale,
-  CategoryScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Legend,
-  Tooltip,
-  LineController,
-  BarController
-)
-
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -86,7 +62,7 @@ const chartOptions = {
     }
   },
   scales: {
-    y: {
+    poolWeight: {
       type: 'linear',
       display: true,
       min: 0,
@@ -96,7 +72,7 @@ const chartOptions = {
         text: 'Your pool weight (%)'
       }
     },
-    y1: {
+    avgApy: {
       type: 'linear',
       display: true,
       position: 'right',
@@ -137,8 +113,8 @@ const LendModal = ({ show, onClose }) => {
     setDuration,
     setEpochs
   } = useLend()
-  const { formattedValue: formattedLendedAmountCurrentEpoch } = useAccountLendedAmountInTheCurrentEpoch()
-  const { formattedValue: formattedLendedAmountNextEpoch } = useAccountLendedAmountInTheNextEpochOf()
+  // const { formattedValue: formattedLendedAmountCurrentEpoch } = useAccountLendedAmountInTheCurrentEpoch()
+  // const { formattedValue: formattedLendedAmountNextEpoch } = useAccountLendedAmountInTheNextEpochOf()
   const {
     apy,
     setAmount: setAmountEstimatedApy,
@@ -149,6 +125,7 @@ const LendModal = ({ show, onClose }) => {
     startEpoch,
     userWeightPercentages
   } = useEstimateApy()
+  const chartRef = useRef()
 
   const chartEpochs = useMemo(() => {
     if (!(currentEpoch || currentEpoch === 0) || !(endEpoch || endEpoch === 0)) return []
@@ -173,25 +150,26 @@ const LendModal = ({ show, onClose }) => {
         {
           label: 'Pool Weight',
           data: effectiveUserWeightPercentages.map((_val) => _val * 100),
-          borderColor: 'rgb(75, 192, 192)',
+          borderColor: theme.grey2,
           type: 'bar',
           /*segment: {
             borderColor: (ctx) => skipped(ctx, 'red') || down(ctx, 'yellow'),
             borderDash: (ctx) => skipped(ctx, [6, 6])
           },*/
-          spanGaps: true
+          spanGaps: true,
+          yAxisID: 'poolWeight'
         },
         {
           type: 'line',
           label: 'Avg APY',
-          borderColor: 'rgb(75, 192, 192)',
-          yAxisID: 'y1',
+          borderColor: theme.primary1,
+          yAxisID: 'avgApy',
           data: !BigNumber(apy?.value).isNaN() ? Array(chartEpochs.length).fill(apy?.value) : null,
           borderDash: [6, 6]
         }
       ]
     }
-  }, [chartEpochs, userWeightPercentages, currentEpoch, startEpoch, apy?.value])
+  }, [chartEpochs, userWeightPercentages, currentEpoch, startEpoch, apy?.value, theme])
 
   useEffect(() => {
     if (lendError) {
@@ -226,6 +204,15 @@ const LendModal = ({ show, onClose }) => {
       setDuration(7)
     }
   }, [show, setAmount, setDuration, setAmountEstimatedApy])
+
+  useEffect(() => {
+    const chart = chartRef.current
+
+    if (chart) {
+      console.log('CanvasRenderingContext2D', chart.ctx)
+      console.log('HTMLCanvasElement', chart.canvas)
+    }
+  }, [])
 
   const onMax = useCallback(() => {
     setAmount(pntBalance)
@@ -279,22 +266,6 @@ const LendModal = ({ show, onClose }) => {
       </Row>
       <Row>
         <Col xs={8}>
-          <Text>Lended PNT for the current epoch</Text>
-        </Col>
-        <Col xs={4} className="text-end">
-          <Text variant={'text2'}>{formattedLendedAmountCurrentEpoch}</Text>
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={8}>
-          <Text>Lended PNT for the next epoch</Text>
-        </Col>
-        <Col xs={4} className="text-end">
-          <Text variant={'text2'}>{formattedLendedAmountNextEpoch}</Text>
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={8}>
           <Text>Epoch duration</Text>
         </Col>
         <Col xs={4} className="text-end">
@@ -335,7 +306,7 @@ const LendModal = ({ show, onClose }) => {
       <Row>
         <Col>
           <ChartContainer className="mt-2">
-            <Chart type="bar" data={chartData} options={chartOptions} />
+            {show && <Chart id="lendingEstimateApyChart" ref={chartRef} data={chartData} options={chartOptions} />}
           </ChartContainer>
         </Col>
       </Row>
@@ -363,15 +334,6 @@ const LendModal = ({ show, onClose }) => {
           <Text variant={'text2'}>{formattedEndEpoch}</Text>
         </Col>
       </Row>
-      {/*<Row className="mt-1">
-        <Col>
-          <ReceiverInput
-            placeholder="receiver here ...."
-            value={receiver}
-            onChange={(_e) => setReceiver(_e.target.value)}
-          />
-        </Col>
-          </Row>*/}
       <Row className="mt-3">
         <Col>
           <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>
@@ -386,14 +348,6 @@ const LendModal = ({ show, onClose }) => {
           </Button>
         </Col>
       </Row>
-      {/*<Row className="mt-2 mb-2">
-        <Col className="text-center">
-          <InfoText>
-            Withdrawals from pNetwork DAO are subjected to a cooldown. Withdrawals will become available after 7 days
-            from staking.
-          </InfoText>
-        </Col>
-        </Row>*/}
     </Modal>
   )
 }

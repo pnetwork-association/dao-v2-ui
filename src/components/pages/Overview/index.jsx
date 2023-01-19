@@ -1,24 +1,26 @@
 import React, { useState } from 'react'
-import { Row, Col } from 'react-bootstrap'
+import { Col, Row } from 'react-bootstrap'
 import styled from 'styled-components'
+import 'chart.js/auto'
 //import BigNumber from 'bignumber.js'
 
 import { useOverview } from '../../../hooks/use-overview'
 
-import PageTemplate from '../../templates/PageTemplate'
-import Line from '../../base/Line'
-import Box from '../../base/Box'
-import Text from '../../base/Text'
-import ProgressBar from '../../base/ProgressBar'
-import Button from '../../base/Button'
-import Link from '../../base/Link'
-import Icon from '../../base/Icon'
-import Proposals from '../../complex/Proposals'
 import A from '../../base/A'
+import Box from '../../base/Box'
+import Button from '../../base/Button'
+import Icon from '../../base/Icon'
+import Line from '../../base/Line'
+import Link from '../../base/Link'
+import ProgressBar from '../../base/ProgressBar'
+import Text from '../../base/Text'
+import LendModal from '../../complex/LendModal'
+import Proposals from '../../complex/Proposals'
+import RegisterSentinelModal from '../../complex/RegisterSentinelModal'
+import SentinelHistoricalChart from '../../complex/SentinelHistoricalChart'
 import StakeModal from '../../complex/StakeModal'
 import UnstakeModal from '../../complex/UnstakeModal'
-import RegisterSentinelModal from '../../complex/RegisterSentinelModal'
-import LendModal from '../../complex/LendModal'
+import PageTemplate from '../../templates/PageTemplate'
 
 const StyledIcon = styled(Icon)`
   width: 20px;
@@ -88,34 +90,6 @@ const Overview = () => {
           </Col>
         </Row>
         <Line />
-
-        {/*BigNumber(lendedAmountCurrentEpoch).isGreaterThan(0) && (
-            <Fragment>
-              <Row>
-                <Col xs={6}>
-                  <Text>Lended amount in the current epoch</Text>
-                </Col>
-                <Col xs={6} className="text-end">
-                  <Text variant={'text2'}>{formattedLendedAmountCurrentEpoch}</Text>
-                </Col>
-              </Row>
-              <Line />
-            </Fragment>
-          )*/}
-        {/*loanEndEpoch > 0 && loanEndEpoch >= currentEpoch && (
-            <Fragment>
-              <Row>
-                <Col xs={6}>
-                  <Text>Loan ends at epoch</Text>
-                </Col>
-                <Col xs={6} className="text-end">
-                  <Text variant={'text2'}>#{loanEndEpoch}</Text>
-                </Col>
-              </Row>
-              <Line />
-            </Fragment>
-          )*/}
-
         <Row>
           <Col xs={6}>
             <Text>Voting power</Text>
@@ -183,6 +157,9 @@ const Overview = () => {
             </StyledA>
           </Col>
         </Row>
+      </Box>
+      <Box className="mt-3">
+        <SentinelHistoricalChart />
       </Box>
       <div className="mt-4">
         <Proposals />

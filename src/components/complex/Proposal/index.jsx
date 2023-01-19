@@ -324,7 +324,7 @@ const Proposal = ({
           </Row>
         )}
       </DataContainer>
-      <Modal show={Boolean(readMoreContent)} title={`#${id}`} onClose={() => setReadMoreContent(null)}>
+      <Modal show={Boolean(readMoreContent)} title={`#${id}`} onClose={() => setReadMoreContent(null)} size="xl">
         <ReadMoreContent dangerouslySetInnerHTML={{ __html: readMoreContent }}></ReadMoreContent>
       </Modal>
       <Modal show={showScript} title={'Script'} onClose={() => setShowScript(false)}>

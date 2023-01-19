@@ -708,9 +708,9 @@ const useApy = () => {
     ]
   })
 
-  const lock = useMemo(() => (data ? data[0] : []), [data])
-  const totalWeights = useMemo(() => (data ? data[1].map((_val) => BigNumber(_val)) : []), [data])
-  const userWeights = useMemo(() => (data ? data[2].map((_val) => BigNumber(_val)) : []), [data])
+  const lock = useMemo(() => (data && data[0] ? data[0] : []), [data])
+  const totalWeights = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val)) : []), [data])
+  const userWeights = useMemo(() => (data && data[2] ? data[2].map((_val) => BigNumber(_val)) : []), [data])
 
   return useMemo(() => {
     const lockAmount = BigNumber(lock?.amount?.toString()).dividedBy(10 ** 18)
