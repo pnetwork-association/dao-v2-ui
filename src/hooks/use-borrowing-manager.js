@@ -721,18 +721,25 @@ const useApy = () => {
     ]
   })
 
+  const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
+    startEpoch,
+    endEpoch,
+    mr: 150
+  })
+
   const lock = useMemo(() => (data && data[0] ? data[0] : []), [data])
   const totalWeights = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val)) : []), [data])
   const userWeights = useMemo(() => (data && data[2] ? data[2].map((_val) => BigNumber(_val)) : []), [data])
 
   return useMemo(() => {
     const lockAmount = BigNumber(lock?.amount?.toString()).dividedBy(10 ** 18)
-    const mr = 150 // total revenues per epoch
 
-    const poolRevenues = []
     let totalUserRevenues = new BigNumber(0)
     for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
-      poolRevenues[epoch] = BigNumber(mr).multipliedBy(0.5) // getPoolRevenuesForEpoch(epoca, mr) total in dollar of the interests earned by the BorrowingManager
+      const poolRevenue =
+        feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[epoch]
+          ? feeDistributionByMonthlyRevenues[epoch].lendersInterestsAmount
+          : BigNumber(0)
 
       const totalWeight = totalWeights[epoch]
       const userWeight = userWeights[epoch]
@@ -741,7 +748,7 @@ const useApy = () => {
           ? new BigNumber(1)
           : userWeight.dividedBy(totalWeight)
 
-      const userEpochRevenues = poolRevenues[epoch].multipliedBy(userWeightPercentage)
+      const userEpochRevenues = poolRevenue.multipliedBy(userWeightPercentage)
       totalUserRevenues = totalUserRevenues.plus(userEpochRevenues)
     }
 
@@ -752,7 +759,7 @@ const useApy = () => {
       apy: apy.toFixed(),
       formattedValue: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-'
     }
-  }, [pntUsd, totalWeights, startEpoch, endEpoch, userWeights, lock])
+  }, [pntUsd, totalWeights, startEpoch, endEpoch, userWeights, lock, feeDistributionByMonthlyRevenues])
 }
 
 export {
