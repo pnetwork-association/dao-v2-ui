@@ -1,4 +1,7 @@
-import { useMemo, useState, useEffect } from 'react'
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+import { groupBy } from 'lodash'
+import { useEffect, useMemo, useState } from 'react'
 import {
   erc20ABI,
   useAccount,
@@ -9,18 +12,15 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction
 } from 'wagmi'
-import { ethers } from 'ethers'
-import BigNumber from 'bignumber.js'
-import { groupBy } from 'lodash'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
+import { formatAssetAmount, formatCurrency } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
-import { useEpochs } from './use-epochs'
-import { formatAssetAmount } from '../utils/amount'
 import { useRates } from './use-crypto-compare'
-import { formatCurrency } from '../utils/amount'
+import { useEpochs } from './use-epochs'
+import { useFeesDistributionByMonthlyRevenues } from './use-fees-manager'
 
 const useLend = () => {
   const [amount, setAmount] = useState('0')
@@ -522,8 +522,6 @@ const useClaimInterestByEpoch = () => {
 }*/
 
 const useEstimateApy = () => {
-  // const { value: startEpoch } = useAccountLoanStartEpoch()
-  // const { value: endEpoch } = useAccountLoanEndEpoch()
   const { currentEpoch, epochDuration, startFirstEpochTimestamp } = useEpochs()
   const { address } = useAccount()
   const [duration, setDuration] = useState(0) // in days
@@ -600,17 +598,20 @@ const useEstimateApy = () => {
     return { startEpoch: startEpoch.toNumber(), endEpoch: endEpoch.toNumber(), resetEpochs }
   }, [lock, currentEpoch, duration, epochDuration, startFirstEpochTimestamp])
 
+  const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
+    startEpoch,
+    endEpoch,
+    mr: 150
+  })
+
   const { apy, userWeightPercentages } = useMemo(() => {
     if (BigNumber(amount).isEqualTo(0)) return { apy: BigNumber(), userWeightPercentages: [] }
     if (endEpoch - startEpoch <= 0) return { apy: BigNumber(0), userWeightPercentages: [] }
 
     const lockAmount = BigNumber(lock?.amount?.toString())
-    const mr = 150 // total revenues per epoch
 
-    const poolRevenues = []
     const userWeightPercentages = []
     let totalUserRevenues = new BigNumber(0)
-
     const totalWeightsWithReset = totalWeights ? totalWeights.slice().map((_val) => BigNumber(_val)) : []
     if (resetEpochs) {
       for (let epoch = resetEpochs[0]; epoch <= resetEpochs[1]; epoch++) {
@@ -621,8 +622,10 @@ const useEstimateApy = () => {
     }
 
     for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
-      poolRevenues[epoch] = BigNumber(mr).multipliedBy(0.5) // getPoolRevenuesForEpoch(epoca, mr) total in dollar of the interests earned by the BorrowingManager
-
+      const poolRevenue =
+        feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[epoch]
+          ? feeDistributionByMonthlyRevenues[epoch].lendersInterestsAmount
+          : BigNumber(0)
       const userWeight = BigNumber(amount)
         .plus(!lockAmount.isNaN() ? lockAmount.dividedToIntegerBy(10 ** 18) : 0)
         .multipliedBy(endEpoch - epoch + 1)
@@ -641,7 +644,7 @@ const useEstimateApy = () => {
 
       userWeightPercentages[epoch] = userWeightPercentage.toNumber()
 
-      const userEpochRevenues = poolRevenues[epoch].multipliedBy(userWeightPercentage)
+      const userEpochRevenues = poolRevenue.multipliedBy(userWeightPercentage)
       totalUserRevenues = totalUserRevenues.plus(userEpochRevenues)
     }
 
@@ -651,19 +654,29 @@ const useEstimateApy = () => {
       apy: BigNumber(totalUserRevenuesAnnualized).dividedBy(BigNumber(amount).multipliedBy(pntUsd)),
       userWeightPercentages
     }
-  }, [amount, pntUsd, totalWeights, startEpoch, endEpoch, resetEpochs, userWeights, lock])
-
-  return {
-    setAmount,
-    setDuration,
-    apy: {
-      value: apy.toFixed(2),
-      formattedValue: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-'
-    },
+  }, [
+    amount,
+    pntUsd,
+    totalWeights,
     startEpoch,
     endEpoch,
-    formattedStartEpoch: startEpoch || startEpoch === 0 ? `#${startEpoch}` : '-',
+    resetEpochs,
+    userWeights,
+    lock,
+    feeDistributionByMonthlyRevenues
+  ])
+
+  return {
+    apy: {
+      formattedValue: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-',
+      value: apy.toFixed(2)
+    },
+    endEpoch,
     formattedEndEpoch: endEpoch || endEpoch === 0 ? `#${endEpoch}` : '-',
+    formattedStartEpoch: startEpoch || startEpoch === 0 ? `#${startEpoch}` : '-',
+    setAmount,
+    setDuration,
+    startEpoch,
     userWeightPercentages
   }
 }
@@ -721,11 +734,12 @@ const useApy = () => {
     for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
       poolRevenues[epoch] = BigNumber(mr).multipliedBy(0.5) // getPoolRevenuesForEpoch(epoca, mr) total in dollar of the interests earned by the BorrowingManager
 
+      const totalWeight = totalWeights[epoch]
       const userWeight = userWeights[epoch]
       const userWeightPercentage =
-        !totalWeights[epoch] || totalWeights[epoch].isNaN() || totalWeights[epoch].isEqualTo(0)
+        !totalWeight || totalWeight.isNaN() || totalWeight.isEqualTo(0)
           ? new BigNumber(1)
-          : userWeight.dividedBy(totalWeights[epoch])
+          : userWeight.dividedBy(totalWeight)
 
       const userEpochRevenues = poolRevenues[epoch].multipliedBy(userWeightPercentage)
       totalUserRevenues = totalUserRevenues.plus(userEpochRevenues)

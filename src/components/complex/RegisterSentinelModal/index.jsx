@@ -1,25 +1,76 @@
-import React, { Fragment, useCallback, useEffect } from 'react'
-import { Row, Col } from 'react-bootstrap'
-// import styled from 'styled-components'
+import React, { Fragment, useCallback, useContext, useEffect, useMemo } from 'react'
+import { Col, Row } from 'react-bootstrap'
+import { Chart } from 'react-chartjs-2'
+import styled, { ThemeContext } from 'styled-components'
 
-import { useOverview } from '../../../hooks/use-overview'
-import { useRegisterSentinel } from '../../../hooks/use-registration-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
-import { toastifyTransaction } from '../../../utils/transaction'
+import { useOverview } from '../../../hooks/use-overview'
+import { useBorrowingSentinelProspectus, useRegisterSentinel } from '../../../hooks/use-registration-manager'
 import settings from '../../../settings'
-
-import Modal from '../../base/Modal'
-import Text from '../../base/Text'
-import Radio from '../../base/Radio'
-import Line from '../../base/Line'
-import TextArea from '../../base/TextArea'
-import Slider from '../../base/Slider'
-import InputAmount from '../../base/InputAmount'
-import Button from '../../base/Button'
+import { range } from '../../../utils/time'
+import { toastifyTransaction } from '../../../utils/transaction'
 import { formatAssetAmount } from '../../../utils/amount'
 
+import Button from '../../base/Button'
+import InputAmount from '../../base/InputAmount'
+import Line from '../../base/Line'
+import Modal from '../../base/Modal'
+import Radio from '../../base/Radio'
+import Slider from '../../base/Slider'
+import Text from '../../base/Text'
+import TextArea from '../../base/TextArea'
+
+const ChartContainer = styled.div`
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 350px;
+`
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  fill: false,
+  interaction: {
+    intersect: false
+  },
+  radius: 0,
+  plugins: {
+    legend: {
+      display: false
+    },
+    tooltip: {
+      callbacks: {
+        label: (_context) => {
+          return `${_context.dataset.label} ${formatAssetAmount(_context.parsed.y, 'USD', { decimals: 2 })}`
+        }
+      }
+    }
+  },
+  scales: {
+    estimatedRevenues: {
+      type: 'linear',
+      display: true,
+      min: 0,
+      position: 'left',
+      title: {
+        display: true,
+        text: 'Estimated Revenues (USD)'
+      },
+      grid: {
+        display: false
+      }
+    },
+    x: {
+      grid: {
+        display: false
+      }
+    }
+  }
+}
+
 const RegisterSentinelModal = ({ show, onClose }) => {
-  // const [estimatedEpochs, setEstimatedEpochs] = useState(0)
+  const theme = useContext(ThemeContext)
   const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useOverview()
   const { currentEpoch, formattedCurrentEpoch } = useEpochs()
   const {
@@ -45,6 +96,12 @@ const RegisterSentinelModal = ({ show, onClose }) => {
     updateSentinelRegistrationByStakingEnabled
   } = useRegisterSentinel()
 
+  const {
+    endEpoch,
+    epochsRevenues: prospectusBorrowingEpochsRevenues,
+    setEpochs: setProspectusBorrowingEpochs
+  } = useBorrowingSentinelProspectus()
+
   useEffect(() => {
     if (approveData) {
       toastifyTransaction(approveData)
@@ -69,22 +126,60 @@ const RegisterSentinelModal = ({ show, onClose }) => {
 
   useEffect(() => {
     if (!show) {
-      setEpochs(0)
-      // setEstimatedEpochs(0)
+      setEpochs(1)
+      setProspectusBorrowingEpochs(1)
       setAmount(0)
     }
-  }, [show, setEpochs, setAmount])
+  }, [show, setEpochs, setAmount, setProspectusBorrowingEpochs])
 
   const onChangeType = useCallback(
     (_type) => {
-      setAmount(_type === 'borrow' ? settings.registrationManager.minBorrowAmount : 0)
+      setAmount(0)
       setType(_type)
+      setProspectusBorrowingEpochs(1)
     },
-    [setAmount, setType]
+    [setAmount, setType, setProspectusBorrowingEpochs]
   )
 
+  const onChangeBorrowingEpochs = useCallback(
+    (_epochs) => {
+      setEpochs(_epochs)
+      setProspectusBorrowingEpochs(_epochs)
+    },
+    [setEpochs, setProspectusBorrowingEpochs]
+  )
+
+  const chartEpochs = useMemo(() => {
+    if (!(currentEpoch || currentEpoch === 0) || !(endEpoch || endEpoch === 0)) return []
+
+    if (endEpoch - currentEpoch < 6) {
+      return range(currentEpoch + 1, currentEpoch + 8)
+    }
+
+    return range(currentEpoch + 1, endEpoch)
+  }, [currentEpoch, endEpoch])
+
+  const chartData = useMemo(() => {
+    return {
+      labels: chartEpochs.map((_epoch) => `Epoch #${_epoch + currentEpoch}`),
+      datasets: [
+        {
+          label: 'Revenues',
+          data: prospectusBorrowingEpochsRevenues,
+          backgroundColor: prospectusBorrowingEpochsRevenues.map((_val) => {
+            if (_val < settings.registrationManager.estimatedSentinelRunningCost) return theme.lightRed
+            return theme.lightGreen
+          }),
+          type: 'bar',
+          spanGaps: true,
+          yAxisID: 'estimatedRevenues'
+        }
+      ]
+    }
+  }, [chartEpochs, prospectusBorrowingEpochsRevenues, currentEpoch, theme])
+
   return (
-    <Modal show={show} title="Register Sentinel" onClose={onClose} size="lg">
+    <Modal show={show} title="Register Sentinel" onClose={onClose} size="xl">
       <Row className="mt-2">
         <Col xs={6}>
           <Text>PNT balance</Text>
@@ -107,6 +202,14 @@ const RegisterSentinelModal = ({ show, onClose }) => {
         </Col>
         <Col xs={4} className="text-end">
           <Text variant={'text2'}>{formattedCurrentEpoch}</Text>
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={8}>
+          <Text>Estimated running Sentinel cost</Text>
+        </Col>
+        <Col xs={4} className="text-end">
+          <Text variant={'text2'}>{settings.registrationManager.estimatedSentinelRunningCost} USD</Text>
         </Col>
       </Row>
       <Line />
@@ -163,25 +266,6 @@ const RegisterSentinelModal = ({ show, onClose }) => {
         <Fragment>
           <Row className="mt-2">
             <Col xs={6}>
-              <Text>Amount</Text>
-            </Col>
-            <Col xs={6} className="text-end">
-              <Text variant={'text2'}>{formatAssetAmount(amount, 'PNT')}</Text>
-            </Col>
-          </Row>
-          <Row className="mt-1">
-            <Col>
-              <Slider
-                min={settings.registrationManager.minBorrowAmount}
-                max={settings.registrationManager.maxBorrowAmount}
-                defaultValue={amount}
-                value={amount}
-                onChange={(_amount) => setAmount(_amount)}
-              />
-            </Col>
-          </Row>
-          <Row className="mt-2">
-            <Col xs={6}>
               <Text>Number of epochs</Text>
             </Col>
             <Col xs={6} className="text-end">
@@ -190,31 +274,32 @@ const RegisterSentinelModal = ({ show, onClose }) => {
           </Row>
           <Row className="mt-1">
             <Col>
-              <Slider
-                min={1}
-                max={24}
-                defaultValue={epochs}
-                value={epochs}
-                onChange={(_epochs) => setEpochs(_epochs)}
-              />
+              <Slider min={1} max={24} defaultValue={epochs} value={epochs} onChange={onChangeBorrowingEpochs} />
+            </Col>
+          </Row>
+          <Row className="mt-3">
+            <Col xs={12}>
+              <ChartContainer className="mt-2">
+                <Chart options={chartOptions} data={chartData} />
+              </ChartContainer>
             </Col>
           </Row>
         </Fragment>
       )}
       <Row className="mt-2">
         <Col xs={6}>
-          <Text>Registration ends at epoch</Text>
-        </Col>
-        <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{currentEpoch || currentEpoch === 0 ? `#${currentEpoch + epochs}` : '-'}</Text>
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={6}>
           <Text>Registration starts at epoch</Text>
         </Col>
         <Col xs={6} className="text-end">
           <Text variant={'text2'}>{currentEpoch || currentEpoch === 0 ? `#${currentEpoch + 1}` : '-'}</Text>
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={6}>
+          <Text>Registration ends at epoch</Text>
+        </Col>
+        <Col xs={6} className="text-end">
+          <Text variant={'text2'}>{currentEpoch || currentEpoch === 0 ? `#${currentEpoch + epochs}` : '-'}</Text>
         </Col>
       </Row>
       <Line />

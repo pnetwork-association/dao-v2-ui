@@ -36,14 +36,15 @@ export const colors = (_darkMode) => ({
   gray: '#9CA0A7',
   lightGray: '#4759654d',
   superLightGray: 'rgba(0, 0, 0, 0.1)',
-  green: _darkMode ? '#5FD788' : '#5FD788',
+  green: '#5FD788',
+  lightGreen: '#8cf7b0',
   yellow: '#E3B203',
-  red: _darkMode ? '#E4383A' : '#E4383A',
-  lightRed: _darkMode ? '#E4383A33' : '#E4383A33',
-  blue: _darkMode ? '#66B8FF' : '#66B8FF',
-  lightBlue: _darkMode ? '#66b8ff40' : '#66b8ff40',
-  orange: _darkMode ? '#FBA21D' : '#FBA21D',
-  lightOrange: _darkMode ? '#FBA21D33' : '#FBA21D33'
+  red: '#E4383A',
+  lightRed: '#f98181',
+  blue: '#66B8FF',
+  lightBlue: '#66b8ff40',
+  orange: '#FBA21D',
+  lightOrange: '#FBA21D33'
 })
 
 export const theme = (_darkMode) => ({

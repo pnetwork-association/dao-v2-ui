@@ -6,19 +6,20 @@ const settings = {
     stakingManager: '0xeb10e80D99655B51E3a981E888a73D0B21e21A6C',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
     // TODO: use real ones once deployed on mainnet
-    borrowingManager: '0x5C2ce3C5f064DC3f667ACB82F681d4d6B29282E9',
-    epochsManager: '0x8daA04aDC316d588FaF8249557634d36634872DA',
-    registrationManager: '0x467fD6B92caf58A42c11346d8Fa9842DD2ee7AeD',
-    testToken1: '0x45b89695AffA4db3cfaa88d4a2bEF32Bd38BAf94',
-    testToken2: '0x1cc5CE0fF745613bf4E1d46B37aD265E76D00F9f'
+    borrowingManager: '0xde7B03F1634774cA6B9b754567dDd65bbAe8E860',
+    epochsManager: '0x320d624a6357B5c9D7f016cF39662EDf4C888D84',
+    registrationManager: '0xD32e049B450AF9e444cc8CC8Da8E922C523A5524',
+    testToken1: '0x9985049e4779a3d98CD4d423AbfFcF5C304D3168',
+    testToken2: '0x119Fc5b9631610e99371367c8e4ed5adF371916E',
+    feesManager: '0x8d1ba21C25754edc3fe996970636727Cf227490C'
   },
   stakingManager: {
     minStakeDays: 7
   },
   registrationManager: {
-    minBorrowAmount: 0,
-    maxBorrowAmount: 200,
-    minStakeAmount: 200000
+    borrowAmount: 200000,
+    minStakeAmount: 200000,
+    estimatedSentinelRunningCost: 150
   },
   explorer: 'https://etherscan.io',
   assets: [
@@ -68,7 +69,7 @@ const settings = {
       symbolPrice: 'USDC'
     },
     {
-      address: '0xa27fA9A7630aaB7433E6FC63B1BAc4DA8B1e870e',
+      address: '0x3D0221aA6175c3B88103ecEAf2f5D551b23006C8',
       name: 'Test Token 1',
       decimals: 18,
       symbol: 'TST1',
@@ -76,7 +77,7 @@ const settings = {
       borrowingManagerClaimEnabled: true
     },
     {
-      address: '0x4F121845060f86C5763545E090309F5aCA7B165a',
+      address: '0xd55Edfc91FA7453EE5a8be275c75dBE18cEA2710',
       name: 'Test Token 2',
       decimals: 18,
       symbol: 'TST2',

@@ -1,17 +1,12 @@
+import BigNumber from 'bignumber.js'
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react'
 import { Col, Row } from 'react-bootstrap'
+import { Chart } from 'react-chartjs-2'
 import { toast } from 'react-toastify'
 import styled, { ThemeContext } from 'styled-components'
-import { Chart } from 'react-chartjs-2'
-import BigNumber from 'bignumber.js'
 
 import { useBalances } from '../../../hooks/use-balances'
-import {
-  // useAccountLendedAmountInTheCurrentEpoch,
-  // useAccountLendedAmountInTheNextEpochOf,
-  useLend,
-  useEstimateApy
-} from '../../../hooks/use-borrowing-manager'
+import { useEstimateApy, useLend } from '../../../hooks/use-borrowing-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
 import { range, SECONDS_IN_ONE_DAY } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
@@ -70,6 +65,9 @@ const chartOptions = {
       title: {
         display: true,
         text: 'Your pool weight (%)'
+      },
+      grid: {
+        display: false
       }
     },
     avgApy: {
@@ -79,11 +77,16 @@ const chartOptions = {
       min: 0,
       suggestedMax: 30,
       grid: {
-        drawOnChartArea: false
+        display: false
       },
       title: {
         display: true,
         text: 'Avg APY (estimated)'
+      }
+    },
+    x: {
+      grid: {
+        display: false
       }
     }
   }
@@ -95,7 +98,7 @@ const chartOptions = {
 const LendModal = ({ show, onClose }) => {
   const theme = useContext(ThemeContext)
   const { currentEpoch, epochDuration, formattedCurrentEpoch, formattedEpochDuration } = useEpochs()
-  const { pntBalance, formattedPntBalance, formattedDaoPntBalance } = useBalances()
+  const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useBalances()
   const {
     amount,
     approve,
@@ -113,15 +116,13 @@ const LendModal = ({ show, onClose }) => {
     setDuration,
     setEpochs
   } = useLend()
-  // const { formattedValue: formattedLendedAmountCurrentEpoch } = useAccountLendedAmountInTheCurrentEpoch()
-  // const { formattedValue: formattedLendedAmountNextEpoch } = useAccountLendedAmountInTheNextEpochOf()
   const {
     apy,
+    endEpoch,
+    formattedEndEpoch,
+    formattedStartEpoch,
     setAmount: setAmountEstimatedApy,
     setDuration: setDurationEstimateApy,
-    formattedStartEpoch,
-    formattedEndEpoch,
-    endEpoch,
     startEpoch,
     userWeightPercentages
   } = useEstimateApy()
@@ -150,12 +151,8 @@ const LendModal = ({ show, onClose }) => {
         {
           label: 'Pool Weight',
           data: effectiveUserWeightPercentages.map((_val) => _val * 100),
-          borderColor: theme.grey2,
+          backgroundColor: theme.lightBlue,
           type: 'bar',
-          /*segment: {
-            borderColor: (ctx) => skipped(ctx, 'red') || down(ctx, 'yellow'),
-            borderDash: (ctx) => skipped(ctx, [6, 6])
-          },*/
           spanGaps: true,
           yAxisID: 'poolWeight'
         },

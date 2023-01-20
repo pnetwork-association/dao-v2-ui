@@ -1,21 +1,25 @@
-import { useMemo, useState, useEffect } from 'react'
-import {
-  useAccount,
-  useContractRead,
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useBalance,
-  erc20ABI
-} from 'wagmi'
+import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  erc20ABI,
+  useAccount,
+  useBalance,
+  useContractRead,
+  useContractReads,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction
+} from 'wagmi'
 
 import settings from '../settings'
+import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
 import RegistrationManagerABI from '../utils/abis/RegistrationManager.json'
-import { SECONDS_IN_ONE_DAY } from '../utils/time'
 import { slicer } from '../utils/address'
-import { useEpochs } from './use-epochs'
 import { isValidHexString } from '../utils/format'
+import { range, SECONDS_IN_ONE_DAY } from '../utils/time'
+import { useEpochs } from './use-epochs'
+import { useFeesDistributionByMonthlyRevenues } from './use-fees-manager'
 
 const kind = {
   1: 'Staking',
@@ -70,7 +74,7 @@ const useRegisterSentinel = () => {
 
   const updateSentinelRegistrationByStakingEnabled = useMemo(
     () =>
-      onChainAmount.gt(ethers.utils.parseEther('0')) && // TODO: set settings.borrowingManager.minBorrowAmount
+      onChainAmount.gt(ethers.utils.parseEther('0')) &&
       approved &&
       pntBalanceData &&
       onChainAmount.lte(pntBalanceData.value) &&
@@ -101,17 +105,14 @@ const useRegisterSentinel = () => {
   })
 
   const updateSentinelRegistrationByBorrowingEnabled = useMemo(
-    () =>
-      onChainAmount.gt(ethers.utils.parseEther('0')) && // TODO: set 200000
-      epochs >= 1 &&
-      isSignatureValid,
-    [onChainAmount, epochs, isSignatureValid]
+    () => epochs >= 1 && isSignatureValid,
+    [epochs, isSignatureValid]
   )
   const { config: updateSentinelRegistrationByBorrowingConfigs } = usePrepareContractWrite({
     address: settings.contracts.registrationManager,
     abi: RegistrationManagerABI,
     functionName: 'updateSentinelRegistrationByBorrowing',
-    args: [onChainAmount, epochs, isSignatureValid ? signature : '0x'],
+    args: [epochs, isSignatureValid ? signature : '0x'],
     enabled: updateSentinelRegistrationByBorrowingEnabled
   })
   const {
@@ -215,4 +216,75 @@ const useSentinel = () => {
   }
 }
 
-export { useRegisterSentinel, useSentinel }
+const useBorrowingSentinelProspectus = () => {
+  const { currentEpoch } = useEpochs()
+  const [epochs, setEpochs] = useState(0)
+
+  const [_startEpoch, _endEpoch] = useMemo(
+    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
+    [currentEpoch]
+  )
+
+  const { data } = useContractReads({
+    cacheTime: 1000 * 60 * 2,
+    contracts: [
+      {
+        address: settings.contracts.borrowingManager,
+        abi: BorrowingManagerABI,
+        functionName: 'totalBorrowedAmountByEpochsRange',
+        args: [_startEpoch, _endEpoch],
+        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+      }
+    ]
+  })
+
+  const borrowedAmount = settings.registrationManager.borrowAmount
+  const totalBorrowedAmountInEpoch = useMemo(() => (data && data[0] ? data[0] : []), [data])
+
+  const { startEpoch, endEpoch } = useMemo(() => {
+    // TODO: handle previous registration
+    return {
+      startEpoch: currentEpoch + 1,
+      endEpoch: currentEpoch + 1 + epochs
+    }
+  }, [currentEpoch, epochs])
+
+  const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
+    startEpoch,
+    endEpoch,
+    mr: 300
+  })
+
+  // NOTE: onchain borrowed amount has no decimals
+  const numberOfSentinelsInEpoch = useMemo(() => {
+    return totalBorrowedAmountInEpoch.map((_val) => BigNumber(_val.toString()).dividedBy(borrowedAmount))
+  }, [totalBorrowedAmountInEpoch, borrowedAmount])
+
+  const epochsRevenues = useMemo(
+    () =>
+      range(currentEpoch + 1, currentEpoch + epochs + 1).map((_epoch) => {
+        const sentinelsBorrowingFeesAmount =
+          feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_epoch]
+            ? feeDistributionByMonthlyRevenues[_epoch].sentinelsBorrowingFeesAmount
+            : BigNumber(0)
+        const numberOfSentinels = numberOfSentinelsInEpoch[_epoch]
+        const borrowingFeePercentage =
+          !numberOfSentinels || numberOfSentinels.isNaN() || numberOfSentinels.isEqualTo(0)
+            ? new BigNumber(1)
+            : BigNumber(1).dividedBy(numberOfSentinels)
+
+        return sentinelsBorrowingFeesAmount.multipliedBy(borrowingFeePercentage).toFixed()
+      }),
+    [currentEpoch, epochs, numberOfSentinelsInEpoch, feeDistributionByMonthlyRevenues]
+  )
+
+  return {
+    endEpoch,
+    epochs,
+    epochsRevenues,
+    setEpochs,
+    startEpoch
+  }
+}
+
+export { useBorrowingSentinelProspectus, useRegisterSentinel, useSentinel }
