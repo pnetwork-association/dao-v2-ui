@@ -3,15 +3,15 @@ const settings = {
     pnt: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
     daoPnt: '0xe824F81cD136BB7a28480baF8d7E5f0E8E4B693E',
     voting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
-    stakingManager: '0xeb10e80D99655B51E3a981E888a73D0B21e21A6C',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
     // TODO: use real ones once deployed on mainnet
-    borrowingManager: '0xde7B03F1634774cA6B9b754567dDd65bbAe8E860',
-    epochsManager: '0x320d624a6357B5c9D7f016cF39662EDf4C888D84',
-    registrationManager: '0xD32e049B450AF9e444cc8CC8Da8E922C523A5524',
-    testToken1: '0x9985049e4779a3d98CD4d423AbfFcF5C304D3168',
-    testToken2: '0x119Fc5b9631610e99371367c8e4ed5adF371916E',
-    feesManager: '0x8d1ba21C25754edc3fe996970636727Cf227490C'
+    stakingManager: '0x25C0a2F0A077F537Bd11897F04946794c2f6f1Ef',
+    borrowingManager: '0xeC1BB74f5799811c0c1Bff94Ef76Fb40abccbE4a',
+    epochsManager: '0xd038A2EE73b64F30d65802Ad188F27921656f28F',
+    registrationManager: '0x09120eAED8e4cD86D85a616680151DAA653880F2',
+    testToken1: '0xD1760AA0FCD9e64bA4ea43399Ad789CFd63C7809',
+    testToken2: '0x75b0B516B47A27b1819D21B26203Abf314d42CCE',
+    feesManager: '0x6732128F9cc0c4344b2d4DC6285BCd516b7E59E6'
   },
   stakingManager: {
     minStakeDays: 7

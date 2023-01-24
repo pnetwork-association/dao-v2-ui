@@ -126,16 +126,6 @@ const useLend = () => {
   }
 }
 
-const useAccountLendedAmountInTheCurrentEpoch = () => {
-  const { currentEpoch } = useEpochs()
-  return useAccountLendedAmountByEpoch(currentEpoch)
-}
-
-const useAccountLendedAmountInTheNextEpochOf = () => {
-  const { currentEpoch } = useEpochs()
-  return useAccountLendedAmountByEpoch(currentEpoch + 1)
-}
-
 const useAccountLoanEndEpoch = () => {
   const { address } = useAccount()
   const { currentEpoch } = useEpochs()
@@ -191,28 +181,6 @@ const useAccountLoanStartEpoch = () => {
   return {
     formattedValue: startEpoch || startEpoch === 0 ? `#${startEpoch}` : '-',
     value: startEpoch ? startEpoch : null
-  }
-}
-
-const useAccountLendedAmountByEpoch = (_epoch) => {
-  // const { address } = useAccount()
-
-  /*const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
-    abi: BorrowingManagerABI,
-    functionName: 'lendedAmountByEpochOf',
-    args: [address, _epoch]
-  })
-
-  const amount = useMemo(() => (data ? BigNumber(data.toString()).dividedBy(10 ** 18) : BigNumber(null)), [data])
-
-  return {
-    value: amount.toFixed(),
-    formattedValue: formatAssetAmount(amount, 'PNT')
-  }*/
-  return {
-    value: 0,
-    formattedValue: 'TODO'
   }
 }
 
@@ -522,7 +490,7 @@ const useClaimInterestByEpoch = () => {
 }*/
 
 const useEstimateApy = () => {
-  const { currentEpoch, epochDuration, startFirstEpochTimestamp } = useEpochs()
+  const { currentEpoch, epochDuration } = useEpochs()
   const { address } = useAccount()
   const [duration, setDuration] = useState(0) // in days
   const [amount, setAmount] = useState(0)
@@ -537,13 +505,6 @@ const useEstimateApy = () => {
   const { data } = useContractReads({
     cacheTime: 1000 * 60 * 2,
     contracts: [
-      {
-        address: settings.contracts.stakingManager,
-        abi: StakingManagerABI,
-        functionName: 'addressStakeLocks',
-        args: [address, 0],
-        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
-      },
       {
         address: settings.contracts.borrowingManager,
         abi: BorrowingManagerABI,
@@ -561,42 +522,26 @@ const useEstimateApy = () => {
     ]
   })
 
-  const lock = useMemo(() => (data ? data[0] : []), [data])
-  const totalWeights = useMemo(() => (data ? data[1] : []), [data])
-  const userWeights = useMemo(() => (data ? data[2] : []), [data])
+  const totalWeights = useMemo(() => (data && data[0] ? data[0] : []), [data])
+  const userWeights = useMemo(() => (data && data[1] ? data[1] : []), [data])
 
-  const { startEpoch, endEpoch, resetEpochs } = useMemo(() => {
-    const lockDate = BigNumber(lock?.lockDate?.toString())
-    const lockDuration = BigNumber(lock?.duration?.toString())
-
+  const { startEpoch, endEpoch } = useMemo(() => {
     const lockTime = BigNumber(duration).multipliedBy(SECONDS_IN_ONE_DAY)
-
-    const stakeEpoch = lockDate.minus(startFirstEpochTimestamp).dividedToIntegerBy(epochDuration)
-    const oldStartEpoch = stakeEpoch.plus(1)
-    const oldEndEpoch = stakeEpoch
-      .plus(lockDate.plus(lockDuration).minus(startFirstEpochTimestamp).dividedToIntegerBy(epochDuration))
-      .minus(1)
     const newStartEpoch = BigNumber(currentEpoch).plus(1)
-    const newEndEpoch = BigNumber(currentEpoch).plus(lockTime.dividedToIntegerBy(epochDuration)).minus(1)
+    const newEndEpoch = BigNumber(currentEpoch).plus(lockTime.dividedToIntegerBy(epochDuration))
 
-    let startEpoch = BigNumber(currentEpoch).plus(1)
-    let endEpoch = lockTime.dividedToIntegerBy(epochDuration)
-    let resetEpochs = null
-
-    if (newStartEpoch.isLessThanOrEqualTo(oldEndEpoch) && newEndEpoch.isLessThanOrEqualTo(oldEndEpoch)) {
-      startEpoch = oldStartEpoch
-      endEpoch = oldEndEpoch
-      resetEpochs = [startEpoch.toNumber(), endEpoch.toNumber()]
+    if (newStartEpoch.isGreaterThan(newEndEpoch)) {
+      return {
+        startEpoch: null,
+        endEpoch: null
+      }
     }
 
-    if (newStartEpoch.isLessThanOrEqualTo(oldEndEpoch) && newEndEpoch.isGreaterThan(oldEndEpoch)) {
-      startEpoch = oldStartEpoch
-      endEpoch = newEndEpoch
-      resetEpochs = [oldStartEpoch.toNumber(), oldEndEpoch.toNumber()]
+    return {
+      startEpoch: newStartEpoch.toNumber(),
+      endEpoch: newEndEpoch.toNumber()
     }
-
-    return { startEpoch: startEpoch.toNumber(), endEpoch: endEpoch.toNumber(), resetEpochs }
-  }, [lock, currentEpoch, duration, epochDuration, startFirstEpochTimestamp])
+  }, [currentEpoch, duration, epochDuration])
 
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
     startEpoch,
@@ -608,39 +553,26 @@ const useEstimateApy = () => {
     if (BigNumber(amount).isEqualTo(0)) return { apy: BigNumber(), userWeightPercentages: [] }
     if (endEpoch - startEpoch <= 0) return { apy: BigNumber(0), userWeightPercentages: [] }
 
-    const lockAmount = BigNumber(lock?.amount?.toString())
-
     const userWeightPercentages = []
     let totalUserRevenues = new BigNumber(0)
-    const totalWeightsWithReset = totalWeights ? totalWeights.slice().map((_val) => BigNumber(_val)) : []
-    if (resetEpochs) {
-      for (let epoch = resetEpochs[0]; epoch <= resetEpochs[1]; epoch++) {
-        if (totalWeightsWithReset[epoch].isGreaterThan(0)) {
-          totalWeightsWithReset[epoch] = totalWeightsWithReset[epoch].minus(userWeights[epoch])
-        }
-      }
-    }
 
     for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
       const poolRevenue =
         feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[epoch]
           ? feeDistributionByMonthlyRevenues[epoch].lendersInterestsAmount
           : BigNumber(0)
-      const userWeight = BigNumber(amount)
-        .plus(!lockAmount.isNaN() ? lockAmount.dividedToIntegerBy(10 ** 18) : 0)
-        .multipliedBy(endEpoch - epoch + 1)
 
-      totalWeightsWithReset[epoch] =
-        totalWeightsWithReset[epoch] && !totalWeightsWithReset[epoch].isNaN()
-          ? totalWeightsWithReset[epoch].plus(userWeight)
-          : userWeight
+      const userWeight = BigNumber(amount)
+        .multipliedBy(endEpoch - epoch + 1)
+        .plus(userWeights && userWeights[epoch] ? userWeights[epoch] : 0)
+
+      const totalWeightsInEpoch =
+        totalWeights[epoch] && !totalWeights[epoch].isNaN() ? totalWeights[epoch].plus(userWeight) : userWeight
 
       const userWeightPercentage =
-        !totalWeightsWithReset[epoch] ||
-        totalWeightsWithReset[epoch].isNaN() ||
-        totalWeightsWithReset[epoch].isEqualTo(0)
+        !totalWeightsInEpoch || totalWeightsInEpoch.isNaN() || totalWeightsInEpoch.isEqualTo(0)
           ? new BigNumber(1)
-          : userWeight.dividedBy(totalWeightsWithReset[epoch])
+          : userWeight.dividedBy(totalWeightsInEpoch)
 
       userWeightPercentages[epoch] = userWeightPercentage.toNumber()
 
@@ -654,17 +586,7 @@ const useEstimateApy = () => {
       apy: BigNumber(totalUserRevenuesAnnualized).dividedBy(BigNumber(amount).multipliedBy(pntUsd)),
       userWeightPercentages
     }
-  }, [
-    amount,
-    pntUsd,
-    totalWeights,
-    startEpoch,
-    endEpoch,
-    resetEpochs,
-    userWeights,
-    lock,
-    feeDistributionByMonthlyRevenues
-  ])
+  }, [amount, pntUsd, totalWeights, startEpoch, endEpoch, userWeights, feeDistributionByMonthlyRevenues])
 
   return {
     apy: {
@@ -686,7 +608,6 @@ const useApy = () => {
   const { address } = useAccount()
   const { value: startEpoch } = useAccountLoanStartEpoch()
   const { value: endEpoch } = useAccountLoanEndEpoch()
-
   const { PNT: pntUsd } = useRates(['PNT'], { apiKey: process.env.REACT_APP_CRYPTO_COMPARE_API_KEY })
 
   const [_startEpoch, _endEpoch] = useMemo(
@@ -700,9 +621,9 @@ const useApy = () => {
       {
         address: settings.contracts.stakingManager,
         abi: StakingManagerABI,
-        functionName: 'addressStakeLocks',
-        args: [address, 0],
-        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        functionName: 'stakeOf',
+        args: [address],
+        enabled: address
       },
       {
         address: settings.contracts.borrowingManager,
@@ -727,12 +648,12 @@ const useApy = () => {
     mr: 150
   })
 
-  const lock = useMemo(() => (data && data[0] ? data[0] : []), [data])
+  const stake = useMemo(() => (data && data[0] ? data[0] : {}), [data])
   const totalWeights = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val)) : []), [data])
   const userWeights = useMemo(() => (data && data[2] ? data[2].map((_val) => BigNumber(_val)) : []), [data])
 
   return useMemo(() => {
-    const lockAmount = BigNumber(lock?.amount?.toString()).dividedBy(10 ** 18)
+    const stakedAmount = BigNumber(stake?.amount?.toString()).dividedBy(10 ** 18)
 
     let totalUserRevenues = new BigNumber(0)
     for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
@@ -753,19 +674,20 @@ const useApy = () => {
     }
 
     const totalUserRevenuesAnnualized = totalUserRevenues.multipliedBy(24).dividedBy(endEpoch - startEpoch + 1)
-    const apy = BigNumber(totalUserRevenuesAnnualized).dividedBy(lockAmount.multipliedBy(pntUsd))
+
+    // NOTE: What does it happen if an user stake (without lending) and then lend another amount? The APY would be wrong
+    // since if we check the staked amount could be possibile that we show an higher apy
+    const apy = BigNumber(totalUserRevenuesAnnualized).dividedBy(stakedAmount.multipliedBy(pntUsd))
 
     return {
       apy: apy.toFixed(),
       formattedValue: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-'
     }
-  }, [pntUsd, totalWeights, startEpoch, endEpoch, userWeights, lock, feeDistributionByMonthlyRevenues])
+  }, [pntUsd, totalWeights, startEpoch, endEpoch, userWeights, stake, feeDistributionByMonthlyRevenues])
 }
 
 export {
   useAccountLendedAmountByStartAndEndLoanEpochs,
-  useAccountLendedAmountInTheCurrentEpoch,
-  useAccountLendedAmountInTheNextEpochOf,
   useAccountLoanEndEpoch,
   useAccountLoanStartEpoch,
   useAccountUtilizationRatio,
@@ -774,7 +696,6 @@ export {
   useClaimableInterestsAssetsByEpochs,
   useClaimInterestByEpoch,
   useLend,
-  //useTotalAssetInterestAmountByEpoch,
   useTotalBorrowedAmountByEpoch,
   useTotalLendedAmountByEpoch,
   useTotalLendedAmountByStartAndEndEpochs,

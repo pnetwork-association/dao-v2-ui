@@ -161,43 +161,22 @@ const useLocks = () => {
   const { data } = useContractRead({
     address: settings.contracts.stakingManager,
     abi: StakingManagerABI,
-    functionName: 'getStakedLocks',
-    args: [address]
+    functionName: 'stakeOf',
+    args: [address],
+    enabled: address
   })
 
-  const locks = useMemo(() => {
-    return data
-      ? data.map(({ amount, duration, lockDate }) => ({
-          amount,
-          duration,
-          lockDate
-        }))
-      : []
+  const availableToUnstakePntAmount = useMemo(() => {
+    if (!data) return
+
+    const { endDate, amount } = data
+
+    return BigNumber(endDate.toNumber() >= moment().unix() ? amount.toString() : 0).dividedBy(10 ** 18)
   }, [data])
 
-  const unstakeableLocks = useMemo(
-    () => locks.filter(({ lockDate, duration }) => lockDate.add(duration).lt(moment().unix())),
-    [locks]
-  )
-
-  const availableToUnstakePntAmount = useMemo(
-    () =>
-      unstakeableLocks.reduce((_acc, { amount }) => {
-        _acc = _acc.add(amount)
-        return _acc
-      }, ethers.BigNumber.from('0')),
-    [unstakeableLocks]
-  )
-
-  const offchainUnstekableAmount = BigNumber(availableToUnstakePntAmount.toString())
-    .dividedBy(10 ** 18)
-    .toFixed()
-
   return {
-    availableToUnstakePntAmount: offchainUnstekableAmount,
-    fomattedAvailableToUnstakePntAmount: formatAssetAmount(offchainUnstekableAmount, 'PNT'),
-    locks,
-    unstakeableLocks
+    availableToUnstakePntAmount,
+    fomattedAvailableToUnstakePntAmount: formatAssetAmount(availableToUnstakePntAmount, 'PNT')
   }
 }
 

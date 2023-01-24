@@ -42,6 +42,8 @@ const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
 
   return useMemo(
     () =>
+      (startEpoch || startEpoch === 0) &&
+      endEpoch &&
       range(startEpoch, endEpoch + 1).map((_epoch) => {
         const k = BigNumber(kInEpoch[_epoch] ? kInEpoch[_epoch].toString() : 0)
         const totalBorrowedAmount = BigNumber(

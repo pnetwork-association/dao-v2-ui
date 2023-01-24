@@ -6,14 +6,12 @@ import { useContractReads, erc20ABI } from 'wagmi'
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
 import { useBalances } from './use-balances'
-import { useAccountLendedAmountInTheCurrentEpoch, useAccountLoanEndEpoch } from './use-borrowing-manager'
+import { useAccountLoanEndEpoch } from './use-borrowing-manager'
 import { useEpochs } from './use-epochs'
 
 const useOverview = () => {
   // const [pendingRewards, setPendingRewards] = useState([])
   const { pntBalance, daoPntBalance, formattedPntBalance, formattedDaoPntBalance } = useBalances()
-  const { value: lendedAmountCurrentEpoch, formattedValue: formattedLendedAmountCurrentEpoch } =
-    useAccountLendedAmountInTheCurrentEpoch()
   const loanEndEpoch = useAccountLoanEndEpoch()
   const { currentEpoch, formattedCurrentEpoch } = useEpochs()
 
@@ -72,7 +70,6 @@ const useOverview = () => {
     formattedCurrentEpoch,
     formattedDaoPntBalance,
     formattedDaoPntTotalSupply: formatAssetAmount(daoPntTotalSupply, 'daoPNT'),
-    formattedLendedAmountCurrentEpoch,
     formattedPercentageStakedPnt: formatAssetAmount(percentageStakedPnt, '%', {
       decimals: 2
     }),
@@ -81,7 +78,6 @@ const useOverview = () => {
     formattedVotingPower: formatAssetAmount(votingPower, '%', {
       decimals: 6
     }),
-    lendedAmountCurrentEpoch,
     loanEndEpoch,
     percentageStakedPnt: percentageStakedPnt.toFixed(),
     pntBalance,
