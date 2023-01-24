@@ -1,19 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useContractReads, useContractRead, useAccount, useBlockNumber, erc20ABI } from 'wagmi'
 import { ethers } from 'ethers'
+import { useEffect, useMemo, useState } from 'react'
+import { erc20ABI, useAccount, useBlockNumber, useContractRead, useContractReads } from 'wagmi'
 // import axios from 'axios'
-import moment from 'moment'
 import BigNumber from 'bignumber.js'
+import moment from 'moment'
 
-import { hexToAscii } from '../utils/format'
-import { extrapolateProposalData } from '../utils/proposals'
-import { formatAssetAmount } from '../utils/amount'
 import settings from '../settings'
 import VotingABI from '../utils/abis/Voting'
+import { formatAssetAmount } from '../utils/amount'
+import { hexToAscii } from '../utils/format'
 import { extractActionsFromTransaction } from '../utils/logs'
+import { extrapolateProposalData } from '../utils/proposals'
 
-import proposalsList from './proposals.json'
 import blocksList from './blocks.json'
+import proposalsList from './proposals.json'
 
 const useProposals = () => {
   const [etherscanProposals, setEtherscanProposals] = useState([])

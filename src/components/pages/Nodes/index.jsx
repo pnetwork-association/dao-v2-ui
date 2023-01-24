@@ -37,7 +37,7 @@ const ButtonIcon = styled(Icon)`
   color: ${({ theme }) => theme.white} !important;
 `
 
-const Lending = () => {
+const Nodes = () => {
   const [showRegisterSentinelModal, setShowRegisterSentinelModal] = useState(false)
   const { formattedCurrentEpoch, formattedCurrentEpochEndAt } = useEpochs()
   const { endEpoch, formattedSentinelAddress, kind, startEpoch } = useSentinel()
@@ -121,4 +121,4 @@ const Lending = () => {
   )
 }
 
-export default Lending
+export default Nodes

@@ -5,13 +5,14 @@ const settings = {
     voting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
     // TODO: use real ones once deployed on mainnet
-    stakingManager: '0x25C0a2F0A077F537Bd11897F04946794c2f6f1Ef',
-    borrowingManager: '0xeC1BB74f5799811c0c1Bff94Ef76Fb40abccbE4a',
-    epochsManager: '0xd038A2EE73b64F30d65802Ad188F27921656f28F',
-    registrationManager: '0x09120eAED8e4cD86D85a616680151DAA653880F2',
-    testToken1: '0xD1760AA0FCD9e64bA4ea43399Ad789CFd63C7809',
-    testToken2: '0x75b0B516B47A27b1819D21B26203Abf314d42CCE',
-    feesManager: '0x6732128F9cc0c4344b2d4DC6285BCd516b7E59E6'
+    stakingManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
+    borrowingManager: '0x8f119cd256a0FfFeed643E830ADCD9767a1d517F',
+    epochsManager: '0x4f42528B7bF8Da96516bECb22c1c6f53a8Ac7312',
+    registrationManager: '0xe14058B1c3def306e2cb37535647A04De03Db092',
+    testToken1: '0x6533158b042775e2FdFeF3cA1a782EFDbB8EB9b1',
+    testToken2: '0x73C68f1f41e4890D06Ba3e71b9E9DfA555f1fb46',
+    feesManager: '0x74ef2B06A1D2035C33244A4a263FF00B84504865',
+    signer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
   },
   stakingManager: {
     minStakeDays: 7
@@ -28,7 +29,7 @@ const settings = {
       name: 'pNetwork Token',
       decimals: 18,
       symbol: 'ethPNT',
-      logo: 'https://assets.eidoo.io/blockchains/1/assets/0x89ab32156e46f46d02ade3fecbe5fc4243b9aaed/logo.png',
+      logo: 'assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: false,
       symbolPrice: 'PNT'
     },
@@ -37,7 +38,7 @@ const settings = {
       name: 'pNetwork Token',
       decimals: 18,
       symbol: 'PNT',
-      logo: 'https://assets.eidoo.io/blockchains/1/assets/0x89ab32156e46f46d02ade3fecbe5fc4243b9aaed/logo.png',
+      logo: 'assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: true,
       symbolPrice: 'PNT'
     },
@@ -46,7 +47,7 @@ const settings = {
       name: 'pTokens pBTC',
       decimals: 18,
       symbol: 'pBTC',
-      logo: 'https://assets.eidoo.io/blockchains/1/assets/0x62199b909fb8b8cf870f97bef2ce6783493c4908/logo.png',
+      logo: 'assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: true,
       symbolPrice: 'BTC'
     },
@@ -55,7 +56,7 @@ const settings = {
       name: 'GALA',
       decimals: 18,
       symbol: 'pGALA',
-      logo: 'https://assets.eidoo.io/blockchains/1/assets/0x15d4c048f83bd7e37d49ea4c83a07267ec4203da/logo.png',
+      logo: 'assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: false,
       symbolPrice: 'GALA'
     },
@@ -64,7 +65,7 @@ const settings = {
       name: 'USD Coin',
       decimals: 6,
       symbol: 'USDC',
-      logo: 'https://assets.eidoo.io/blockchains/1/assets/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48/logo.png',
+      logo: 'assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: true,
       symbolPrice: 'USDC'
     },
@@ -73,7 +74,7 @@ const settings = {
       name: 'Test Token 1',
       decimals: 18,
       symbol: 'TST1',
-      logo: 'https://assets.eidoo.io/blockchains/1/assets/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2/logo.png',
+      logo: 'assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: true
     },
     {
@@ -81,7 +82,7 @@ const settings = {
       name: 'Test Token 2',
       decimals: 18,
       symbol: 'TST2',
-      logo: 'https://assets.eidoo.io/blockchains/1/assets/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2/logo.png',
+      logo: 'assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: true
     }
   ]

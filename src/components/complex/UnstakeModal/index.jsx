@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 import { toast } from 'react-toastify'
 
 import { useBalances } from '../../../hooks/use-balances'
-import { useLocks } from '../../../hooks/use-staking-manager'
+import { useUserStake } from '../../../hooks/use-staking-manager'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useUnstake } from '../../../hooks/use-staking-manager'
 
@@ -25,7 +25,7 @@ const MaxButton = styled(MiniButton)`
 
 const UnstakeModal = ({ show, onClose }) => {
   const { formattedPntBalance, formattedDaoPntBalance } = useBalances()
-  const { availableToUnstakePntAmount, fomattedAvailableToUnstakePntAmount } = useLocks()
+  const { availableToUnstakePntAmount, fomattedAvailableToUnstakePntAmount } = useUserStake()
   const { amount, isUnstaking, setAmount, unstake, unstakeData, unstakeError } = useUnstake()
 
   useEffect(() => {

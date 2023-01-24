@@ -4,7 +4,7 @@ import { Chart } from 'react-chartjs-2'
 import styled, { ThemeContext } from 'styled-components'
 
 import { useEpochs } from '../../../hooks/use-epochs'
-import { useOverview } from '../../../hooks/use-overview'
+import { useBalances } from '../../../hooks/use-balances'
 import { useBorrowingSentinelProspectus, useRegisterSentinel } from '../../../hooks/use-registration-manager'
 import settings from '../../../settings'
 import { range } from '../../../utils/time'
@@ -71,7 +71,7 @@ const chartOptions = {
 
 const RegisterSentinelModal = ({ show, onClose }) => {
   const theme = useContext(ThemeContext)
-  const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useOverview()
+  const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useBalances()
   const { currentEpoch, formattedCurrentEpoch } = useEpochs()
   const {
     amount,

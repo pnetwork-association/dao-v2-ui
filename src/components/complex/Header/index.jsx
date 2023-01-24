@@ -1,8 +1,10 @@
-import React from 'react'
-import styled from 'styled-components'
-import { Navbar, Container, Nav } from 'react-bootstrap'
-import { Link, useLocation } from 'react-router-dom'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import React from 'react'
+import { Container, Nav, Navbar } from 'react-bootstrap'
+import { Link, useLocation } from 'react-router-dom'
+import styled from 'styled-components'
+
+import { useNickname } from '../../../hooks/use-nickname'
 
 import Avatar from '../../base/Avatar'
 import Button from '../../base/Button'
@@ -88,30 +90,34 @@ const StyledNavbar = styled(Navbar)`
   padding-top: 0;
 `
 
-const CustomConnectButton = () => (
-  <ConnectButton.Custom>
-    {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
-      const ready = mounted && authenticationStatus !== 'loading'
-      const connected = ready && account && chain && (!authenticationStatus || authenticationStatus === 'authenticated')
+const CustomConnectButton = () => {
+  const nickname = useNickname()
 
-      return (
-        <div>
-          {(() => {
-            if (!connected) {
-              return <Button onClick={openConnectModal}>Connect Wallet</Button>
-            }
+  return (
+    <ConnectButton.Custom>
+      {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+        const ready = mounted && authenticationStatus !== 'loading'
+        const connected =
+          ready && account && chain && (!authenticationStatus || authenticationStatus === 'authenticated')
 
-            if (chain.unsupported) {
+        return (
+          <div>
+            {(() => {
+              if (!connected) {
+                return <Button onClick={openConnectModal}>Connect Wallet</Button>
+              }
+
+              if (chain.unsupported) {
+                return (
+                  <Button onClick={openChainModal} type="button">
+                    Wrong network
+                  </Button>
+                )
+              }
+
               return (
-                <Button onClick={openChainModal} type="button">
-                  Wrong network
-                </Button>
-              )
-            }
-
-            return (
-              <div>
-                {/*<button
+                <div>
+                  {/*<button
       onClick={openChainModal}
       style={{ display: 'flex', alignItems: 'center' }}
       type="button"
@@ -139,21 +145,22 @@ const CustomConnectButton = () => (
       {chain.name}
           </button>*/}
 
-                <ConnectedButton onClick={openAccountModal}>
-                  {/*account.displayBalance
+                  <ConnectedButton onClick={openAccountModal}>
+                    {/*account.displayBalance
         ? ` (${account.displayBalance})`
         : ''*/}
-                  <StyledAvatar size={6} address={account.address} />
-                  {account.displayName}
-                </ConnectedButton>
-              </div>
-            )
-          })()}
-        </div>
-      )
-    }}
-  </ConnectButton.Custom>
-)
+                    <StyledAvatar size={6} address={account.address} />
+                    {nickname}
+                  </ConnectedButton>
+                </div>
+              )
+            })()}
+          </div>
+        )
+      }}
+    </ConnectButton.Custom>
+  )
+}
 
 const Header = (_props) => {
   const { pathname } = useLocation()
@@ -170,11 +177,14 @@ const Header = (_props) => {
           <StyledLink to={'/'} active={(pathname === '/').toString()}>
             Overview
           </StyledLink>
+          <StyledLink withmargin="true" to={'/staking'} active={(pathname === '/staking').toString()}>
+            Staking
+          </StyledLink>
           <StyledLink withmargin="true" to={'/lending'} active={(pathname === '/lending').toString()}>
             Lending
           </StyledLink>
-          <StyledLink withmargin="true" to={'/sentinel'} active={(pathname === '/sentinel').toString()}>
-            Sentinel
+          <StyledLink withmargin="true" to={'/nodes'} active={(pathname === '/nodes').toString()}>
+            Nodes
           </StyledLink>
         </StyledNav>
         <ButtonsContainer>
@@ -189,11 +199,14 @@ const Header = (_props) => {
           <StyledLinkMobile to={'/'} active={(pathname === '/').toString()}>
             Overview
           </StyledLinkMobile>
+          <StyledLinkMobile withmargin="true" to={'/staking'} active={(pathname === '/staking').toString()}>
+            Staking
+          </StyledLinkMobile>
           <StyledLinkMobile withmargin="true" to={'/lending'} active={(pathname === '/lending').toString()}>
             Lending
           </StyledLinkMobile>
-          <StyledLinkMobile withmargin="true" to={'/sentinel'} active={(pathname === '/sentinel').toString()}>
-            Sentinel
+          <StyledLinkMobile withmargin="true" to={'/nodes'} active={(pathname === '/nodes').toString()}>
+            Nodes
           </StyledLinkMobile>
         </ContainerLinkMobile>
       </HeaderContainer>

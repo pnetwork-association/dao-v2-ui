@@ -1,16 +1,16 @@
-import { useMemo, useState, useEffect } from 'react'
-import {
-  useAccount,
-  useContractRead,
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useBalance,
-  erc20ABI
-} from 'wagmi'
-import moment from 'moment'
-import { ethers } from 'ethers'
 import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+import moment from 'moment'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  erc20ABI,
+  useAccount,
+  useBalance,
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction
+} from 'wagmi'
 
 import settings from '../settings'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
@@ -125,7 +125,7 @@ const useStake = () => {
 
 const useUnstake = () => {
   const [amount, setAmount] = useState('0')
-  const { availableToUnstakePntAmount } = useLocks()
+  const { availableToUnstakePntAmount } = useUserStake()
 
   const onChainAmount = useMemo(
     () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
@@ -155,7 +155,7 @@ const useUnstake = () => {
   }
 }
 
-const useLocks = () => {
+const useUserStake = () => {
   const { address } = useAccount()
 
   const { data } = useContractRead({
@@ -180,4 +180,4 @@ const useLocks = () => {
   }
 }
 
-export { useStake, useLocks, useUnstake }
+export { useStake, useUnstake, useUserStake }

@@ -1,15 +1,13 @@
+import BigNumber from 'bignumber.js'
 import React from 'react'
 import styled from 'styled-components'
-import BigNumber from 'bignumber.js'
 
 import settings from '../../../settings'
-import { slicer } from '../../../utils/address'
 import { getAddressExplorerLink } from '../../../utils/explorer'
 
-import Text from '../../base/Text'
-import A from '../../base/A'
-import { ethers } from 'ethers'
 import { formatAssetAmount } from '../../../utils/amount'
+import A from '../../base/A'
+import Text from '../../base/Text'
 
 const Address = styled(A)`
   font-size: 15px;
@@ -26,7 +24,7 @@ const AssetLogo = styled.img`
 
 const Action = ({ action }) => {
   if (action.name === 'Transfer') {
-    const { from, to, value, address } = action
+    const { from, fromNickname, to, toNickname, value, address } = action
     const asset = settings.assets.find((_asset) => _asset.address.toLowerCase() === address.toLowerCase())
     const amount = formatAssetAmount(BigNumber(value).dividedBy(10 ** 18), asset.symbol)
 
@@ -38,12 +36,43 @@ const Action = ({ action }) => {
         <AssetLogo src={asset.logo} />
         <Text>&nbsp;&nbsp;from&nbsp;</Text>
         <Address href={getAddressExplorerLink(from)} target="_blank">
-          {slicer(ethers.utils.getAddress(from))}
+          {fromNickname}
         </Address>
         <Text>&nbsp;to&nbsp;</Text>
         <Address href={getAddressExplorerLink(to)} target="_blank">
-          {slicer(ethers.utils.getAddress(to))}
+          {toNickname}
         </Address>
+      </div>
+    )
+  }
+
+  if (action.name === 'StartVote') {
+    const { creator, creatorNickname, metadata } = action
+
+    return (
+      <div className="d-flex">
+        <Address href={getAddressExplorerLink(creator)} target="_blank">
+          {creatorNickname}
+        </Address>
+        <Text>&nbsp;opened a new proposal:&nbsp;</Text>
+        <Text variant="text2">{metadata}</Text>
+      </div>
+    )
+  }
+
+  if (action.name === 'Staked') {
+    const { formattedAmount, formattedDuration, receiver, receiverNickname } = action
+
+    return (
+      <div className="d-flex">
+        <Address href={getAddressExplorerLink(receiver)} target="_blank">
+          {receiverNickname}
+        </Address>
+        <Text>&nbsp;staked&nbsp;</Text>
+        <Text variant="text2">{formattedAmount}&nbsp;</Text>
+        <AssetLogo src={'assets/svg/PNT.svg'} />
+        <Text>&nbsp;&nbsp;for&nbsp;</Text>
+        <Text variant="text2">{formattedDuration}</Text>
       </div>
     )
   }

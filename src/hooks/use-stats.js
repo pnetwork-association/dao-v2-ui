@@ -5,28 +5,10 @@ import { useContractReads, erc20ABI } from 'wagmi'
 
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
-import { useBalances } from './use-balances'
-import { useAccountLoanEndEpoch } from './use-borrowing-manager'
 import { useEpochs } from './use-epochs'
 
-const useOverview = () => {
-  // const [pendingRewards, setPendingRewards] = useState([])
-  const { pntBalance, daoPntBalance, formattedPntBalance, formattedDaoPntBalance } = useBalances()
-  const loanEndEpoch = useAccountLoanEndEpoch()
-  const { currentEpoch, formattedCurrentEpoch } = useEpochs()
-
-  /*useEffect(() => {
-    const fetchPendingRewards = async () => {
-      try {
-        const { data } = awaitaxios.get(`https://widgets.eidoo.app/api/get_rewards?address=${address}`)
-        console.log(data)
-      } catch(_err) {
-        console.error(_err)
-      }
-    }
-
-    fetchPendingRewards()
-  }, [address])*/
+const useStats = () => {
+  const { currentEpoch, formattedCurrentEpoch, formattedCurrentEpochEndAt } = useEpochs()
 
   const { data } = useContractReads({
     cacheTime: 1000 * 60 * 2,
@@ -54,10 +36,6 @@ const useOverview = () => {
     () => (data && data[1] ? BigNumber(data[1].toString()).dividedBy(10 ** 18) : BigNumber(null)),
     [data]
   )
-  const votingPower = useMemo(
-    () => BigNumber(daoPntBalance).dividedBy(daoPntTotalSupply).multipliedBy(100),
-    [daoPntBalance, daoPntTotalSupply]
-  )
   const percentageStakedPnt = useMemo(
     () => daoPntTotalSupply.dividedBy(pntTotalSupply).multipliedBy(100),
     [pntTotalSupply, daoPntTotalSupply]
@@ -65,25 +43,17 @@ const useOverview = () => {
 
   return {
     currentEpoch,
-    daoPntBalance,
     daoPntTotalSupply: daoPntTotalSupply.toFixed(),
     formattedCurrentEpoch,
-    formattedDaoPntBalance,
+    formattedCurrentEpochEndAt,
     formattedDaoPntTotalSupply: formatAssetAmount(daoPntTotalSupply, 'daoPNT'),
     formattedPercentageStakedPnt: formatAssetAmount(percentageStakedPnt, '%', {
       decimals: 2
     }),
-    formattedPntBalance,
     formattedPntTotalSupply: formatAssetAmount(pntTotalSupply, 'PNT'),
-    formattedVotingPower: formatAssetAmount(votingPower, '%', {
-      decimals: 6
-    }),
-    loanEndEpoch,
     percentageStakedPnt: percentageStakedPnt.toFixed(),
-    pntBalance,
-    pntTotalSupply: pntTotalSupply.toFixed(),
-    votingPower: votingPower.toFixed()
+    pntTotalSupply: pntTotalSupply.toFixed()
   }
 }
 
-export { useOverview }
+export { useStats }

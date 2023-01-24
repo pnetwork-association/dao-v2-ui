@@ -64,7 +64,9 @@ const CreateProposalModal = ({ show, onClose }) => {
 
   const isScriptValid = useMemo(() => isValidHexString(script), [script])
   const hasPermissionOrEnoughBalance = useMemo(
-    () => hasPermission || BigNumber(daoPntBalance).isGreaterThan(BigNumber(minOpenVoteAmount).dividedBy(10 ** 18)),
+    () =>
+      hasPermission ||
+      BigNumber(daoPntBalance).isGreaterThanOrEqualTo(BigNumber(minOpenVoteAmount?.toString()).dividedBy(10 ** 18)),
     [hasPermission, minOpenVoteAmount, daoPntBalance]
   )
 
@@ -83,7 +85,8 @@ const CreateProposalModal = ({ show, onClose }) => {
   const {
     write: createProposal,
     error: createProposalError,
-    data: createProposalData
+    data: createProposalData,
+    isLoading
   } = useContractWrite(newProposalConfig)
 
   useEffect(() => {
@@ -158,7 +161,7 @@ const CreateProposalModal = ({ show, onClose }) => {
       )}
       <Row className="mt-2 mb-2">
         <Col>
-          <Button disabled={!canCreateProposal} onClick={() => createProposal?.()}>
+          <Button disabled={!canCreateProposal} loading={isLoading} onClick={() => createProposal?.()}>
             Create new proposal
           </Button>
         </Col>

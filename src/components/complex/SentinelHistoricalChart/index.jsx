@@ -108,7 +108,6 @@ const SentinelHistoricalChart = () => {
           type: 'bar',
           backgroundColor: theme.primary1,
           data: [25, 27, 27, 24, 23, 18].reverse(),
-          borderWidth: 2,
           yAxisID: 'totalNumberOfNodes',
           label: 'Number of nodes'
         }
