@@ -8,6 +8,8 @@ const Text = styled.span`
 
   font-size: ${({ size }) => {
     switch (size) {
+      case 'xs':
+        return 11
       case 'sm':
         return 13
       case 'md':
@@ -24,6 +26,8 @@ const Text = styled.span`
   @media (max-width: 767.98px) {
     font-size: ${({ size }) => {
       switch (size) {
+        case 'xs':
+          return 9
         case 'sm':
           return 11
         case 'md':

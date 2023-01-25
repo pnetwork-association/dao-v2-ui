@@ -16,13 +16,13 @@ const StyledBody = styled(Modal.Body)`
   color: ${({ theme }) => theme.text1};
   font-size: 18px;
   padding: 0.25rem 0.75rem;
-  background: ${({ theme }) => theme.bg1};
+  background: ${({ theme }) => theme.white};
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
 `
 
 const StyledHeader = styled(Modal.Header)`
-  background: ${({ theme }) => theme.bg1};
+  background: ${({ theme }) => theme.white};
   border-bottom: 1px solid ${({ theme }) => theme.superLightGray};
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
