@@ -16,7 +16,7 @@ import PageTemplate from '../../templates/PageTemplate'
 
 const StyledActivities = styled(Activities)`
   height: 665px;
-  max-height: 730px;
+  max-height: 665px;
   overflow: auto;
 `
 

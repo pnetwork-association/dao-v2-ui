@@ -9,10 +9,6 @@ import { formatAssetAmount } from '../../../utils/amount'
 import A from '../../base/A'
 import Text from '../../base/Text'
 
-const Address = styled(A)`
-  font-size: 15px;
-`
-
 const AssetLogo = styled.img`
   width: 24px;
   height: 24px;
@@ -30,18 +26,20 @@ const Action = ({ action }) => {
 
     return (
       <div className="d-flex">
-        <Text variant="text2">Transfer&nbsp;</Text>
-        <Text>of&nbsp;</Text>
-        <Text variant="text2">{amount}&nbsp;</Text>
-        <AssetLogo src={asset.logo} />
-        <Text>&nbsp;&nbsp;from&nbsp;</Text>
-        <Address href={getAddressExplorerLink(from)} target="_blank">
-          {fromNickname}
-        </Address>
-        <Text>&nbsp;to&nbsp;</Text>
-        <Address href={getAddressExplorerLink(to)} target="_blank">
-          {toNickname}
-        </Address>
+        <span>
+          <Text variant="text2">Transfer&nbsp;</Text>
+          <Text>of&nbsp;</Text>
+          <Text variant="text2">{amount}&nbsp;</Text>
+          <AssetLogo src={asset.logo} />
+          <Text>&nbsp;&nbsp;from&nbsp;</Text>
+          <A href={getAddressExplorerLink(from)} target="_blank">
+            {fromNickname}
+          </A>
+          <Text>&nbsp;to&nbsp;</Text>
+          <A href={getAddressExplorerLink(to)} target="_blank">
+            {toNickname}
+          </A>
+        </span>
       </div>
     )
   }
@@ -52,9 +50,9 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <Address href={getAddressExplorerLink(creator)} target="_blank">
+          <A href={getAddressExplorerLink(creator)} target="_blank">
             {creatorNickname}
-          </Address>
+          </A>
           <Text>&nbsp;opened a new proposal:&nbsp;</Text>
           <Text variant="text2">{metadata}</Text>
         </span>
@@ -68,9 +66,9 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <Address href={getAddressExplorerLink(receiver)} target="_blank">
+          <A href={getAddressExplorerLink(receiver)} target="_blank">
             {receiverNickname}
-          </Address>
+          </A>
           <Text>&nbsp;staked&nbsp;</Text>
           <Text variant="text2">{formattedAmount}&nbsp;</Text>
           <AssetLogo src={'assets/svg/PNT.svg'} />

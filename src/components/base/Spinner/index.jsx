@@ -3,8 +3,34 @@ import styled from 'styled-components'
 
 const StyledSpinner = styled.svg`
   animation: rotate 2s linear infinite;
-  width: 25px;
-  height: 25px;
+  width: ${({ size }) => {
+    switch (size) {
+      case 'sm':
+        return 23
+      case 'md':
+        return 25
+      case 'lg':
+        return 40
+      case 'xl':
+        return 60
+      default:
+        return 25
+    }
+  }}px;
+  height: ${({ size }) => {
+    switch (size) {
+      case 'sm':
+        return 23
+      case 'md':
+        return 25
+      case 'lg':
+        return 40
+      case 'xl':
+        return 60
+      default:
+        return 25
+    }
+  }}px;
 
   & .path {
     stroke: ${({ theme }) => theme.text2};
@@ -33,8 +59,8 @@ const StyledSpinner = styled.svg`
   }
 `
 
-const Spinner = () => (
-  <StyledSpinner viewBox="0 0 50 50">
+const Spinner = (_props) => (
+  <StyledSpinner viewBox="0 0 50 50" {..._props}>
     <circle className="path" cx="25" cy="25" r="20" fill="none" strokeWidth="5" />
   </StyledSpinner>
 )

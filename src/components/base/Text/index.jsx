@@ -14,6 +14,8 @@ const Text = styled.span`
         return 15
       case 'lg':
         return 17
+      case 'xl':
+        return 19
       default:
         return 15
     }
@@ -28,6 +30,8 @@ const Text = styled.span`
           return 13
         case 'lg':
           return 15
+        case 'xl':
+          return 17
         default:
           return 11
       }

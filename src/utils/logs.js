@@ -67,7 +67,7 @@ const extractActivityFromEvents = async (_events) => {
           creator,
           creatorNickname: getNickname(creator),
           formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
-          metadata: metadata + metadata + metadata + metadata,
+          metadata: metadata,
           timestamp,
           type: 'StartVote',
           voteId
