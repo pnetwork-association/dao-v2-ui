@@ -15,7 +15,7 @@ import UnstakeModal from '../../complex/UnstakeModal'
 import PageTemplate from '../../templates/PageTemplate'
 
 const StyledActivities = styled(Activities)`
-  height: 730px;
+  height: 665px;
   max-height: 730px;
   overflow: auto;
 `
@@ -29,7 +29,7 @@ const Overview = () => {
   return (
     <PageTemplate>
       <Row>
-        <Col xs={12} lg={8} className="mt-3">
+        <Col xs={12} lg={7} className="mt-3">
           <Row>
             <Col>
               <Stats />
@@ -43,7 +43,7 @@ const Overview = () => {
             </Col>
           </Row>
         </Col>
-        <Col xs={12} lg={4} className="mt-3">
+        <Col xs={12} lg={5} className="mt-3">
           <StyledActivities />
         </Col>
       </Row>

@@ -1,6 +1,10 @@
 import { ethers } from 'ethers'
+import moment from 'moment'
+import BigNumber from 'bignumber.js'
 
 import { getNickname } from './nicknames'
+import { parseSeconds } from './time'
+import { formatAssetAmount } from './amount'
 
 const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
 
@@ -31,4 +35,48 @@ const extractActionsFromTransaction = (_transaction) => {
   return actions
 }
 
-export { extractActionsFromTransaction }
+const extractActivityFromEvents = async (_events) => {
+  const blocks = await Promise.all(_events.map(({ getBlock }) => getBlock()))
+  return _events
+    .map(({ decode, data, event, topics }) => ({ data: decode(data, topics), event }))
+    .map(({ data, event }, _index) => {
+      const timestamp = blocks[_index].timestamp
+
+      if (event === 'Staked') {
+        const { amount, duration, receiver } = data
+        const am = BigNumber(amount?.toString())
+          .dividedBy(10 ** 18)
+          .toFixed()
+
+        return {
+          amount: am,
+          duration: BigNumber(duration?.toString()).toNumber(),
+          formattedAmount: formatAssetAmount(am, 'PNT'),
+          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDuration: parseSeconds(duration),
+          receiver,
+          receiverNickname: getNickname(receiver),
+          timestamp,
+          type: 'Staked'
+        }
+      }
+
+      if (event === 'StartVote') {
+        const { creator, metadata, voteId } = data
+        return {
+          creator,
+          creatorNickname: getNickname(creator),
+          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          metadata: metadata + metadata + metadata + metadata,
+          timestamp,
+          type: 'StartVote',
+          voteId
+        }
+      }
+
+      return null
+    })
+    .filter((_val) => _val)
+}
+
+export { extractActionsFromTransaction, extractActivityFromEvents }

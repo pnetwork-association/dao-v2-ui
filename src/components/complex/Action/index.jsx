@@ -51,11 +51,13 @@ const Action = ({ action }) => {
 
     return (
       <div className="d-flex">
-        <Address href={getAddressExplorerLink(creator)} target="_blank">
-          {creatorNickname}
-        </Address>
-        <Text>&nbsp;opened a new proposal:&nbsp;</Text>
-        <Text variant="text2">{metadata}</Text>
+        <span>
+          <Address href={getAddressExplorerLink(creator)} target="_blank">
+            {creatorNickname}
+          </Address>
+          <Text>&nbsp;opened a new proposal:&nbsp;</Text>
+          <Text variant="text2">{metadata}</Text>
+        </span>
       </div>
     )
   }
@@ -65,14 +67,16 @@ const Action = ({ action }) => {
 
     return (
       <div className="d-flex">
-        <Address href={getAddressExplorerLink(receiver)} target="_blank">
-          {receiverNickname}
-        </Address>
-        <Text>&nbsp;staked&nbsp;</Text>
-        <Text variant="text2">{formattedAmount}&nbsp;</Text>
-        <AssetLogo src={'assets/svg/PNT.svg'} />
-        <Text>&nbsp;&nbsp;for&nbsp;</Text>
-        <Text variant="text2">{formattedDuration}</Text>
+        <span>
+          <Address href={getAddressExplorerLink(receiver)} target="_blank">
+            {receiverNickname}
+          </Address>
+          <Text>&nbsp;staked&nbsp;</Text>
+          <Text variant="text2">{formattedAmount}&nbsp;</Text>
+          <AssetLogo src={'assets/svg/PNT.svg'} />
+          <Text>&nbsp;&nbsp;for&nbsp;</Text>
+          <Text variant="text2">{formattedDuration}</Text>
+        </span>
       </div>
     )
   }

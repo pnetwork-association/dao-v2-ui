@@ -1,13 +1,10 @@
-import BigNumber from 'bignumber.js'
 import { useEffect, useMemo, useState } from 'react'
 import { useBlockNumber, useContract, useProvider } from 'wagmi'
 
 import settings from '../settings'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import VotingAbi from '../utils/abis/Voting.json'
-import { formatAssetAmount } from '../utils/amount'
-import { parseSeconds } from '../utils/time'
-import { getNickname } from '../utils/nicknames'
+import { extractActivityFromEvents } from '../utils/logs'
 
 const useActivities = () => {
   const [stakingManagerActivities, setStakingManagerActivities] = useState([])
@@ -37,25 +34,8 @@ const useActivities = () => {
           // stakingManager.queryFilter('Unstaked', fromBlock, toBlock)
         ])
 
-        const decodedStakeEvents = stakeEvents
-          .map(({ decode, data, topics }) => decode(data, topics))
-          .map(({ amount, duration, receiver }) => {
-            const am = BigNumber(amount?.toString())
-              .dividedBy(10 ** 18)
-              .toFixed()
-
-            return {
-              amount: am,
-              duration: BigNumber(duration?.toString()).toNumber(),
-              formattedAmount: formatAssetAmount(am, 'PNT'),
-              formattedDuration: parseSeconds(duration),
-              receiver,
-              receiverNickname: getNickname(receiver),
-              type: 'Staked'
-            }
-          })
-
-        setStakingManagerActivities(decodedStakeEvents)
+        const activitiesStakeEvents = await extractActivityFromEvents(stakeEvents)
+        setStakingManagerActivities(activitiesStakeEvents)
       } catch (_err) {
         console.error(_err)
       }
@@ -71,25 +51,14 @@ const useActivities = () => {
       try {
         const fromBlock = blockNumber - 4 * 10080
         const toBlock = blockNumber
-        const [castVoteEvents, startVoteEvents] = await Promise.all([
+        const [, /*castVoteEvents*/ startVoteEvents] = await Promise.all([
           voting.queryFilter('CastVote', fromBlock, toBlock),
           voting.queryFilter('StartVote', fromBlock, toBlock)
           // stakingManager.queryFilter('Unstaked', fromBlock, toBlock)
         ])
 
-        const decodedCastVoteEvents = castVoteEvents.map(({ decode, data, topics }) => decode(data, topics))
-
-        const decodedStartVoteEvents = startVoteEvents
-          .map(({ decode, data, topics }) => decode(data, topics))
-          .map(({ creator, metadata, voteId }) => ({
-            creator,
-            creatorNickname: getNickname(creator),
-            metadata,
-            type: 'StartVote',
-            voteId
-          }))
-
-        setVotingActivities([...decodedCastVoteEvents, ...decodedStartVoteEvents])
+        const activitiesStartVoteEvents = await extractActivityFromEvents(startVoteEvents)
+        setVotingActivities(activitiesStartVoteEvents)
       } catch (_err) {
         console.error(_err)
       }
@@ -101,7 +70,7 @@ const useActivities = () => {
   }, [blockNumber, voting])
 
   const activities = useMemo(
-    () => [...stakingManagerActivities, ...votingActivities],
+    () => [...stakingManagerActivities, ...votingActivities].sort((_b, _a) => _a?.timestamp - _b?.timestamp),
     [stakingManagerActivities, votingActivities]
   )
 

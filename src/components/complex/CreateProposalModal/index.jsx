@@ -116,7 +116,7 @@ const CreateProposalModal = ({ show, onClose }) => {
   }, [showScript])
 
   return (
-    <Modal show={show} title="Create Proposal" onClose={onClose} size="md">
+    <Modal show={show} title="Create Proposal" onClose={onClose} size="lg">
       <Row className="mt-2">
         <Col>
           <Text>Question</Text>
@@ -162,7 +162,7 @@ const CreateProposalModal = ({ show, onClose }) => {
       <Row className="mt-2 mb-2">
         <Col>
           <Button disabled={!canCreateProposal} loading={isLoading} onClick={() => createProposal?.()}>
-            Create new proposal
+            Create proposal
           </Button>
         </Col>
       </Row>

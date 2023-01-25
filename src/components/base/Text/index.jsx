@@ -5,8 +5,33 @@ const Text = styled.span`
   font-size: 15px;
   letter-spacing: 0px;
   color: ${({ theme, variant }) => (variant ? theme[variant] : theme.text1)};
+
+  font-size: ${({ size }) => {
+    switch (size) {
+      case 'sm':
+        return 13
+      case 'md':
+        return 15
+      case 'lg':
+        return 17
+      default:
+        return 15
+    }
+  }}px;
+
   @media (max-width: 767.98px) {
-    font-size: 11px;
+    font-size: ${({ size }) => {
+      switch (size) {
+        case 'sm':
+          return 11
+        case 'md':
+          return 13
+        case 'lg':
+          return 15
+        default:
+          return 11
+      }
+    }}px;
   }
 `
 
