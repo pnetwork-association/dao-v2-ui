@@ -23,7 +23,7 @@ const StyledBody = styled(Modal.Body)`
 
 const StyledHeader = styled(Modal.Header)`
   background: ${({ theme }) => theme.white};
-  border-bottom: 1px solid ${({ theme }) => theme.superLightGray};
+  border: 0;
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
   padding-left: 0.75rem;

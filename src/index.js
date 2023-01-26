@@ -27,6 +27,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import 'react-toastify/dist/ReactToastify.css'
 import 'rc-slider/assets/index.css'
+import 'react-tooltip/dist/react-tooltip.css'
 
 window.Buffer = window.Buffer || require('buffer').Buffer
 

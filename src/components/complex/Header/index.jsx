@@ -1,5 +1,5 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import React from 'react'
+import React, { Fragment, useState } from 'react'
 import { Container, Nav, Navbar } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
@@ -8,6 +8,7 @@ import { useNickname } from '../../../hooks/use-nickname'
 
 import Avatar from '../../base/Avatar'
 import Button from '../../base/Button'
+import AccountModal from '../AccountModal'
 
 const Logo = styled.img`
   width: 40px;
@@ -91,33 +92,35 @@ const StyledNavbar = styled(Navbar)`
 `
 
 const CustomConnectButton = () => {
+  const [showAccountModal, setShowAccountModal] = useState(false)
   const nickname = useNickname()
 
   return (
-    <ConnectButton.Custom>
-      {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
-        const ready = mounted && authenticationStatus !== 'loading'
-        const connected =
-          ready && account && chain && (!authenticationStatus || authenticationStatus === 'authenticated')
+    <Fragment>
+      <ConnectButton.Custom>
+        {({ account, chain, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+          const ready = mounted && authenticationStatus !== 'loading'
+          const connected =
+            ready && account && chain && (!authenticationStatus || authenticationStatus === 'authenticated')
 
-        return (
-          <div>
-            {(() => {
-              if (!connected) {
-                return <Button onClick={openConnectModal}>Connect Wallet</Button>
-              }
+          return (
+            <div>
+              {(() => {
+                if (!connected) {
+                  return <Button onClick={openConnectModal}>Connect Wallet</Button>
+                }
 
-              if (chain.unsupported) {
+                if (chain.unsupported) {
+                  return (
+                    <Button onClick={openChainModal} type="button">
+                      Wrong network
+                    </Button>
+                  )
+                }
+
                 return (
-                  <Button onClick={openChainModal} type="button">
-                    Wrong network
-                  </Button>
-                )
-              }
-
-              return (
-                <div>
-                  {/*<button
+                  <div>
+                    {/*<button
       onClick={openChainModal}
       style={{ display: 'flex', alignItems: 'center' }}
       type="button"
@@ -145,20 +148,22 @@ const CustomConnectButton = () => {
       {chain.name}
           </button>*/}
 
-                  <ConnectedButton onClick={openAccountModal}>
-                    {/*account.displayBalance
+                    <ConnectedButton onClick={() => setShowAccountModal(true)}>
+                      {/*account.displayBalance
         ? ` (${account.displayBalance})`
         : ''*/}
-                    <StyledAvatar size={6} address={account.address} />
-                    {nickname}
-                  </ConnectedButton>
-                </div>
-              )
-            })()}
-          </div>
-        )
-      }}
-    </ConnectButton.Custom>
+                      <StyledAvatar size={6} address={account.address} />
+                      {nickname}
+                    </ConnectedButton>
+                  </div>
+                )
+              })()}
+            </div>
+          )
+        }}
+      </ConnectButton.Custom>
+      <AccountModal show={showAccountModal} onClose={() => setShowAccountModal(false)} />
+    </Fragment>
   )
 }
 
