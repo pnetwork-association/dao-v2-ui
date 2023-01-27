@@ -88,7 +88,7 @@ const ContainerLinkMobile = styled.div`
 `
 
 const StyledNavbar = styled(Navbar)`
-  padding-top: 0;
+  padding: 0;
 `
 
 const CustomConnectButton = () => {

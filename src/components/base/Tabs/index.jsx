@@ -14,6 +14,11 @@ const StyledTabs = styled(Tabs)`
     color: ${({ theme }) => theme.text1};
     border-bottom: 1px solid ${({ theme }) => theme.superLightGray};
     padding: 1rem !important;
+
+    @media (max-width: 767.98px) {
+      padding: 0.5rem !important;
+      font-size: 13px;
+    }
   }
 
   .nav-item .nav-item.show .nav-link,

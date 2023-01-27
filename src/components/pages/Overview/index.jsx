@@ -27,7 +27,7 @@ const Overview = () => {
         <Col xs={12} lg={6}>
           <Stats />
         </Col>
-        <Col xs={12} lg={6}>
+        <Col xs={12} lg={6} className="mt-4 mt-sm-0">
           <StyledActivities />
         </Col>
       </Row>

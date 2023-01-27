@@ -26,6 +26,10 @@ const InnerTabContainer = styled.div`
   padding: 1.5rem 1.5rem;
   background: ${({ theme }) => theme.bg2};
   border-bottom-radius: 8px;
+
+  @media (max-width: 767.98px) {
+    padding: 0.75rem !important;
+  }
 `
 
 const BoxNoPadding = styled(Box)`

@@ -6,12 +6,17 @@ import Header from '../../complex/Header'
 
 const StyledContainer = styled(Container)`
   margin-top: 1rem;
-  padding: 1.5rem 1.5rem 5rem 1.5rem;
+  padding: 1.5rem;
   background: ${({ theme, bgthemecolor }) => theme[bgthemecolor] || theme.bg1};
+  border-radius: 8px;
+
   @media (min-width: 1200px) {
     max-width: 1200px !important;
   }
-  border-radius: 8px;
+
+  @media (max-width: 767.98px) {
+    padding: 0.75rem !important;
+  }
 `
 
 const PageTemplate = ({ children, bgthemecolor }) => {
