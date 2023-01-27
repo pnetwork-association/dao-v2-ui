@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useContext } from 'react'
 import { useBlockNumber, useContract, useProvider } from 'wagmi'
 
 import settings from '../settings'
+import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import VotingAbi from '../utils/abis/Voting.json'
 import { extractActivityFromEvents } from '../utils/logs'
@@ -18,6 +19,7 @@ const useActivities = () => {
 
   const [localActivities, setLocalActivities] = useState([])
   const [stakingManagerActivities, setStakingManagerActivities] = useState(null)
+  const [borrowingManagerActivities, setBorrowingManagerActivities] = useState(null)
   const [votingActivities, setVotingActivities] = useState(null)
   const { data: blockNumber } = useBlockNumber({
     watch: true
@@ -27,6 +29,12 @@ const useActivities = () => {
   const stakingManager = useContract({
     address: settings.contracts.stakingManager,
     abi: StakingManagerABI,
+    signerOrProvider: provider
+  })
+
+  const borrowingManager = useContract({
+    address: settings.contracts.borrowingManager,
+    abi: BorrowingManagerABI,
     signerOrProvider: provider
   })
 
@@ -65,6 +73,23 @@ const useActivities = () => {
   }, [stakingManager, fromBlock, toBlock, cachedLastBlock])
 
   useEffect(() => {
+    const fetchBorrowingManagerData = async () => {
+      try {
+        const [lendEvents] = await Promise.all([borrowingManager.queryFilter('Lended', fromBlock, toBlock)])
+
+        const activitiesLendEvents = await extractActivityFromEvents(lendEvents)
+        setBorrowingManagerActivities(activitiesLendEvents)
+      } catch (_err) {
+        console.error(_err)
+      }
+    }
+
+    if (borrowingManager?.queryFilter && fromBlock && toBlock && toBlock > cachedLastBlock) {
+      fetchBorrowingManagerData()
+    }
+  }, [borrowingManager, fromBlock, toBlock, cachedLastBlock])
+
+  useEffect(() => {
     const fetchVotingData = async () => {
       try {
         const [, /*castVoteEvents*/ startVoteEvents] = await Promise.all([
@@ -87,13 +112,14 @@ const useActivities = () => {
   }, [voting, fromBlock, toBlock, cachedLastBlock])
 
   useEffect(() => {
-    if (stakingManagerActivities && votingActivities) {
+    if (stakingManagerActivities && votingActivities && borrowingManagerActivities) {
       // console.log("storing", stakingManagerActivities.length, votingActivities.length)
-      setLocalActivities([...stakingManagerActivities, ...votingActivities])
+      setLocalActivities([...stakingManagerActivities, ...borrowingManagerActivities, ...votingActivities])
       setStakingManagerActivities(null)
+      setBorrowingManagerActivities(null)
       setVotingActivities(null)
     }
-  }, [stakingManagerActivities, votingActivities])
+  }, [stakingManagerActivities, borrowingManagerActivities, votingActivities])
 
   useEffect(() => {
     if (toBlock > cachedLastBlock && localActivities?.length > 0) {

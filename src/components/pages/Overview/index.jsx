@@ -1,56 +1,28 @@
-import 'chart.js/auto'
-import React, { useState } from 'react'
+import React from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled from 'styled-components'
 
 import Box from '../../base/Box'
 import Activities from '../../complex/Activities'
-import LendModal from '../../complex/LendModal'
 import Proposals from '../../complex/Proposals'
-import RegisterSentinelModal from '../../complex/RegisterSentinelModal'
 import SentinelHistoricalChart from '../../complex/SentinelHistoricalChart'
-import StakeModal from '../../complex/StakeModal'
 import Stats from '../../complex/Stats'
-import UnstakeModal from '../../complex/UnstakeModal'
 import PageTemplate from '../../templates/PageTemplate'
 
 const StyledActivities = styled(Activities)`
-  height: 222px;
-  max-height: 222px;
+  height: 232px;
+  max-height: 232px;
   overflow: auto;
 `
 
 const TabsBox = styled(Box)`
-  padding: 10px 0px;
+  padding: 0;
+  padding-bottom: 0.5rem;
 `
 
 const Overview = () => {
-  const [showStakeModal, setShowStakeModal] = useState(false)
-  const [showLendModal, setShowLendModal] = useState(false)
-  const [showUnstakeModal, setShowUnstakeModal] = useState(false)
-  const [showRegisterSentinelModal, setShowRegisterSentinelModal] = useState(false)
-
   return (
     <PageTemplate>
-      {/*<Row>
-        <Col xs={12} lg={7} className="mt-3">
-          <Row>
-            <Col>
-              <Stats />
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Box className="mt-3">
-                <SentinelHistoricalChart />
-              </Box>
-            </Col>
-          </Row>
-        </Col>
-        <Col xs={12} lg={5} className="mt-3">
-          <StyledActivities />
-        </Col>
-  </Row>*/}
       <Row>
         <Col xs={12} lg={6}>
           <Stats />
@@ -71,10 +43,6 @@ const Overview = () => {
           <Proposals />
         </TabsBox>
       </div>
-      <StakeModal show={showStakeModal} onClose={() => setShowStakeModal(false)} />
-      <LendModal show={showLendModal} onClose={() => setShowLendModal(false)} />
-      <UnstakeModal show={showUnstakeModal} onClose={() => setShowUnstakeModal(false)} />
-      <RegisterSentinelModal show={showRegisterSentinelModal} onClose={() => setShowRegisterSentinelModal(false)} />
     </PageTemplate>
   )
 }

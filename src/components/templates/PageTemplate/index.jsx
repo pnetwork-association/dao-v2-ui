@@ -5,17 +5,20 @@ import styled from 'styled-components'
 import Header from '../../complex/Header'
 
 const StyledContainer = styled(Container)`
-  padding-bottom: 50px;
+  margin-top: 1rem;
+  padding: 1.5rem 1.5rem 5rem 1.5rem;
+  background: ${({ theme, bgthemecolor }) => theme[bgthemecolor] || theme.bg1};
   @media (min-width: 1200px) {
-    max-width: 1000px !important;
+    max-width: 1200px !important;
   }
+  border-radius: 8px;
 `
 
-const PageTemplate = ({ children }) => {
+const PageTemplate = ({ children, bgthemecolor }) => {
   return (
     <React.Fragment>
       <Header />
-      <StyledContainer>{children}</StyledContainer>
+      <StyledContainer bgthemecolor={bgthemecolor}>{children}</StyledContainer>
     </React.Fragment>
   )
 }

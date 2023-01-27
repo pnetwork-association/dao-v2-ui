@@ -11,7 +11,7 @@ export const colors = (_darkMode) => ({
   text4: _darkMode ? '#FFFFFF' : '#016273',
 
   bg1: _darkMode ? '#2C313B' : '#e5e5e529',
-  bg2: _darkMode ? '#a7aaaf42' : '#ececec',
+  bg2: _darkMode ? '#a7aaaf42' : '#ececec7a',
   bg3: _darkMode ? '#a7aaaf42' : '#FFFFFF',
 
   primary1: _darkMode ? '#32b1f5' : '#ff6666',
@@ -44,7 +44,9 @@ export const colors = (_darkMode) => ({
   blue: '#66B8FF',
   lightBlue: '#66b8ff40',
   orange: '#FBA21D',
-  lightOrange: '#FBA21D33'
+  lightOrange: '#FBA21D33',
+
+  transparent: 'transparent'
 })
 
 export const theme = (_darkMode) => ({

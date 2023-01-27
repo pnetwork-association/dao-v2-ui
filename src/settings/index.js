@@ -5,13 +5,11 @@ const settings = {
     voting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
     // TODO: use real ones once deployed on mainnet
-    stakingManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
-    borrowingManager: '0x8f119cd256a0FfFeed643E830ADCD9767a1d517F',
-    epochsManager: '0x4f42528B7bF8Da96516bECb22c1c6f53a8Ac7312',
-    registrationManager: '0xe14058B1c3def306e2cb37535647A04De03Db092',
-    testToken1: '0x6533158b042775e2FdFeF3cA1a782EFDbB8EB9b1',
-    testToken2: '0x73C68f1f41e4890D06Ba3e71b9E9DfA555f1fb46',
-    feesManager: '0x74ef2B06A1D2035C33244A4a263FF00B84504865',
+    stakingManager: '0xd038A2EE73b64F30d65802Ad188F27921656f28F',
+    borrowingManager: '0x09120eAED8e4cD86D85a616680151DAA653880F2',
+    epochsManager: '0xeC1BB74f5799811c0c1Bff94Ef76Fb40abccbE4a',
+    registrationManager: '0x6732128F9cc0c4344b2d4DC6285BCd516b7E59E6',
+    feesManager: '0xAe9Ed85dE2670e3112590a2BB17b7283ddF44d9c',
     signer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
   },
   stakingManager: {
@@ -47,7 +45,7 @@ const settings = {
       name: 'pTokens pBTC',
       decimals: 18,
       symbol: 'pBTC',
-      logo: 'assets/svg/PNT.svg',
+      logo: 'assets/svg/pBTC.svg',
       borrowingManagerClaimEnabled: true,
       symbolPrice: 'BTC'
     },
@@ -56,8 +54,8 @@ const settings = {
       name: 'GALA',
       decimals: 18,
       symbol: 'pGALA',
-      logo: 'assets/svg/PNT.svg',
-      borrowingManagerClaimEnabled: false,
+      logo: 'assets/svg/GALA.svg',
+      borrowingManagerClaimEnabled: true,
       symbolPrice: 'GALA'
     },
     {
@@ -65,25 +63,9 @@ const settings = {
       name: 'USD Coin',
       decimals: 6,
       symbol: 'USDC',
-      logo: 'assets/svg/PNT.svg',
+      logo: 'assets/svg/USDC.svg',
       borrowingManagerClaimEnabled: true,
       symbolPrice: 'USDC'
-    },
-    {
-      address: '0x3D0221aA6175c3B88103ecEAf2f5D551b23006C8',
-      name: 'Test Token 1',
-      decimals: 18,
-      symbol: 'TST1',
-      logo: 'assets/svg/PNT.svg',
-      borrowingManagerClaimEnabled: true
-    },
-    {
-      address: '0xd55Edfc91FA7453EE5a8be275c75dBE18cEA2710',
-      name: 'Test Token 2',
-      decimals: 18,
-      symbol: 'TST2',
-      logo: 'assets/svg/PNT.svg',
-      borrowingManagerClaimEnabled: true
     }
   ]
 }

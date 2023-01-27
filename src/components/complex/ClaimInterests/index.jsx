@@ -1,6 +1,5 @@
-import React, { Fragment, useState } from 'react'
-import styled from 'styled-components'
-import { Row, Col } from 'react-bootstrap'
+import React from 'react'
+import { Tab } from 'react-bootstrap'
 
 import {
   useClaimableInterestsAssetsByAssets,
@@ -10,37 +9,22 @@ import {
 
 import ClaimByEpochs from '../ClaimByEpochs'
 import ClaimByAssets from '../ClaimByAssets'
-import Text from '../../base/Text'
-
-const TypeText = styled(Text)`
-  color: ${({ theme, active }) => (active === 'true' ? theme.text4 : theme.text1)};
-  margin-right: 1rem;
-  cursor: pointer;
-`
+import Tabs from '../../base/Tabs'
 
 const ClaimInterests = () => {
-  const [type, setType] = useState('byAssets')
   const { claim: claimByEpoch } = useClaimInterestByEpoch()
   const claimableInterestsAssetsByEpochs = useClaimableInterestsAssetsByEpochs()
   const claimableInterestAssetsByAssets = useClaimableInterestsAssetsByAssets()
 
   return (
-    <Fragment>
-      <Row className="mb-2">
-        <Col xs={8} className="d-flex align-items-end">
-          <TypeText active={type === 'byAssets' ? 'true' : 'false'} onClick={() => setType('byAssets')}>
-            Claim by assets
-          </TypeText>
-          <TypeText active={type === 'byEpochs' ? 'true' : 'false'} onClick={() => setType('byEpochs')}>
-            Claim by epochs
-          </TypeText>
-        </Col>
-      </Row>
-      <div className="mb-3">
-        {type === 'byEpochs' && <ClaimByEpochs assets={claimableInterestsAssetsByEpochs} claim={claimByEpoch} />}
-        {type === 'byAssets' && <ClaimByAssets assets={claimableInterestAssetsByAssets} claim={claimByEpoch} />}
-      </div>
-    </Fragment>
+    <Tabs defaultActiveKey="byAsset" fill>
+      <Tab eventKey="byAsset" title="Claim by Assets">
+        <ClaimByAssets assets={claimableInterestAssetsByAssets} claim={claimByEpoch} />
+      </Tab>
+      <Tab eventKey="byEpoch" title="Claim by Epoch">
+        <ClaimByEpochs assets={claimableInterestsAssetsByEpochs} claim={claimByEpoch} />
+      </Tab>
+    </Tabs>
   )
 }
 

@@ -1,33 +1,34 @@
+import {
+  BarController,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineController,
+  LineElement,
+  PointElement,
+  Tooltip
+} from 'chart.js'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { ToastContainer } from 'react-toastify'
 import styled from 'styled-components'
-import {
-  Chart as ChartJS,
-  LinearScale,
-  CategoryScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Legend,
-  Tooltip,
-  LineController,
-  BarController
-} from 'chart.js'
 
-import ThemeProvider, { ThemedGlobalStyle } from './theme/ThemeProvider'
-import store from './store'
 import reportWebVitals from './reportWebVitals'
+import store from './store'
+import ThemeProvider, { ThemedGlobalStyle } from './theme/ThemeProvider'
 
 import App from './components/App'
 
-import './theme/font.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
 import '@rainbow-me/rainbowkit/styles.css'
-import 'react-toastify/dist/ReactToastify.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'chart.js/auto'
 import 'rc-slider/assets/index.css'
+import 'react-toastify/dist/ReactToastify.css'
 import 'react-tooltip/dist/react-tooltip.css'
+import './theme/font.css'
 
 window.Buffer = window.Buffer || require('buffer').Buffer
 
@@ -49,7 +50,7 @@ const StyledContainer = styled(ToastContainer)`
 
   .Toastify__toast {
     border-radius: 100px;
-    padding: 10px 15px;
+    padding: 0.5rem 0.75rem;
   }
 
   .Toastify__toast--success {

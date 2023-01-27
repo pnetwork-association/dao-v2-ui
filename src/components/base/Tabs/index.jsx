@@ -13,6 +13,7 @@ const StyledTabs = styled(Tabs)`
   .nav-link {
     color: ${({ theme }) => theme.text1};
     border-bottom: 1px solid ${({ theme }) => theme.superLightGray};
+    padding: 1rem !important;
   }
 
   .nav-item .nav-item.show .nav-link,

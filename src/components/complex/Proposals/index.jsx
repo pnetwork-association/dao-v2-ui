@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { Fragment, useMemo, useState } from 'react'
 import { Tab } from 'react-bootstrap'
 import styled from 'styled-components'
 
@@ -40,8 +40,8 @@ const Proposals = () => {
   }, [proposals])
 
   return (
-    <div className="mb-2">
-      <Tabs defaultActiveKey="new" className="mb-3" fill>
+    <Fragment>
+      <Tabs defaultActiveKey="new" fill>
         <Tab eventKey="new" title="New Proposals">
           {newProposals.map((_proposal) => (
             <div className="mt-2" key={`proposal_${_proposal.id}`}>
@@ -50,7 +50,7 @@ const Proposals = () => {
             </div>
           ))}
           <NewProposalContainer
-            className="d-flex align-items-center justify-content-center mt-2"
+            className="d-flex align-items-center justify-content-center mt-2 mb-2"
             onClick={() => setShowCreateProposalModal(true)}
           >
             <StyledIcon icon="plus" /> <Text variant="text2">&nbsp;&nbsp;CREATE A NEW PROPOSAL</Text>
@@ -58,7 +58,7 @@ const Proposals = () => {
         </Tab>
         <Tab eventKey="past" title="Past Proposals">
           {pastProposals.map((_proposal) => (
-            <div key={`proposal_${_proposal.id}`}>
+            <div key={`proposal_${_proposal.id}`} className="mt-2">
               <Proposal {..._proposal} />
               <StyledLine />
             </div>
@@ -66,7 +66,7 @@ const Proposals = () => {
         </Tab>
       </Tabs>
       <CreateProposalModal show={showCreateProposalModal} onClose={() => setShowCreateProposalModal(false)} />
-    </div>
+    </Fragment>
   )
 }
 

@@ -61,6 +61,25 @@ const extractActivityFromEvents = async (_events) => {
         }
       }
 
+      if (event === 'Lended') {
+        const { amount, endEpoch, lender, startEpoch } = data
+        const am = BigNumber(amount?.toString())
+          .dividedBy(10 ** 18)
+          .toFixed()
+
+        return {
+          amount: am,
+          endEpoch: endEpoch.toNumber(),
+          formattedAmount: formatAssetAmount(am, 'PNT'),
+          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          lender,
+          lenderNickname: getNickname(lender),
+          startEpoch: startEpoch.toNumber(),
+          timestamp,
+          type: 'Lended'
+        }
+      }
+
       if (event === 'StartVote') {
         const { creator, metadata, voteId } = data
         return {

@@ -79,6 +79,26 @@ const Action = ({ action }) => {
     )
   }
 
+  if (action.name === 'Lended') {
+    const { startEpoch, endEpoch, formattedAmount, lender, lenderNickname } = action
+
+    return (
+      <div className="d-flex">
+        <span>
+          <A href={getAddressExplorerLink(lender)} target="_blank">
+            {lenderNickname}
+          </A>
+          <Text>&nbsp;lended&nbsp;</Text>
+          <Text variant="text2">{formattedAmount}&nbsp;</Text>
+          <AssetLogo src={'assets/svg/PNT.svg'} />
+          <Text>&nbsp;&nbsp;for&nbsp;</Text>
+          <Text variant="text2">{endEpoch - startEpoch}</Text>
+          <Text variant="text2">&nbsp;epochs</Text>
+        </span>
+      </div>
+    )
+  }
+
   return <div></div>
 }
 

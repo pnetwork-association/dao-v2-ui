@@ -8,9 +8,9 @@ import Line from '../../base/Line'
 const StyledContainer = styled.div`
   background: ${({ theme }) => theme.bg3};
   border-radius: 8px;
-  padding: 10px 15px;
+  padding: 1rem 1rem;
   @media (max-width: 767.98px) {
-    padding: 5px 10px;
+    padding: 0.5rem 0.75rem;
   }
 `
 
