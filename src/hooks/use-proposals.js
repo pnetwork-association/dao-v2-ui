@@ -150,13 +150,14 @@ const useProposals = () => {
   }, [votesData])
 
   const proposals = useMemo(() => {
-    if (votesData?.length > 0 && etherscanProposals.length === votesData.length) {
+    if (votesData?.length > 0 && etherscanProposals.length === votesData.length && votesData[0]) {
       return etherscanProposals.map((_proposal, _index) => {
-        const { executed, executionBlock, open, script, snapshotBlock, startBlock } = votesData[_index]
+        const voteData = votesData[_index]
+        const { executed, executionBlock, open, script, snapshotBlock, startBlock } = voteData
 
-        const votingPower = BigNumber(votesData[_index].votingPower.toString()).dividedBy(10 ** 18)
-        const no = BigNumber(votesData[_index].nay.toString()).dividedBy(10 ** 18)
-        const yes = BigNumber(votesData[_index].yea.toString()).dividedBy(10 ** 18)
+        const votingPower = BigNumber(voteData.votingPower.toString()).dividedBy(10 ** 18)
+        const no = BigNumber(voteData.nay.toString()).dividedBy(10 ** 18)
+        const yes = BigNumber(voteData.yea.toString()).dividedBy(10 ** 18)
 
         const votingPnt = yes.plus(no)
         const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
@@ -166,7 +167,7 @@ const useProposals = () => {
           ? BigNumber(daoPntTotalSupply.toString()).dividedBy(10 ** 18)
           : BigNumber(null)
         const quorum = yes.dividedBy(totalSupply)
-        const minAcceptQuorum = BigNumber(votesData[_index].minAcceptQuorum.toString()).dividedBy(10 ** 18)
+        const minAcceptQuorum = BigNumber(voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
 
         const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
         const passed = percentageYea.isGreaterThan(51) && quorumReached
