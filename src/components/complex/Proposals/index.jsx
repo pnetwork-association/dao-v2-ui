@@ -4,8 +4,8 @@ import styled from 'styled-components'
 
 import { useProposals } from '../../../hooks/use-proposals'
 
-import Box from '../../base/Box'
 import Icon from '../../base/Icon'
+import Line from '../../base/Line'
 import Tabs from '../../base/Tabs'
 import Text from '../../base/Text'
 import CreateProposalModal from '../CreateProposalModal'
@@ -18,6 +18,11 @@ const NewProposalContainer = styled.div`
 const StyledIcon = styled(Icon)`
   color: ${({ theme }) => theme.text2} !important;
   margin-bottom: 2px;
+`
+
+const StyledLine = styled(Line)`
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 `
 
 const Proposals = () => {
@@ -36,26 +41,26 @@ const Proposals = () => {
 
   return (
     <div className="mb-2">
-      <Tabs defaultActiveKey="new" id="uncontrolled-tab-example" className="mb-3" fill>
+      <Tabs defaultActiveKey="new" className="mb-3" fill>
         <Tab eventKey="new" title="New Proposals">
           {newProposals.map((_proposal) => (
             <div className="mt-2" key={`proposal_${_proposal.id}`}>
               <Proposal {..._proposal} />
+              <StyledLine />
             </div>
           ))}
-          <Box className="mt-2">
-            <NewProposalContainer
-              className="d-flex align-items-center justify-content-center"
-              onClick={() => setShowCreateProposalModal(true)}
-            >
-              <StyledIcon icon="plus" /> <Text variant="text2">&nbsp;&nbsp;CREATE A NEW PROPOSAL</Text>
-            </NewProposalContainer>
-          </Box>
+          <NewProposalContainer
+            className="d-flex align-items-center justify-content-center mt-2"
+            onClick={() => setShowCreateProposalModal(true)}
+          >
+            <StyledIcon icon="plus" /> <Text variant="text2">&nbsp;&nbsp;CREATE A NEW PROPOSAL</Text>
+          </NewProposalContainer>
         </Tab>
         <Tab eventKey="past" title="Past Proposals">
           {pastProposals.map((_proposal) => (
-            <div className="mt-2" key={`proposal_${_proposal.id}`}>
+            <div key={`proposal_${_proposal.id}`}>
               <Proposal {..._proposal} />
+              <StyledLine />
             </div>
           ))}
         </Tab>

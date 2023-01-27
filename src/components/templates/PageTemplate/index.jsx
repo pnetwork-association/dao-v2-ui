@@ -7,7 +7,7 @@ import Header from '../../complex/Header'
 const StyledContainer = styled(Container)`
   padding-bottom: 50px;
   @media (min-width: 1200px) {
-    max-width: 1500px !important;
+    max-width: 1000px !important;
   }
 `
 

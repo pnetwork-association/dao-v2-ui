@@ -15,9 +15,13 @@ import UnstakeModal from '../../complex/UnstakeModal'
 import PageTemplate from '../../templates/PageTemplate'
 
 const StyledActivities = styled(Activities)`
-  height: 665px;
-  max-height: 665px;
+  height: 222px;
+  max-height: 222px;
   overflow: auto;
+`
+
+const TabsBox = styled(Box)`
+  padding: 10px 0px;
 `
 
 const Overview = () => {
@@ -28,7 +32,7 @@ const Overview = () => {
 
   return (
     <PageTemplate>
-      <Row>
+      {/*<Row>
         <Col xs={12} lg={7} className="mt-3">
           <Row>
             <Col>
@@ -46,27 +50,26 @@ const Overview = () => {
         <Col xs={12} lg={5} className="mt-3">
           <StyledActivities />
         </Col>
-      </Row>
-
-      {/*<Row className="mt-3">
-        <Col xs={4}>
-          <Button onClick={() => setShowStakeModal(true)}>Stake</Button>
+  </Row>*/}
+      <Row>
+        <Col xs={12} lg={6}>
+          <Stats />
         </Col>
-        <Col xs={4}>
-          <Button onClick={() => setShowLendModal(true)}>Lend</Button>
-        </Col>
-        <Col xs={4}>
-          <Button onClick={() => setShowUnstakeModal(true)}>Unstake</Button>
+        <Col xs={12} lg={6}>
+          <StyledActivities />
         </Col>
       </Row>
-      <Row className="mt-3">
-        <Col xs={12} className="text-center">
-          <Link onClick={() => setShowRegisterSentinelModal(true)}>REGISTER A SENTINEL</Link>
+      <Row className="mt-4">
+        <Col>
+          <Box>
+            <SentinelHistoricalChart />
+          </Box>
         </Col>
-      </Row>*/}
-
+      </Row>
       <div className="mt-4">
-        <Proposals />
+        <TabsBox>
+          <Proposals />
+        </TabsBox>
       </div>
       <StakeModal show={showStakeModal} onClose={() => setShowStakeModal(false)} />
       <LendModal show={showLendModal} onClose={() => setShowLendModal(false)} />

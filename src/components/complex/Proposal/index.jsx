@@ -14,16 +14,17 @@ import { useBalances } from '../../../hooks/use-balances'
 import settings from '../../../settings'
 
 import Text from '../../base/Text'
-import Box from '../../base/Box'
 import Icon from '../../base/Icon'
 import Modal from '../../base/Modal'
 import ButtonSecondary from '../../base/ButtonSecondary'
 import Action from '../Action'
 import Line from '../../base/Line'
 
-const ProposalContainer = styled(Box)`
+const ProposalContainer = styled.div`
   display: flex;
   width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
 `
 
 const StatusLine = styled.div`
