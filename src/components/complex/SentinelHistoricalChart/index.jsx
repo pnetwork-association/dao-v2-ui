@@ -58,21 +58,21 @@ const options = {
         display: false
       },
       ticks: {
-        display: false
+        display: true
       },
       title: {
         display: true,
         text: 'Total number of nodes'
       }
     },
-    apy: {
+    /*apy: {
       display: true,
       min: 0,
       position: 'right',
       grid: {
         display: false
       }
-    },
+    },*/
     x: {
       grid: {
         display: false
@@ -88,14 +88,14 @@ const SentinelHistoricalChart = () => {
     return {
       labels,
       datasets: [
-        {
+        /*{
           type: 'line',
           backgroundColor: theme.yellow,
           borderColor: theme.yellow,
           data: [25, 27, 27, 24, 23, 18].reverse(),
           yAxisID: 'apy',
           label: 'APY'
-        },
+        },*/
         {
           type: 'bar',
           backgroundColor: theme.text4,

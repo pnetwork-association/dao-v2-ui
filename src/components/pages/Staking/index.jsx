@@ -14,6 +14,7 @@ import Line from '../../base/Line'
 import StakeModal from '../../complex/StakeModal'
 import UnstakeModal from '../../complex/UnstakeModal'
 import PageTemplate from '../../templates/PageTemplate'
+import HistoricalDaoPntTotalSupplyChart from '../../complex/HistoricalDaoPntTotalSupplyChart'
 
 const Staking = () => {
   const [showStakeModal, setShowStakeModal] = useState(false)
@@ -75,6 +76,9 @@ const Staking = () => {
             <Button onClick={() => setShowUnstakeModal(true)}>Unstake</Button>
           </Col>
         </Row>
+      </Box>
+      <Box className="mt-4">
+        <HistoricalDaoPntTotalSupplyChart />
       </Box>
       <StakeModal show={showStakeModal} onClose={() => setShowStakeModal(false)} />
       <UnstakeModal show={showUnstakeModal} onClose={() => setShowUnstakeModal(false)} />
