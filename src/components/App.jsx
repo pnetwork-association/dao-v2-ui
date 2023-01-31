@@ -62,7 +62,7 @@ const App = () => {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains} theme={rainbowTheme} avatar={Avatar}>
-        <CryptoCompareProvider>
+        <CryptoCompareProvider apiKey={process.env.REACT_APP_CRYPTO_COMPARE_API_KEY}>
           <ActivitiesProvider>
             <RouterProvider router={router} />
           </ActivitiesProvider>
