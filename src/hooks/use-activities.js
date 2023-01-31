@@ -60,8 +60,7 @@ const useActivities = () => {
           // stakingManager.queryFilter('Unstaked', fromBlock, toBlock)
         ])
 
-        const activitiesStakeEvents = await extractActivityFromEvents(stakeEvents)
-        setStakingManagerActivities(activitiesStakeEvents)
+        setStakingManagerActivities(await extractActivityFromEvents(stakeEvents))
       } catch (_err) {
         console.error(_err)
       }
@@ -76,9 +75,7 @@ const useActivities = () => {
     const fetchBorrowingManagerData = async () => {
       try {
         const [lendEvents] = await Promise.all([borrowingManager.queryFilter('Lended', fromBlock, toBlock)])
-
-        const activitiesLendEvents = await extractActivityFromEvents(lendEvents)
-        setBorrowingManagerActivities(activitiesLendEvents)
+        setBorrowingManagerActivities(await extractActivityFromEvents(lendEvents))
       } catch (_err) {
         console.error(_err)
       }
@@ -92,14 +89,12 @@ const useActivities = () => {
   useEffect(() => {
     const fetchVotingData = async () => {
       try {
-        const [, /*castVoteEvents*/ startVoteEvents] = await Promise.all([
+        const [castVoteEvents, startVoteEvents] = await Promise.all([
           voting.queryFilter('CastVote', fromBlock, toBlock),
           voting.queryFilter('StartVote', fromBlock, toBlock)
-          // stakingManager.queryFilter('Unstaked', fromBlock, toBlock)
         ])
 
-        const activitiesStartVoteEvents = await extractActivityFromEvents(startVoteEvents)
-        setVotingActivities(activitiesStartVoteEvents)
+        setVotingActivities(await extractActivityFromEvents([...castVoteEvents, ...startVoteEvents]))
       } catch (_err) {
         console.error(_err)
       }

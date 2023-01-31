@@ -1,36 +1,29 @@
 import React, { useCallback, useState } from 'react'
 import BigNumber from 'bignumber.js'
 
-// import { toastifyTransaction } from '../../../utils/transaction'
+import { toastifyTransaction } from '../../../utils/transaction'
 
 import Asset from '../Asset'
 import Box from '../../base/Box'
 
 const ClaimByAssets = ({ assets, claim }) => {
   const [loading, setLoading] = useState(null)
-  const [claimed /*, setClaimed*/] = useState(null)
+  const [claimed, setClaimed] = useState(null)
 
   const onClaim = useCallback(
-    async (_address, _epoch) => {
+    async (_address) => {
       try {
         setLoading(_address)
-        /*toastifyTransaction(
-          await claim({
-            recklesslySetUnpreparedArgs: [_address, _epoch]
-          }),
-          () => {
-            setLoading(null)
-            setClaimed(_address)
-          }
-        )*/
+        toastifyTransaction(await claim(_address), () => {
+          setLoading(null)
+          setClaimed(_address)
+        })
       } catch (_err) {
         setLoading(null)
         console.error(_err)
       }
     },
-    [
-      /*claim*/
-    ]
+    [claim]
   )
 
   return (

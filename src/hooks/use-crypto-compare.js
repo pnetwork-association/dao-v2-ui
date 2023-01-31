@@ -3,9 +3,8 @@ import axios from 'axios'
 
 import { CryptoCompareContext } from '../components/context/CryptoCompare'
 
-export function useRates(_symbols = [], _opts = {}) {
-  const { apiKey } = _opts
-  const { rates, setRates } = useContext(CryptoCompareContext)
+export function useRates(_symbols = []) {
+  const { rates, setRates, apiKey } = useContext(CryptoCompareContext)
 
   useEffect(() => {
     const fetchRates = async (_fsyms) => {

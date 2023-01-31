@@ -26,15 +26,10 @@ const ClaimByEpochs = ({ assets, claim }) => {
     async (_address, _epoch) => {
       try {
         setLoading(`${_epoch}_${_address}`)
-        toastifyTransaction(
-          await claim({
-            recklesslySetUnpreparedArgs: [_address, _epoch]
-          }),
-          () => {
-            setLoading(null)
-            setClaimed(`${_epoch}_${_address}`)
-          }
-        )
+        toastifyTransaction(await claim(_address, _epoch), () => {
+          setLoading(null)
+          setClaimed(`${_epoch}_${_address}`)
+        })
       } catch (_err) {
         setLoading(null)
         console.error(_err)
@@ -47,14 +42,6 @@ const ClaimByEpochs = ({ assets, claim }) => {
     <Accordion defaultActiveKey="0">
       {orderedAssets.map((_assets, _index) => {
         const epoch = orderedAssets.length - _index - 1
-
-        /*const totalCountervalueByEpoch = _assets.reduce((_acc, _asset) => {
-            _acc = BigNumber(_acc).plus(_asset.countervalue)
-            return _acc
-          }, new BigNumber(0))
-
-          console.log(totalCountervalueByEpoch.toFixed(2))*/
-
         return (
           <Accordion.Item
             key={`claim_${epoch}`}
@@ -62,10 +49,7 @@ const ClaimByEpochs = ({ assets, claim }) => {
             last={_index === orderedAssets.length - 1 ? 'true' : 'false'}
           >
             <Accordion.Header>
-              <Text variant="text2">
-                Epoch #{epoch}
-                {/*&nbsp;&nbsp;<Text variant="text3">{formatCurrency(totalCountervalueByEpoch, 'USD')}</Text>*/}
-              </Text>
+              <Text variant="text2">Epoch #{epoch}</Text>
             </Accordion.Header>
             <Accordion.Body>
               {_assets.map((_asset, _index) => (

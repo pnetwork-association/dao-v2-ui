@@ -39,7 +39,7 @@ const StyledButton = styled.button`
 const Button = ({ loading, children, ..._props }) => {
   return (
     <StyledButton {..._props}>
-      {loading ? <Spinner loading={true} aria-label="Loading Spinner" data-testid="loader" /> : children}
+      {loading ? <Spinner aria-label="Loading Spinner" data-testid="loader" /> : children}
     </StyledButton>
   )
 }

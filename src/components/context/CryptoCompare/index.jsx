@@ -5,10 +5,10 @@ export const CryptoCompareContext = createContext({
   setRates: null
 })
 
-const CryptoCompareProvider = ({ children }) => {
+const CryptoCompareProvider = ({ apiKey, children }) => {
   const [rates, setRates] = useState({})
 
-  const value = { rates, setRates }
+  const value = { rates, setRates, apiKey }
   return <CryptoCompareContext.Provider value={value}>{children}</CryptoCompareContext.Provider>
 }
 

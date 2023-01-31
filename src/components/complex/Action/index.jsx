@@ -47,6 +47,8 @@ const Action = ({ action }) => {
   if (action.name === 'StartVote') {
     const { creator, creatorNickname, metadata } = action
 
+    const metadataWithoutIpfsLink = metadata ? metadata.split(' ').slice(0, -1).join(' ') : metadata
+
     return (
       <div className="d-flex">
         <span>
@@ -54,7 +56,25 @@ const Action = ({ action }) => {
             {creatorNickname}
           </A>
           <Text>&nbsp;opened a new proposal:&nbsp;</Text>
-          <Text variant="text2">{metadata}</Text>
+          <Text variant="text2">{metadataWithoutIpfsLink}</Text>
+        </span>
+      </div>
+    )
+  }
+
+  if (action.name === 'CastVote') {
+    const { voter, voterNickname, supports, voteId } = action
+
+    return (
+      <div className="d-flex">
+        <span>
+          <A href={getAddressExplorerLink(voter)} target="_blank">
+            {voterNickname}
+          </A>
+          <Text>&nbsp;voted&nbsp;</Text>
+          <Text variant="text2">&nbsp;{supports ? 'YES' : 'NO'}&nbsp;</Text>
+          <Text>&nbsp;to vote&nbsp;</Text>
+          <Text variant="text2">{voteId}</Text>
         </span>
       </div>
     )

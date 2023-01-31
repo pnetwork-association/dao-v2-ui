@@ -5,12 +5,11 @@ const settings = {
     voting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
     // TODO: use real ones once deployed on mainnet
-    stakingManager: '0xd038A2EE73b64F30d65802Ad188F27921656f28F',
-    borrowingManager: '0x09120eAED8e4cD86D85a616680151DAA653880F2',
-    epochsManager: '0xeC1BB74f5799811c0c1Bff94Ef76Fb40abccbE4a',
-    registrationManager: '0x6732128F9cc0c4344b2d4DC6285BCd516b7E59E6',
-    feesManager: '0xAe9Ed85dE2670e3112590a2BB17b7283ddF44d9c',
-    signer: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+    stakingManager: '0x3E661784267F128e5f706De17Fac1Fc1c9d56f30',
+    borrowingManager: '0xD1760AA0FCD9e64bA4ea43399Ad789CFd63C7809',
+    epochsManager: '0x15Ff10fCc8A1a50bFbE07847A22664801eA79E0f',
+    registrationManager: '0x906B067e392e2c5f9E4f101f36C0b8CdA4885EBf',
+    feesManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570'
   },
   stakingManager: {
     minStakeDays: 7

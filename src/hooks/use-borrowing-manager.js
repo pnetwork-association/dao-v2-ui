@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { groupBy } from 'lodash'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   erc20ABI,
   useAccount,
@@ -323,8 +323,7 @@ const useClaimableInterestsAssetsByEpochs = () => {
   const rates = useRates(
     assets
       .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
-      .map(({ symbolPrice }) => symbolPrice),
-    { apiKey: process.env.REACT_APP_CRYPTO_COMPARE_API_KEY }
+      .map(({ symbolPrice }) => symbolPrice)
   )
 
   const { data } = useContractRead({
@@ -332,7 +331,8 @@ const useClaimableInterestsAssetsByEpochs = () => {
     abi: BorrowingManagerABI,
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
     args: [address, assets.map(({ address }) => address), 0, currentEpoch],
-    enabled: address && (currentEpoch || currentEpoch === 0)
+    enabled: address && (currentEpoch || currentEpoch === 0),
+    watch: true
   })
 
   return useMemo(() => {
@@ -367,7 +367,12 @@ const useClaimableInterestsAssetsByEpochs = () => {
 }
 
 const useClaimableInterestsAssetsByAssets = () => {
-  const rates = useRates()
+  const rates = useRates(
+    settings.assets
+      .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
+      .map(({ symbolPrice }) => symbolPrice)
+  )
+
   const assets = useClaimableInterestsAssetsByEpochs()
   const flatAssets = assets ? Object.values(assets).flat() : []
   const assetsByAddress = groupBy(flatAssets, 'address')
@@ -385,6 +390,7 @@ const useClaimableInterestsAssetsByAssets = () => {
     () =>
       settings.assets
         .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
+        .sort((_a, _b) => _a.name.localeCompare(_b.name))
         .map((_asset) => {
           const amount = assetsAmount[_asset.address]
 
@@ -416,22 +422,46 @@ const useClaimInterestByEpoch = () => {
     mode: 'recklesslyUnprepared'
   })
 
+  const onClaim = useCallback(
+    (_asset, _epoch) =>
+      writeAsync({
+        recklesslySetUnpreparedArgs: [_asset, _epoch]
+      }),
+    [writeAsync]
+  )
+
   return {
-    claim: writeAsync,
+    claim: onClaim,
     error,
     data
   }
 }
 
-/*const useTotalAssetInterestAmountByEpoch = () => {
-  const asset = settings.assets.find(({ symbol }) => symbol === 'TEST')
-  const { data } = useContractRead({
+const useClaimInterestByEpochsRange = () => {
+  const { currentEpoch } = useEpochs()
+  const { error, data, writeAsync } = useContractWrite({
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
-    functionName: 'totalAssetInterestAmountByEpoch',
-    args: [asset.address, 1]
+    functionName: 'claimInterestByEpochsRange',
+    mode: 'recklesslyUnprepared'
   })
-}*/
+
+  // TODO: choose better startEpoch and endEpoch
+
+  const onClaim = useCallback(
+    (_asset) =>
+      writeAsync({
+        recklesslySetUnpreparedArgs: [_asset, 0, currentEpoch]
+      }),
+    [currentEpoch, writeAsync]
+  )
+
+  return {
+    claim: onClaim,
+    error,
+    data
+  }
+}
 
 const useEstimateApy = () => {
   const { currentEpoch, epochDuration } = useEpochs()
@@ -472,7 +502,7 @@ const useEstimateApy = () => {
   const { startEpoch, endEpoch } = useMemo(() => {
     const lockTime = BigNumber(duration).multipliedBy(SECONDS_IN_ONE_DAY)
     const newStartEpoch = BigNumber(currentEpoch).plus(1)
-    const newEndEpoch = BigNumber(currentEpoch).plus(lockTime.dividedToIntegerBy(epochDuration))
+    const newEndEpoch = BigNumber(currentEpoch).plus(lockTime.dividedToIntegerBy(epochDuration)).minus(1)
 
     if (newStartEpoch.isGreaterThan(newEndEpoch)) {
       return {
@@ -637,11 +667,12 @@ export {
   useClaimableInterestsAssetsByAssets,
   useClaimableInterestsAssetsByEpochs,
   useClaimInterestByEpoch,
+  useClaimInterestByEpochsRange,
+  useEstimateApy,
   useLend,
   useTotalBorrowedAmountByEpoch,
   useTotalLendedAmountByEpoch,
   useTotalLendedAmountByStartAndEndEpochs,
   useUtilizationRatio,
-  useUtilizationRatioInTheCurrentEpoch,
-  useEstimateApy
+  useUtilizationRatioInTheCurrentEpoch
 }

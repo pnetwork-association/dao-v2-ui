@@ -93,6 +93,19 @@ const extractActivityFromEvents = async (_events) => {
         }
       }
 
+      if (event === 'CastVote') {
+        const { voter, voteId, supports } = data
+        return {
+          voter,
+          voterNickname: getNickname(voter),
+          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          supports,
+          timestamp,
+          type: 'CastVote',
+          voteId: voteId.toNumber()
+        }
+      }
+
       return null
     })
     .filter((_val) => _val)
