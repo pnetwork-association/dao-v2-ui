@@ -13,8 +13,8 @@ import ActivitiesProvider from './context/Activities'
 import CryptoCompareProvider from './context/CryptoCompare'
 import Avatar from './base/Avatar'
 import Overview from './pages/Overview'
-import Lending from './pages/Lending'
-import Nodes from './pages/Nodes'
+// import Lending from './pages/Lending'
+// import Nodes from './pages/Nodes'
 import Staking from './pages/Staking'
 
 const router = createHashRouter([
@@ -22,14 +22,14 @@ const router = createHashRouter([
     path: '/',
     element: <Overview />
   },
-  {
+  /*{
     path: '/lending',
     element: <Lending />
   },
   {
     path: '/nodes',
     element: <Nodes />
-  },
+  },*/
   {
     path: '/staking',
     element: <Staking />

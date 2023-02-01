@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useContext } from 'react'
 import { useBlockNumber, useContract, useProvider } from 'wagmi'
 
 import settings from '../settings'
-import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
+// import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import VotingAbi from '../utils/abis/Voting.json'
 import { extractActivityFromEvents } from '../utils/logs'
@@ -32,11 +32,11 @@ const useActivities = () => {
     signerOrProvider: provider
   })
 
-  const borrowingManager = useContract({
+  /*const borrowingManager = useContract({
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
     signerOrProvider: provider
-  })
+  })*/
 
   const voting = useContract({
     address: settings.contracts.voting,
@@ -71,7 +71,7 @@ const useActivities = () => {
     }
   }, [stakingManager, fromBlock, toBlock, cachedLastBlock])
 
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchBorrowingManagerData = async () => {
       try {
         const [lendEvents] = await Promise.all([borrowingManager.queryFilter('Lended', fromBlock, toBlock)])
@@ -84,7 +84,7 @@ const useActivities = () => {
     if (borrowingManager?.queryFilter && fromBlock && toBlock && toBlock > cachedLastBlock) {
       fetchBorrowingManagerData()
     }
-  }, [borrowingManager, fromBlock, toBlock, cachedLastBlock])
+  }, [borrowingManager, fromBlock, toBlock, cachedLastBlock])*/
 
   useEffect(() => {
     const fetchVotingData = async () => {

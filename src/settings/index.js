@@ -4,8 +4,9 @@ const settings = {
     daoPnt: '0xe824F81cD136BB7a28480baF8d7E5f0E8E4B693E',
     voting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
+    stakingManager: '0xeb10e80D99655B51E3a981E888a73D0B21e21A6C',
     // TODO: use real ones once deployed on mainnet
-    stakingManager: '0x3E661784267F128e5f706De17Fac1Fc1c9d56f30',
+    //stakingManager: '0x3E661784267F128e5f706De17Fac1Fc1c9d56f30',
     borrowingManager: '0xD1760AA0FCD9e64bA4ea43399Ad789CFd63C7809',
     epochsManager: '0x15Ff10fCc8A1a50bFbE07847A22664801eA79E0f',
     registrationManager: '0x906B067e392e2c5f9E4f101f36C0b8CdA4885EBf',

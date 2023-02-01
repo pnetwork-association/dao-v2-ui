@@ -41,6 +41,8 @@ const StyledLinkMobile = styled(StyledLink)`
   padding: 5px 20px;
   border-radius: 20px;
   font-size: 12px;
+  width: 100%;
+  text-align: center;
 `
 
 const HeaderContainer = styled(Container)`
@@ -185,12 +187,12 @@ const Header = (_props) => {
           <StyledLink withmargin="true" to={'/staking'} active={(pathname === '/staking').toString()}>
             Staking
           </StyledLink>
-          <StyledLink withmargin="true" to={'/lending'} active={(pathname === '/lending').toString()}>
+          {/*<StyledLink withmargin="true" to={'/lending'} active={(pathname === '/lending').toString()}>
             Lending
           </StyledLink>
           <StyledLink withmargin="true" to={'/nodes'} active={(pathname === '/nodes').toString()}>
             Nodes
-          </StyledLink>
+  </StyledLink>*/}
         </StyledNav>
         <ButtonsContainer>
           <CustomConnectButton />
@@ -207,12 +209,12 @@ const Header = (_props) => {
           <StyledLinkMobile withmargin="true" to={'/staking'} active={(pathname === '/staking').toString()}>
             Staking
           </StyledLinkMobile>
-          <StyledLinkMobile withmargin="true" to={'/lending'} active={(pathname === '/lending').toString()}>
+          {/*<StyledLinkMobile withmargin="true" to={'/lending'} active={(pathname === '/lending').toString()}>
             Lending
           </StyledLinkMobile>
           <StyledLinkMobile withmargin="true" to={'/nodes'} active={(pathname === '/nodes').toString()}>
             Nodes
-          </StyledLinkMobile>
+          </StyledLinkMobile>*/}
         </ContainerLinkMobile>
       </HeaderContainer>
       {/*<ContainerBottomMobile>
