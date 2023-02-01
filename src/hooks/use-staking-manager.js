@@ -200,11 +200,10 @@ const useHistoricalDaoPntTotalSupply = () => {
         )*/
 
         const data = HistoricalDaoPntTotalSupplyData
-
         const daoPntTotalSupply = data.results[0].series[0].values
 
         setHistoricalDaoPntTotalSupply({
-          daoPntTotalSupply: daoPntTotalSupply.reverse()
+          daoPntTotalSupply: daoPntTotalSupply.sort((_a, _b) => _a[0] - _b[0])
         })
       } catch (_err) {
         console.error(_err.message)
