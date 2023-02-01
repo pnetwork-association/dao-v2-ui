@@ -1,6 +1,14 @@
 import { ethers } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
-import { erc20ABI, useAccount, useBlockNumber, useContractRead, useContractReads } from 'wagmi'
+import {
+  erc20ABI,
+  useAccount,
+  useBlockNumber,
+  useContractRead,
+  useContractReads,
+  useContractWrite,
+  usePrepareContractWrite
+} from 'wagmi'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
@@ -11,6 +19,10 @@ import { formatAssetAmount } from '../utils/amount'
 import { hexToAscii } from '../utils/format'
 import { extractActionsFromTransaction } from '../utils/logs'
 import { extrapolateProposalData } from '../utils/proposals'
+import { useBalances } from './use-balances'
+import ACLAbi from '../utils/abis/ACL.json'
+import { getRole } from '../utils/role'
+import { isValidHexString } from '../utils/format'
 
 const useProposals = () => {
   const [etherscanProposals, setEtherscanProposals] = useState([])
@@ -249,4 +261,86 @@ const useProposals = () => {
   return proposalsWithVote
 }
 
-export { useProposals }
+const useCreateProposal = () => {
+  const { daoPntBalance } = useBalances()
+  const { address } = useAccount()
+  const [metadata, setMetadata] = useState('')
+  const [script, setScript] = useState('')
+  const [showScript, setShowScript] = useState(false)
+
+  const { data } = useContractReads({
+    contracts: [
+      {
+        address: settings.contracts.acl,
+        abi: ACLAbi,
+        functionName: 'hasPermission',
+        args: [address, settings.contracts.voting, getRole('CREATE_VOTES_ROLE'), '0x']
+      },
+      {
+        address: settings.contracts.voting,
+        abi: VotingABI,
+        functionName: 'minOpenVoteAmount',
+        args: []
+      }
+    ]
+  })
+
+  const { hasPermission, minOpenVoteAmount } = useMemo(
+    () => ({
+      hasPermission: data && data[0] ? data[0] : false,
+      minOpenVoteAmount: data && data[1] ? data[1] : '0'
+    }),
+    [data]
+  )
+
+  const isScriptValid = useMemo(() => isValidHexString(script), [script])
+  const hasPermissionOrEnoughBalance = useMemo(
+    () =>
+      hasPermission ||
+      BigNumber(daoPntBalance).isGreaterThanOrEqualTo(BigNumber(minOpenVoteAmount?.toString()).dividedBy(10 ** 18)),
+    [hasPermission, minOpenVoteAmount, daoPntBalance]
+  )
+
+  const canCreateProposal = useMemo(
+    () =>
+      hasPermissionOrEnoughBalance && metadata.length > 0
+        ? showScript
+          ? isScriptValid && metadata.length > 0
+          : true
+        : false,
+    [isScriptValid, showScript, hasPermissionOrEnoughBalance, metadata]
+  )
+
+  const { config: newProposalConfig } = usePrepareContractWrite({
+    address: settings.contracts.voting,
+    abi: VotingABI,
+    functionName: 'newVote',
+    args: [showScript && isScriptValid ? script : '0x', metadata, false],
+    enabled: canCreateProposal
+  })
+  const {
+    write: createProposal,
+    error: createProposalError,
+    data: createProposalData,
+    isLoading
+  } = useContractWrite(newProposalConfig)
+
+  return {
+    canCreateProposal,
+    createProposal,
+    createProposalData,
+    createProposalError,
+    hasPermission,
+    hasPermissionOrEnoughBalance,
+    isLoading,
+    isScriptValid,
+    metadata,
+    minOpenVoteAmount,
+    script,
+    setMetadata,
+    setScript,
+    setShowScript
+  }
+}
+
+export { useCreateProposal, useProposals }

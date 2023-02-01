@@ -166,7 +166,8 @@ const useUserStake = () => {
     abi: StakingManagerABI,
     functionName: 'stakeOf',
     args: [address],
-    enabled: address
+    enabled: address,
+    watch: true
   })
 
   const availableToUnstakePntAmount = useMemo(() => {
