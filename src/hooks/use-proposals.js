@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { erc20ABI, useAccount, useBlockNumber, useContractRead, useContractReads } from 'wagmi'
-// import axios from 'axios'
+import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
@@ -11,9 +11,6 @@ import { formatAssetAmount } from '../utils/amount'
 import { hexToAscii } from '../utils/format'
 import { extractActionsFromTransaction } from '../utils/logs'
 import { extrapolateProposalData } from '../utils/proposals'
-
-import blocksList from './blocks.json'
-import proposalsList from './proposals.json'
 
 const useProposals = () => {
   const [etherscanProposals, setEtherscanProposals] = useState([])
@@ -33,9 +30,13 @@ const useProposals = () => {
   useEffect(() => {
     const fetchProposals = async () => {
       try {
-        //const { data: { result } } = await axios.get(`https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.voting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=73VMNN33QYMXJ428F5KA69R35FNADTN94W`)
+        const {
+          data: { result }
+        } = await axios.get(
+          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.voting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=73VMNN33QYMXJ428F5KA69R35FNADTN94W`
+        )
         setEtherscanProposals(
-          proposalsList.map((_proposal, _id) => {
+          result.map((_proposal, _id) => {
             const data = extrapolateProposalData(hexToAscii(_proposal.data))
             return {
               id: _id + 1,
@@ -65,9 +66,11 @@ const useProposals = () => {
   useEffect(() => {
     const fetchExecutionBlockNumberTimestamps = async () => {
       try {
-        // const provider = new ethers.providers.InfuraProvider('homestead', process.env.REACT_APP_INFURA_KEY)
-        // const res = await Promise.all(votesData.map(({ executionBlock }) => provider.getBlock(executionBlock.toNumber())))
-        const timestamps = blocksList
+        const provider = new ethers.providers.InfuraProvider('homestead', process.env.REACT_APP_INFURA_KEY)
+        const res = await Promise.all(
+          votesData.map(({ executionBlock }) => provider.getBlock(executionBlock.toNumber()))
+        )
+        const timestamps = res
           .map((_block) => _block?.timestamp)
           .sort((_b, _a) => _a - _b)
           .reverse()
@@ -83,7 +86,7 @@ const useProposals = () => {
   useEffect(() => {
     const fetchExecutionBlockLogs = async () => {
       try {
-        /*const validVotesData = votesData
+        const validVotesData = votesData
           .map((_vote, _id) => ({
             ..._vote,
             id: _id + 1
@@ -106,26 +109,8 @@ const useProposals = () => {
                 .catch(_reject)
             )
           })
-        )*/
+        )
 
-        const res = [
-          {
-            address: '0x2211bfd97b1c02ae8ac305d206e9780ba7d8bff4',
-            topics: [
-              '0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab',
-              '0x0000000000000000000000000000000000000000000000000000000000000016'
-            ],
-            data: '0x',
-            blockNumber: '0xf92046',
-            blockHash: '0xbba668ffa636bc60c102ec4a1c733c8c7f419a61520c0c8793b10d8387de2076',
-            timeStamp: '0x63b43563',
-            gasPrice: '0x5eb696dc6',
-            gasUsed: '0x3e660',
-            logIndex: '0xf8',
-            transactionHash: '0x95f380992a1e589bc5b6ba8d3404809222182063150c49b3ce99d4b34508cacc',
-            transactionIndex: '0x6d'
-          }
-        ]
         const provider = new ethers.providers.InfuraProvider('homestead', process.env.REACT_APP_INFURA_KEY)
 
         const transactions = await Promise.all(
@@ -135,8 +120,7 @@ const useProposals = () => {
         const actions = transactions
           .map((_transaction) => extractActionsFromTransaction(_transaction))
           .reduce((_acc, _actions, _index) => {
-            //_acc[validVotesData[_index]?.id] = _actions.filter(_action => _action)
-            _acc[22] = _actions.filter((_action) => _action)
+            _acc[validVotesData[_index]?.id] = _actions.filter((_action) => _action)
             return _acc
           }, {})
 
