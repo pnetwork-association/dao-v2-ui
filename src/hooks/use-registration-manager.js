@@ -26,8 +26,7 @@ const kind = {
   2: 'Borrowing'
 }
 
-const useRegisterSentinel = () => {
-  const [type, setType] = useState('stake')
+const useRegisterSentinel = ({ type = 'stake' }) => {
   const [amount, setAmount] = useState('0')
   const [signature, setSignature] = useState('')
   const [approved, setApproved] = useState(false)
@@ -80,9 +79,11 @@ const useRegisterSentinel = () => {
       onChainAmount.lte(pntBalanceData.value) &&
       duration &&
       duration >= settings.stakingManager.minStakeDays &&
-      isSignatureValid,
-    [onChainAmount, approved, duration, pntBalanceData, isSignatureValid]
+      isSignatureValid &&
+      type === 'stake',
+    [onChainAmount, approved, duration, pntBalanceData, isSignatureValid, type]
   )
+
   const { config: updateSentinelRegistrationByStakingConfigs } = usePrepareContractWrite({
     address: settings.contracts.registrationManager,
     abi: RegistrationManagerABI,
@@ -90,11 +91,19 @@ const useRegisterSentinel = () => {
     args: [onChainAmount, duration * SECONDS_IN_ONE_DAY, isSignatureValid ? signature : '0x'],
     enabled: updateSentinelRegistrationByStakingEnabled
   })
+
+  console.log(updateSentinelRegistrationByStakingConfigs)
+
   const {
     write: updateSentinelRegistrationByStaking,
     error: updateSentinelRegistrationByStakingError,
     data: updateSentinelRegistrationByStakingData
-  } = useContractWrite(updateSentinelRegistrationByStakingConfigs)
+  } = useContractWrite({
+    ...updateSentinelRegistrationByStakingConfigs,
+    overrides: {
+      gasLimit: 1000000
+    }
+  })
 
   const { isLoading: isApproving } = useWaitForTransaction({
     hash: approveData?.hash
@@ -105,8 +114,8 @@ const useRegisterSentinel = () => {
   })
 
   const updateSentinelRegistrationByBorrowingEnabled = useMemo(
-    () => epochs >= 1 && isSignatureValid,
-    [epochs, isSignatureValid]
+    () => epochs >= 1 && isSignatureValid && type === 'borrow',
+    [epochs, isSignatureValid, type]
   )
   const { config: updateSentinelRegistrationByBorrowingConfigs } = usePrepareContractWrite({
     address: settings.contracts.registrationManager,
@@ -169,9 +178,7 @@ const useRegisterSentinel = () => {
     setApproved,
     setEpochs,
     setSignature,
-    setType,
     signature,
-    type,
     updateSentinelRegistrationByBorrowing,
     updateSentinelRegistrationByBorrowingData,
     updateSentinelRegistrationByBorrowingEnabled,
@@ -210,7 +217,8 @@ const useSentinel = () => {
   return {
     endEpoch: sentinelRegistrationData?.endEpoch.toNumber(),
     formattedSentinelAddress: sentinelAddress ? slicer(sentinelAddress) : '-',
-    kind: sentinelRegistrationData ? kind[sentinelRegistrationData.kind] : '-',
+    formattedKind: sentinelRegistrationData ? kind[sentinelRegistrationData.kind] : '-',
+    kind: sentinelRegistrationData?.kind,
     sentinelAddress: sentinelAddress || '-',
     startEpoch: sentinelRegistrationData?.startEpoch.toNumber()
   }
