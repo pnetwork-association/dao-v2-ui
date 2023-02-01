@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Tab } from 'react-bootstrap'
 import styled from 'styled-components'
 import { useSearchParams } from 'react-router-dom'
 
 import PageTemplate from '../../templates/PageTemplate'
-import RegisterSentinelModal from '../../complex/RegisterSentinelModal'
 import Box from '../../base/Box'
 import Tabs from '../../base/Tabs'
 import SentinelStats from '../../complex/SentinelStats'
@@ -25,7 +24,6 @@ const InnerTabContainer = styled.div`
 
 const Nodes = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [showRegisterSentinelModal, setShowRegisterSentinelModal] = useState(false)
 
   return (
     <PageTemplate bgthemecolor="transparent">
@@ -40,15 +38,14 @@ const Nodes = () => {
               <SentinelStats />
             </InnerTabContainer>
           </Tab>
-          <Tab eventKey="guardian" title="Guardian">
+          <Tab eventKey="borrowed-sentinel" title="Borrowed Sentinel">
             <InnerTabContainer></InnerTabContainer>
           </Tab>
-          <Tab eventKey="borrowed-sentinel" title="Borrowed Sentinel">
+          <Tab eventKey="guardian" title="Guardian">
             <InnerTabContainer></InnerTabContainer>
           </Tab>
         </Tabs>
       </TabsBox>
-      <RegisterSentinelModal show={showRegisterSentinelModal} onClose={() => setShowRegisterSentinelModal(false)} />
     </PageTemplate>
   )
 }

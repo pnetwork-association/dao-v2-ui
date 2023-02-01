@@ -1,11 +1,6 @@
 [
   {
     "inputs": [],
-    "name": "InvalidNumberOfEpochs",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "InvalidRegistration",
     "type": "error"
   },
@@ -386,12 +381,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_stakingManager",
+        "name": "_token",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_token",
+        "name": "_stakingManager",
         "type": "address"
       },
       {
@@ -534,30 +529,6 @@
         "internalType": "struct IRegistrationManager.Registration",
         "name": "",
         "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint16",
-        "name": "epoch",
-        "type": "uint16"
-      },
-      {
-        "internalType": "address",
-        "name": "sentinel",
-        "type": "address"
-      }
-    ],
-    "name": "sentinelReservedAmountByEpochOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",

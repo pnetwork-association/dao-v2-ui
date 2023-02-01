@@ -15,7 +15,6 @@ import Button from '../../base/Button'
 import InputAmount from '../../base/InputAmount'
 import Line from '../../base/Line'
 import Modal from '../../base/Modal'
-import Radio from '../../base/Radio'
 import Slider from '../../base/Slider'
 import Text from '../../base/Text'
 import TextArea from '../../base/TextArea'
@@ -69,7 +68,7 @@ const chartOptions = {
   }
 }
 
-const RegisterSentinelModal = ({ show, onClose }) => {
+const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
   const theme = useContext(ThemeContext)
   const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useBalances()
   const { currentEpoch, formattedCurrentEpoch } = useEpochs()
@@ -85,16 +84,16 @@ const RegisterSentinelModal = ({ show, onClose }) => {
     setAmount,
     setEpochs,
     setSignature,
-    setType,
     signature,
-    type,
     updateSentinelRegistrationByBorrowing,
     updateSentinelRegistrationByBorrowingData,
     updateSentinelRegistrationByBorrowingEnabled,
     updateSentinelRegistrationByStaking,
     updateSentinelRegistrationByStakingData,
     updateSentinelRegistrationByStakingEnabled
-  } = useRegisterSentinel()
+  } = useRegisterSentinel({
+    type
+  })
 
   const {
     endEpoch,
@@ -131,15 +130,6 @@ const RegisterSentinelModal = ({ show, onClose }) => {
       setAmount(0)
     }
   }, [show, setEpochs, setAmount, setProspectusBorrowingEpochs])
-
-  const onChangeType = useCallback(
-    (_type) => {
-      setAmount(0)
-      setType(_type)
-      setProspectusBorrowingEpochs(1)
-    },
-    [setAmount, setType, setProspectusBorrowingEpochs]
-  )
 
   const onChangeBorrowingEpochs = useCallback(
     (_epochs) => {
@@ -210,27 +200,6 @@ const RegisterSentinelModal = ({ show, onClose }) => {
         </Col>
         <Col xs={4} className="text-end">
           <Text variant={'text2'}>{settings.registrationManager.estimatedSentinelRunningCost} USD</Text>
-        </Col>
-      </Row>
-      <Line />
-      <Row className="mt-2">
-        <Col xs={6} lg={2}>
-          <Radio
-            id="radio-stake"
-            name="stake-borrow-group"
-            label="Stake"
-            checked={type === 'stake'}
-            onChange={() => onChangeType('stake')}
-          />
-        </Col>
-        <Col xs={6} lg={2}>
-          <Radio
-            id="radio-borrow"
-            name="stake-borrow-group"
-            label="Borrow"
-            checked={type === 'borrow'}
-            onChange={() => onChangeType('borrow')}
-          />
         </Col>
       </Row>
       <Line />
