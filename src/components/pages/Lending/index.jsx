@@ -19,7 +19,7 @@ import ClaimInterests from '../../complex/ClaimInterests'
 import LendModal from '../../complex/LendModal'
 import PageTemplate from '../../templates/PageTemplate'
 import Tabs from '../../base/Tabs'
-import UtilizationRateChart from '../../complex/UtilizationRateChart'
+import UtilizationRatioChart from '../../complex/UtilizationRatioChart'
 import Button from '../../base/Button'
 
 const InnerTabContainer = styled.div`
@@ -120,7 +120,7 @@ const Lending = () => {
                 </Row>
               </Box>
               <Box className="mt-4">
-                <UtilizationRateChart />
+                <UtilizationRatioChart />
               </Box>
               <BoxNoPadding className="mt-4">
                 <ClaimInterests />

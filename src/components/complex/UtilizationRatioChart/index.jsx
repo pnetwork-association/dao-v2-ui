@@ -8,7 +8,7 @@ import { useApy, useUtilizationRatio } from '../../../hooks/use-borrowing-manage
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
-const UtilizationRateChart = () => {
+const UtilizationRatioChart = () => {
   const theme = useContext(ThemeContext)
   const utilizationRatioByEpochsRange = useUtilizationRatio()
   const { value: apy } = useApy()
@@ -90,7 +90,7 @@ const UtilizationRateChart = () => {
         {
           type: 'line',
           label: 'APY',
-          data: !BigNumber(apy).isNaN() ? utilizationRatioByEpochsRangeValues.map(({ value }) => 10) : [],
+          data: !BigNumber(apy).isNaN() ? utilizationRatioByEpochsRangeValues.map(() => apy) : [],
           backgroundColor: theme.primary1,
           borderColor: theme.primary1,
           yAxisID: 'apy'
@@ -98,7 +98,7 @@ const UtilizationRateChart = () => {
         {
           type: 'bar',
           label: 'Utilization Ratio',
-          data: utilizationRatioByEpochsRangeValues.map(({ value }) => (Math.random() % 100) * 100),
+          data: utilizationRatioByEpochsRangeValues.map(({ value }) => value),
           backgroundColor: theme.text4,
           borderColor: theme.text4,
           yAxisID: 'utilizationRatio'
@@ -110,4 +110,4 @@ const UtilizationRateChart = () => {
   return <Chart options={options} data={data} />
 }
 
-export default UtilizationRateChart
+export default UtilizationRatioChart
