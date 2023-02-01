@@ -1,17 +1,11 @@
-import React, { useMemo, useState, useEffect, useCallback, Fragment } from 'react'
+import React, { useEffect, useCallback, Fragment } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import BigNumber from 'bignumber.js'
 import styled from 'styled-components'
-import { useAccount, usePrepareContractWrite, useContractReads, useContractWrite } from 'wagmi'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
 
-import { useBalances } from '../../../hooks/use-balances'
-import settings from '../../../settings'
-import ACLAbi from '../../../utils/abis/ACL.json'
-import VotingAbi from '../../../utils/abis/Voting.json'
 import { toastifyTransaction } from '../../../utils/transaction'
-import { getRole } from '../../../utils/role'
+import { useCreateProposal } from '../../../hooks/use-proposals'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
@@ -19,7 +13,6 @@ import TextArea from '../../base/TextArea'
 import Button from '../../base/Button'
 import InfoBox from '../../base/InfoBox'
 import { formatAssetAmount } from '../../../utils/amount'
-import { isValidHexString } from '../../../utils/format'
 
 const UseScriptText = styled(Text)`
   font-size: 13px;
@@ -31,63 +24,21 @@ const UseScriptText = styled(Text)`
 `
 
 const CreateProposalModal = ({ show, onClose }) => {
-  const { daoPntBalance } = useBalances()
-  const { address } = useAccount()
-  const [metadata, setMetadata] = useState('')
-  const [script, setScript] = useState('')
-  const [showScript, setShowScript] = useState(false)
-
-  const { data } = useContractReads({
-    contracts: [
-      {
-        address: settings.contracts.acl,
-        abi: ACLAbi,
-        functionName: 'hasPermission',
-        args: [address, settings.contracts.voting, getRole('CREATE_VOTES_ROLE'), '0x']
-      },
-      {
-        address: settings.contracts.voting,
-        abi: VotingAbi,
-        functionName: 'minOpenVoteAmount',
-        args: []
-      }
-    ]
-  })
-
-  const { hasPermission, minOpenVoteAmount } = useMemo(
-    () => ({
-      hasPermission: data && data[0] ? data[0] : false,
-      minOpenVoteAmount: data && data[1] ? data[1] : '0'
-    }),
-    [data]
-  )
-
-  const isScriptValid = useMemo(() => isValidHexString(script), [script])
-  const hasPermissionOrEnoughBalance = useMemo(
-    () =>
-      hasPermission ||
-      BigNumber(daoPntBalance).isGreaterThanOrEqualTo(BigNumber(minOpenVoteAmount?.toString()).dividedBy(10 ** 18)),
-    [hasPermission, minOpenVoteAmount, daoPntBalance]
-  )
-
-  const canCreateProposal = useMemo(
-    () => (hasPermissionOrEnoughBalance ? (showScript ? isScriptValid && metadata.length > 0 : true) : false),
-    [isScriptValid, showScript, hasPermissionOrEnoughBalance, metadata]
-  )
-
-  const { config: newProposalConfig } = usePrepareContractWrite({
-    address: settings.contracts.voting,
-    abi: VotingAbi,
-    functionName: 'newVote',
-    args: [showScript && isScriptValid ? script : '0x', metadata, false],
-    enabled: canCreateProposal
-  })
   const {
-    write: createProposal,
-    error: createProposalError,
-    data: createProposalData,
-    isLoading
-  } = useContractWrite(newProposalConfig)
+    canCreateProposal,
+    createProposal,
+    createProposalData,
+    createProposalError,
+    hasPermissionOrEnoughBalance,
+    isLoading,
+    metadata,
+    minOpenVoteAmount,
+    script,
+    setMetadata,
+    setScript,
+    setShowScript,
+    showScript
+  } = useCreateProposal()
 
   useEffect(() => {
     if (createProposalError) {
@@ -109,11 +60,11 @@ const CreateProposalModal = ({ show, onClose }) => {
       setScript('')
       setShowScript(false)
     }
-  }, [show])
+  }, [show, setMetadata, setScript, setShowScript])
 
   const onShowOrHideUseScript = useCallback(() => {
     setShowScript(!showScript)
-  }, [showScript])
+  }, [showScript, setShowScript])
 
   return (
     <Modal show={show} title="Create Proposal" onClose={onClose} size="lg">
