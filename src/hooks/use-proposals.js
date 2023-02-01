@@ -80,7 +80,9 @@ const useProposals = () => {
       }
     }
 
-    fetchExecutionBlockNumberTimestamps()
+    if (votesData) {
+      fetchExecutionBlockNumberTimestamps()
+    }
   }, [votesData])
 
   useEffect(() => {
