@@ -18,16 +18,15 @@ const StyledImg = styled.img`
   ${commonCss};
 `
 
-const Icon = ({ icon, color, ...props }) => {
+const Icon = ({ icon, color, ..._props }) => {
   const theme = useContext(ThemeContext)
   if (icon.startsWith('data:') || icon.startsWith('http') || icon.startsWith('asset:')) {
     const asset = icon.startsWith('asset:') && `src/app/assets/icons/${icon.split(':')[1]}`
-    return <StyledImg alt="" src={asset || icon} {...props} />
+    return <StyledImg alt="" src={asset || icon} {..._props} />
   }
 
   return (
     <ReactSVG
-      {...props}
       style={{
         color: color || theme.text1,
         display: 'inline-block',
@@ -36,6 +35,7 @@ const Icon = ({ icon, color, ...props }) => {
       }}
       src={`../assets/svg/${icon}.svg`}
       wrapper="span"
+      {..._props}
     />
   )
 }
