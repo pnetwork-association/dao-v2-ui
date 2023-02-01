@@ -7,9 +7,20 @@ import PageTemplate from '../../templates/PageTemplate'
 import RegisterSentinelModal from '../../complex/RegisterSentinelModal'
 import Box from '../../base/Box'
 import Tabs from '../../base/Tabs'
+import SentinelStats from '../../complex/SentinelStats'
 
 const TabsBox = styled(Box)`
   padding: 0;
+`
+
+const InnerTabContainer = styled.div`
+  padding: 1.5rem 1.5rem;
+  background: ${({ theme }) => theme.bg2};
+  border-bottom-radius: 8px;
+
+  @media (max-width: 767.98px) {
+    padding: 0.75rem !important;
+  }
 `
 
 const Nodes = () => {
@@ -21,13 +32,20 @@ const Nodes = () => {
       <TabsBox>
         <Tabs
           defaultActiveKey={searchParams.get('selected') || 'sentinel'}
-          className="mb-3"
           fill
           onSelect={(_key) => setSearchParams({ selected: _key })}
         >
-          <Tab eventKey="sentinel" title="Sentinel"></Tab>
-          <Tab eventKey="guardian" title="Guardian"></Tab>
-          <Tab eventKey="borrowed-sentinel" title="Borrowed Sentinel"></Tab>
+          <Tab eventKey="sentinel" title="Sentinel">
+            <InnerTabContainer>
+              <SentinelStats />
+            </InnerTabContainer>
+          </Tab>
+          <Tab eventKey="guardian" title="Guardian">
+            <InnerTabContainer></InnerTabContainer>
+          </Tab>
+          <Tab eventKey="borrowed-sentinel" title="Borrowed Sentinel">
+            <InnerTabContainer></InnerTabContainer>
+          </Tab>
         </Tabs>
       </TabsBox>
       <RegisterSentinelModal show={showRegisterSentinelModal} onClose={() => setShowRegisterSentinelModal(false)} />

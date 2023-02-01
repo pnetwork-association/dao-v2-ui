@@ -1,4 +1,13 @@
 const settings = {
+  links: {
+    audit: 'https://github.com/cryptonicsconsulting/audits/tree/master/pToken',
+    stats: 'https://pnetwork.watch/',
+    coinmarketcap: 'https://coinmarketcap.com/currencies/pnetwork/',
+    twitter: 'https://twitter.com/pNetworkDeFi',
+    telegram: 'https://t.me/pNetworkDefi',
+    'p.network': 'https://p.network/',
+    github: 'https://github.com/pnetwork-association'
+  },
   contracts: {
     pnt: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
     daoPnt: '0xe824F81cD136BB7a28480baF8d7E5f0E8E4B693E',

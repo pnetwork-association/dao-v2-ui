@@ -104,4 +104,24 @@ body {
   min-height: 100vh;
   background-color: ${({ theme }) => theme.bg1} !important;
 }
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: ${({ theme }) => theme.bg1} ${({ theme }) => theme.bg1};
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: ${({ theme }) => theme.bg1};
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: ${({ theme }) => theme.gray};
+  border-radius: 20px;
+  border: 1px solid ${({ theme }) => theme.bg1};
+}
 `
