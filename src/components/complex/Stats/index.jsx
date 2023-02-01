@@ -10,13 +10,7 @@ import ProgressBar from '../../base/ProgressBar'
 import Text from '../../base/Text'
 
 const Stats = () => {
-  const {
-    formattedCurrentEpoch,
-    formattedCurrentEpochEndAt,
-    formattedDaoPntTotalSupply,
-    formattedPercentageStakedPnt,
-    percentageStakedPnt
-  } = useStats()
+  const { formattedDaoPntTotalSupply, formattedPercentageStakedPnt, percentageStakedPnt } = useStats()
   const proposals = useProposals()
 
   return (
@@ -26,16 +20,7 @@ const Stats = () => {
           <Text>Epoch</Text>
         </Col>
         <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{formattedCurrentEpoch}</Text>
-        </Col>
-      </Row>
-      <Line />
-      <Row className="mt-2">
-        <Col xs={6}>
-          <Text>Current Epoch ends at</Text>
-        </Col>
-        <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{formattedCurrentEpochEndAt}</Text>
+          <Text variant={'text2'}>#36</Text>
         </Col>
       </Row>
       <Line />

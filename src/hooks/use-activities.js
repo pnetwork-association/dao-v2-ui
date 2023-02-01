@@ -107,9 +107,9 @@ const useActivities = () => {
   }, [voting, fromBlock, toBlock, cachedLastBlock])
 
   useEffect(() => {
-    if (stakingManagerActivities && votingActivities && borrowingManagerActivities) {
+    if (stakingManagerActivities && votingActivities /*&& borrowingManagerActivities*/) {
       // console.log("storing", stakingManagerActivities.length, votingActivities.length)
-      setLocalActivities([...stakingManagerActivities, ...borrowingManagerActivities, ...votingActivities])
+      setLocalActivities([...stakingManagerActivities /*, ...borrowingManagerActivities*/, ...votingActivities])
       setStakingManagerActivities(null)
       setBorrowingManagerActivities(null)
       setVotingActivities(null)

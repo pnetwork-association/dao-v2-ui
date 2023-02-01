@@ -4,7 +4,6 @@ import { Col, Row } from 'react-bootstrap'
 //import BigNumber from 'bignumber.js'
 
 import { useBalances, useVotingPower } from '../../../hooks/use-balances'
-import { useEpochs } from '../../../hooks/use-epochs'
 
 import Box from '../../base/Box'
 import Button from '../../base/Button'
@@ -22,7 +21,6 @@ const Staking = () => {
 
   const { formattedPntBalance, formattedDaoPntBalance } = useBalances()
   const { formattedVotingPower, votingPower } = useVotingPower()
-  const { formattedCurrentEpoch } = useEpochs()
 
   return (
     <PageTemplate>
@@ -32,7 +30,7 @@ const Staking = () => {
             <Text>Epoch</Text>
           </Col>
           <Col xs={6} className="text-end">
-            <Text variant={'text2'}>{formattedCurrentEpoch}</Text>
+            <Text variant={'text2'}>#36</Text>
           </Col>
         </Row>
         <Line />

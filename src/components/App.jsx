@@ -4,7 +4,7 @@ import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { configureChains, createClient, WagmiConfig } from 'wagmi'
 import { mainnet, polygon, optimism, arbitrum } from 'wagmi/chains'
-// import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 
 import { styleRainbowKit } from '../theme/rainbow-configs'
@@ -36,12 +36,9 @@ const router = createHashRouter([
   }
 ])
 
-// TODO remove it
-mainnet.rpcUrls.default.http = ['http://localhost:8545']
-
 const { chains, provider } = configureChains(
   [mainnet, polygon, optimism, arbitrum],
-  [/*alchemyProvider({ apiKey: process.env.ALCHEMY_ID }),*/ publicProvider()]
+  [alchemyProvider({ apiKey: process.env.REACT_APP_ALCHEMY_ID }), publicProvider()]
 )
 
 const { connectors } = getDefaultWallets({
