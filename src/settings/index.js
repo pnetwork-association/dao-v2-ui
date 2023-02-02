@@ -14,14 +14,15 @@ const settings = {
     voting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
     // TODO: use real ones once deployed on mainnet
-    stakingManager: '0x15Ff10fCc8A1a50bFbE07847A22664801eA79E0f',
-    borrowingManager: '0x906B067e392e2c5f9E4f101f36C0b8CdA4885EBf',
-    epochsManager: '0xD1760AA0FCD9e64bA4ea43399Ad789CFd63C7809',
-    registrationManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
-    feesManager: '0x8f119cd256a0FfFeed643E830ADCD9767a1d517F'
+    stakingManager: '0xAe9Ed85dE2670e3112590a2BB17b7283ddF44d9c',
+    borrowingManager: '0xD94A92749C0bb33c4e4bA7980c6dAD0e3eFfb720',
+    epochsManager: '0x75b0B516B47A27b1819D21B26203Abf314d42CCE',
+    registrationManager: '0x4f42528B7bF8Da96516bECb22c1c6f53a8Ac7312',
+    feesManager: '0xe14058B1c3def306e2cb37535647A04De03Db092'
   },
   stakingManager: {
-    minStakeDays: 7
+    minStakeDays: 7,
+    minStakeSeconds: 604800
   },
   registrationManager: {
     borrowAmount: 200000,

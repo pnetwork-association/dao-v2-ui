@@ -35,11 +35,13 @@ const Nodes = () => {
         >
           <Tab eventKey="sentinel" title="Sentinel">
             <InnerTabContainer>
-              <SentinelStats />
+              <SentinelStats type="stake" />
             </InnerTabContainer>
           </Tab>
           <Tab eventKey="borrowed-sentinel" title="Borrowed Sentinel">
-            <InnerTabContainer></InnerTabContainer>
+            <InnerTabContainer>
+              <SentinelStats type="borrow" />
+            </InnerTabContainer>
           </Tab>
           <Tab eventKey="guardian" title="Guardian">
             <InnerTabContainer></InnerTabContainer>

@@ -5,7 +5,11 @@ import styled, { ThemeContext } from 'styled-components'
 
 import { useEpochs } from '../../../hooks/use-epochs'
 import { useBalances } from '../../../hooks/use-balances'
-import { useBorrowingSentinelProspectus, useRegisterSentinel } from '../../../hooks/use-registration-manager'
+import {
+  useBorrowingSentinelProspectus,
+  useRegisterSentinel,
+  useSentinel
+} from '../../../hooks/use-registration-manager'
 import settings from '../../../settings'
 import { range } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
@@ -95,6 +99,12 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
     type
   })
 
+  const { kind, endEpoch: currentEndEpoch = 0 } = useSentinel()
+  const enabled = useMemo(() => {
+    if (type === 'stake' && kind === '0x01') return true
+    if (type === 'borrow' && kind === '0x02') return true
+  }, [type, kind])
+
   const {
     endEpoch,
     epochsRevenues: prospectusBorrowingEpochsRevenues,
@@ -109,15 +119,17 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
 
   useEffect(() => {
     if (updateSentinelRegistrationByStakingData) {
+      setEpochs(1)
       toastifyTransaction(updateSentinelRegistrationByStakingData)
     }
-  }, [updateSentinelRegistrationByStakingData])
+  }, [updateSentinelRegistrationByStakingData, setEpochs])
 
   useEffect(() => {
     if (updateSentinelRegistrationByBorrowingData) {
+      setEpochs(1)
       toastifyTransaction(updateSentinelRegistrationByBorrowingData)
     }
-  }, [updateSentinelRegistrationByBorrowingData])
+  }, [updateSentinelRegistrationByBorrowingData, setEpochs])
 
   const onMax = useCallback(() => {
     setAmount(pntBalance)
@@ -146,7 +158,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
       return range(currentEpoch + 1, currentEpoch + 8)
     }
 
-    return range(currentEpoch + 1, endEpoch)
+    return range(currentEpoch + 1, endEpoch + 1)
   }, [currentEpoch, endEpoch])
 
   const chartData = useMemo(() => {
@@ -167,6 +179,22 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
       ]
     }
   }, [chartEpochs, prospectusBorrowingEpochsRevenues, currentEpoch, theme])
+
+  const effectiveEndEpoch = useMemo(() => {
+    if (type === 'borrow') {
+      if (!currentEpoch && currentEpoch !== 0) return null
+
+      let startEpoch = currentEpoch >= currentEndEpoch ? currentEpoch + 1 : currentEndEpoch + 1
+      startEpoch = currentEpoch >= currentEndEpoch ? startEpoch : currentEndEpoch
+
+      const endEpoch = startEpoch + epochs - (currentEpoch >= currentEndEpoch ? 1 : 0)
+      return endEpoch
+    }
+
+    if (type === 'stake') {
+      return currentEpoch + epochs - 1
+    }
+  }, [type, currentEpoch, currentEndEpoch, epochs])
 
   return (
     <Modal show={show} title="Register Sentinel" onClose={onClose} size="xl">
@@ -196,6 +224,14 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
       </Row>
       <Row>
         <Col xs={8}>
+          <Text>Your registration ends at epoch</Text>
+        </Col>
+        <Col xs={4} className="text-end">
+          <Text variant={'text2'}>{enabled ? `#${currentEndEpoch}` : '-'}</Text>
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={8}>
           <Text>Estimated running Sentinel cost</Text>
         </Col>
         <Col xs={4} className="text-end">
@@ -205,7 +241,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
       <Line />
       {type === 'stake' && (
         <Fragment>
-          <Row className="mt-2">
+          <Row className="mt-3">
             <Col>
               <InputAmount onMax={onMax} value={amount} onChange={(_e) => setAmount(_e.target.value)} />
             </Col>
@@ -215,7 +251,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
               <Text>Number of epochs</Text>
             </Col>
             <Col xs={6} className="text-end">
-              <Text variant={'text2'}>{epochs} epochs</Text>
+              <Text variant={'text2'}>{epochs - 1}</Text>
             </Col>
           </Row>
           <Row className="mt-1">
@@ -233,7 +269,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
       )}
       {type === 'borrow' && (
         <Fragment>
-          <Row className="mt-2">
+          <Row className="mt-3">
             <Col xs={6}>
               <Text>Number of epochs</Text>
             </Col>
@@ -257,18 +293,10 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
       )}
       <Row className="mt-2">
         <Col xs={6}>
-          <Text>Registration starts at epoch</Text>
-        </Col>
-        <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{currentEpoch || currentEpoch === 0 ? `#${currentEpoch + 1}` : '-'}</Text>
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={6}>
           <Text>Registration ends at epoch</Text>
         </Col>
         <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{currentEpoch || currentEpoch === 0 ? `#${currentEpoch + epochs}` : '-'}</Text>
+          <Text variant={'text2'}>{effectiveEndEpoch ? `#${effectiveEndEpoch}` : '-'}</Text>
         </Col>
       </Row>
       <Line />

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { Chart } from 'react-chartjs-2'
 import { toast } from 'react-toastify'
@@ -126,7 +126,6 @@ const LendModal = ({ show, onClose }) => {
     startEpoch,
     userWeightPercentages
   } = useEstimateApy()
-  const chartRef = useRef()
 
   const chartEpochs = useMemo(() => {
     if (!(currentEpoch || currentEpoch === 0) || !(endEpoch || endEpoch === 0)) return []
@@ -201,15 +200,6 @@ const LendModal = ({ show, onClose }) => {
       setDuration(7)
     }
   }, [show, setAmount, setDuration, setAmountEstimatedApy])
-
-  useEffect(() => {
-    const chart = chartRef.current
-
-    if (chart) {
-      console.log('CanvasRenderingContext2D', chart.ctx)
-      console.log('HTMLCanvasElement', chart.canvas)
-    }
-  }, [])
 
   const onMax = useCallback(() => {
     setAmount(pntBalance)
@@ -303,7 +293,7 @@ const LendModal = ({ show, onClose }) => {
       <Row>
         <Col>
           <ChartContainer className="mt-2">
-            {show && <Chart id="lendingEstimateApyChart" ref={chartRef} data={chartData} options={chartOptions} />}
+            {show && <Chart id="lendingEstimateApyChart" data={chartData} options={chartOptions} />}
           </ChartContainer>
         </Col>
       </Row>
