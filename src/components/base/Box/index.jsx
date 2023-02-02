@@ -1,43 +1,55 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import styled from 'styled-components'
 
-import Icon from '../../base/Icon'
 import Line from '../../base/Line'
+import Text from '../Text'
 
-const StyledContainer = styled.div`
+const InnerContainer = styled.div`
   background: ${({ theme }) => theme.bg3};
-  border-radius: 8px;
-  padding: 1rem 1rem;
+  border-radius: 10px;
+  padding: ${({ withheader }) => (withheader === 'true' ? 0 : 0.75)}rem 0.75rem;
   @media (max-width: 767.98px) {
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.5rem;
   }
 `
 
-const StyledIcon = styled(Icon)`
-  width: 216x;
-  height: 16px;
-  margin-right: 5px;
+const GlobalContainer = styled.div`
+  border-radius: 10px;
+  background: ${({ theme }) => theme.bg3};
 `
 
-const BoxHeaderLine = styled(Line)`
-  margin: 0;
-  margin-top: 13px;
+const HeaderContainer = styled.div`
+  background: ${({ theme }) => theme.bg3};
+  padding: 0.75rem 0.75rem 0 0.75rem;
+  @media (max-width: 767.98px) {
+    padding: 0.5rem 0.75rem 0 0.75rem;
+  }
 `
 
-const Box = ({ headerIcon, children, ..._props }) => {
+const HeaderTitle = styled(Text)`
+  font-weight: bold;
+`
+
+const Box = ({ headerTitle, children, ..._props }) => {
   return (
-    <StyledContainer {..._props}>
-      {headerIcon && (
-        <Row>
-          <Col className="d-flex">
-            <StyledIcon icon={headerIcon} />
-            <BoxHeaderLine size="lg" />
-          </Col>
-        </Row>
+    <GlobalContainer {..._props}>
+      {headerTitle && (
+        <Fragment>
+          <HeaderContainer>
+            <Row>
+              <Col>
+                <HeaderTitle variant="text4" size="md">
+                  {headerTitle}
+                </HeaderTitle>
+              </Col>
+            </Row>
+          </HeaderContainer>
+          <Line />
+        </Fragment>
       )}
-      {children}
-    </StyledContainer>
+      <InnerContainer withheader={Boolean(headerTitle).toString()}>{children}</InnerContainer>
+    </GlobalContainer>
   )
 }
 

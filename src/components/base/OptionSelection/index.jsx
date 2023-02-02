@@ -12,7 +12,7 @@ const Container = styled.div`
 
 const StyledButton = styled(Button)`
   height: 30px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 11px;
   margin-right: ${({ last }) => (last !== 'true' ? 5 : 0)}px;
   @media (max-width: 767.98px) {

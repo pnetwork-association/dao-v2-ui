@@ -10,7 +10,7 @@ const StyledContainer = styled(Container)`
   margin-bottom: 1rem;
   padding: 1.5rem;
   background: ${({ theme, bgthemecolor }) => theme[bgthemecolor] || theme.bg1};
-  border-radius: 8px;
+  border-radius: 10px;
 
   @media (min-width: 1200px) {
     max-width: 1000px !important;

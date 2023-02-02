@@ -120,7 +120,7 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: ${({ theme }) => theme.gray};
+  background-color: ${({ theme }) => theme.superLightGray};
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.bg1};
 }

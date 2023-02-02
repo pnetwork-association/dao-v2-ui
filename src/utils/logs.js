@@ -41,6 +41,7 @@ const extractActivityFromEvents = async (_events) => {
     .map(({ decode, data, event, topics }) => ({ data: decode(data, topics), event }))
     .map(({ data, event }, _index) => {
       const timestamp = blocks[_index].timestamp
+      const formattedDateFromNow = moment.unix(timestamp).fromNow()
 
       if (event === 'Staked') {
         const { amount, duration, receiver } = data
@@ -53,6 +54,7 @@ const extractActivityFromEvents = async (_events) => {
           duration: BigNumber(duration?.toString()).toNumber(),
           formattedAmount: formatAssetAmount(am, 'PNT'),
           formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDateFromNow,
           formattedDuration: parseSeconds(duration),
           receiver,
           receiverNickname: getNickname(receiver),
@@ -72,6 +74,7 @@ const extractActivityFromEvents = async (_events) => {
           endEpoch: endEpoch.toNumber(),
           formattedAmount: formatAssetAmount(am, 'PNT'),
           formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDateFromNow,
           lender,
           lenderNickname: getNickname(lender),
           startEpoch: startEpoch.toNumber(),
@@ -86,6 +89,7 @@ const extractActivityFromEvents = async (_events) => {
           creator,
           creatorNickname: getNickname(creator),
           formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDateFromNow,
           metadata: metadata,
           timestamp,
           type: 'StartVote',
@@ -99,6 +103,7 @@ const extractActivityFromEvents = async (_events) => {
           voter,
           voterNickname: getNickname(voter),
           formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDateFromNow,
           supports,
           timestamp,
           type: 'CastVote',

@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react'
 import styled from 'styled-components'
+import { Tooltip } from 'react-tooltip'
 
 import { useActivities } from '../../../hooks/use-activities'
 
@@ -10,7 +11,7 @@ import Text from '../../base/Text'
 import Spinner from '../../base/Spinner'
 
 const SpinnerContainer = styled.div`
-  margin-top: 85px;
+  margin-top: 60px;
   margin-left: 50%;
 `
 
@@ -18,7 +19,7 @@ const Activities = ({ ..._props }) => {
   const { activities, isLoading } = useActivities()
 
   return (
-    <Box {..._props}>
+    <Box {..._props} headerTitle="Recent Activities">
       {isLoading && (
         <SpinnerContainer>
           <Spinner size="lg" />
@@ -26,13 +27,17 @@ const Activities = ({ ..._props }) => {
       )}
       {!isLoading &&
         activities.map(({ type, ..._activity }, _index) => {
+          const key = `activity_${_index}`
           return (
-            <Fragment key={`activity_${_index}`}>
+            <Fragment key={key}>
               <div>
                 <Action action={{ ..._activity, name: type }} />
-                <Text size="xs">{_activity.formattedDate}</Text>
+                <Text id={key} data-tooltip-content={_activity.formattedDate} size="xs">
+                  {_activity.formattedDateFromNow}
+                </Text>
+                <Tooltip anchorId={key} />
               </div>
-              <Line />
+              {_index !== activities.length - 1 && <Line />}
             </Fragment>
           )
         })}

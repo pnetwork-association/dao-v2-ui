@@ -14,6 +14,7 @@ const StyledTabs = styled(Tabs)`
     color: ${({ theme }) => theme.text1};
     border-bottom: 1px solid ${({ theme }) => theme.superLightGray};
     padding: 1rem !important;
+    font-weight: bold !important;
 
     @media (max-width: 767.98px) {
       padding: 0.5rem !important;
