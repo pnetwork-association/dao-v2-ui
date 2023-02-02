@@ -27,7 +27,7 @@ const ClaimByAssets = ({ assets, claim }) => {
   )
 
   return (
-    <Box>
+    <Box style={{ padding: 0 }}>
       {assets.map((_asset, _index) => (
         <Asset
           key={`claim_asset_${_index}`}

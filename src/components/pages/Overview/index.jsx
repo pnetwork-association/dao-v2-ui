@@ -20,11 +20,6 @@ const StyledActivities = styled(Activities)`
   overflow-y: auto;
 `
 
-const TabsBox = styled(Box)`
-  padding: 0;
-  padding-bottom: 0.5rem;
-`
-
 const Overview = () => {
   return (
     <PageTemplate>
@@ -46,9 +41,9 @@ const Overview = () => {
         </Col>
       </Row>
       <div className="mt-4">
-        <TabsBox>
+        <Box noPadding>
           <Proposals />
-        </TabsBox>
+        </Box>
       </div>
     </PageTemplate>
   )

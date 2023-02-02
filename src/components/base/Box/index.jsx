@@ -8,7 +8,8 @@ import Text from '../Text'
 const InnerContainer = styled.div`
   background: ${({ theme }) => theme.bg3};
   border-radius: 10px;
-  padding: ${({ withheader }) => (withheader === 'true' ? 0 : 0.75)}rem 0.75rem;
+  padding: ${({ withHeader, noPadding }) =>
+    noPadding ? '0' : withHeader ? '0rem 0.75rem 0.75rem 0.75rem' : '0.75rem'};
   @media (max-width: 767.98px) {
     padding: 0.5rem 0.5rem;
   }
@@ -31,7 +32,7 @@ const HeaderTitle = styled(Text)`
   font-weight: bold;
 `
 
-const Box = ({ headerTitle, children, ..._props }) => {
+const Box = ({ headerTitle, noPadding, children, ..._props }) => {
   return (
     <GlobalContainer {..._props}>
       {headerTitle && (
@@ -48,7 +49,9 @@ const Box = ({ headerTitle, children, ..._props }) => {
           <Line />
         </Fragment>
       )}
-      <InnerContainer withheader={Boolean(headerTitle).toString()}>{children}</InnerContainer>
+      <InnerContainer withHeader={Boolean(headerTitle)} noPadding={noPadding}>
+        {children}
+      </InnerContainer>
     </GlobalContainer>
   )
 }
