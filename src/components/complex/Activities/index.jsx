@@ -23,8 +23,8 @@ const Activities = ({ ..._props }) => {
       {..._props}
       headerTitle="Recent Activities"
       bodyStyle={{
-        height: 174,
-        maxHeight: 174,
+        height: 140,
+        maxHeight: 140,
         overflowY: 'auto'
       }}
     >
