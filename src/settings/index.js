@@ -11,7 +11,7 @@ const settings = {
   contracts: {
     pnt: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
     daoPnt: '0xe824F81cD136BB7a28480baF8d7E5f0E8E4B693E',
-    voting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
+    dandelionVoting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
     // TODO: use real ones once deployed on mainnet
     stakingManager: '0xAe9Ed85dE2670e3112590a2BB17b7283ddF44d9c',

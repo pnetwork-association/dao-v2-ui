@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState, useContext } from 'react'
+import { useEffect, useMemo, useState, useContext, useRef } from 'react'
 import { useBlockNumber, useContract, useProvider } from 'wagmi'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
-import VotingAbi from '../utils/abis/Voting.json'
+import DandelionVotingABI from '../utils/abis/DandelionVoting.json'
 import { extractActivityFromEvents } from '../utils/logs'
 
 import { ActivitiesContext } from '../components/context/Activities'
@@ -16,6 +16,12 @@ const useActivities = () => {
     lastBlock: cachedLastBlock,
     setLastBlock: cacheLastBlock
   } = useContext(ActivitiesContext)
+
+  const checkpoints = useRef({
+    BorrowingManager: 0,
+    StakingManager: 0,
+    DandelionVoting: 0
+  })
 
   const [localActivities, setLocalActivities] = useState([])
   const [stakingManagerActivities, setStakingManagerActivities] = useState(null)
@@ -38,9 +44,9 @@ const useActivities = () => {
     signerOrProvider: provider
   })
 
-  const voting = useContract({
-    address: settings.contracts.voting,
-    abi: VotingAbi,
+  const dandelionVoting = useContract({
+    address: settings.contracts.dandelionVoting,
+    abi: DandelionVotingABI,
     signerOrProvider: provider
   })
 
@@ -66,7 +72,14 @@ const useActivities = () => {
       }
     }
 
-    if (stakingManager?.queryFilter && fromBlock && toBlock && toBlock > cachedLastBlock) {
+    if (
+      stakingManager?.queryFilter &&
+      fromBlock &&
+      toBlock &&
+      toBlock > cachedLastBlock &&
+      checkpoints.current['StakingManager'] < toBlock
+    ) {
+      checkpoints.current['StakingManager'] = toBlock
       fetchStakingManagerData()
     }
   }, [stakingManager, fromBlock, toBlock, cachedLastBlock])
@@ -81,7 +94,13 @@ const useActivities = () => {
       }
     }
 
-    if (borrowingManager?.queryFilter && fromBlock && toBlock && toBlock > cachedLastBlock) {
+    if (
+      borrowingManager?.queryFilter &&
+      fromBlock &&
+      toBlock &&
+      toBlock > cachedLastBlock &&
+      checkpoints.current['BorrowingManager'] < toBlock
+    ) {
       fetchBorrowingManagerData()
     }
   }, [borrowingManager, fromBlock, toBlock, cachedLastBlock])
@@ -90,8 +109,8 @@ const useActivities = () => {
     const fetchVotingData = async () => {
       try {
         const [castVoteEvents, startVoteEvents] = await Promise.all([
-          voting.queryFilter('CastVote', fromBlock, toBlock),
-          voting.queryFilter('StartVote', fromBlock, toBlock)
+          dandelionVoting.queryFilter('CastVote', fromBlock, toBlock),
+          dandelionVoting.queryFilter('StartVote', fromBlock, toBlock)
         ])
 
         setVotingActivities(await extractActivityFromEvents([...castVoteEvents, ...startVoteEvents]))
@@ -100,11 +119,18 @@ const useActivities = () => {
       }
     }
 
-    if (voting?.queryFilter && fromBlock && toBlock && toBlock > cachedLastBlock) {
+    if (
+      dandelionVoting?.queryFilter &&
+      fromBlock &&
+      toBlock &&
+      toBlock > cachedLastBlock &&
+      checkpoints.current['DandelionVoting'] < toBlock
+    ) {
+      checkpoints.current['DandelionVoting'] = toBlock
       // console.log('fetch', fromBlock, toBlock)
       fetchVotingData()
     }
-  }, [voting, fromBlock, toBlock, cachedLastBlock])
+  }, [dandelionVoting, fromBlock, toBlock, cachedLastBlock])
 
   useEffect(() => {
     if (stakingManagerActivities && votingActivities && borrowingManagerActivities) {
