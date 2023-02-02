@@ -1,4 +1,5 @@
 const SECONDS_IN_ONE_DAY = 86400
+const SECONDS_IN_ONE_HOUR = 3600
 
 const parseSeconds = (_seconds) => {
   const days = Math.floor(_seconds / (60 * 60 * 24))
@@ -29,4 +30,4 @@ const range = (_start, _end, _step = 1) => {
   return Array.from(Array.from(Array(Math.ceil((_end - _start) / _step)).keys()), (x) => _start + x * _step)
 }
 
-export { parseSeconds, range, SECONDS_IN_ONE_DAY }
+export { parseSeconds, range, SECONDS_IN_ONE_DAY, SECONDS_IN_ONE_HOUR }

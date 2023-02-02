@@ -32,10 +32,6 @@ const InnerTabContainer = styled.div`
   }
 `
 
-const BoxNoPadding = styled(Box)`
-  padding: 0px;
-`
-
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const Lending = () => {
@@ -50,7 +46,7 @@ const Lending = () => {
 
   return (
     <PageTemplate bgthemecolor="transparent">
-      <BoxNoPadding>
+      <Box noPadding>
         <Tabs
           defaultActiveKey="lenders"
           fill
@@ -122,14 +118,14 @@ const Lending = () => {
               <Box className="mt-4">
                 <UtilizationRatioChart />
               </Box>
-              <BoxNoPadding className="mt-4">
+              <Box className="mt-4" noPadding>
                 <ClaimInterests />
-              </BoxNoPadding>
+              </Box>
             </InnerTabContainer>
           </Tab>
           <Tab eventKey="borrowers" title="Borrowers"></Tab>
         </Tabs>
-      </BoxNoPadding>
+      </Box>
       <LendModal show={showLendModal} onClose={() => setShowLendModal(false)} />
     </PageTemplate>
   )

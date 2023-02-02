@@ -8,10 +8,6 @@ import Box from '../../base/Box'
 import Tabs from '../../base/Tabs'
 import SentinelStats from '../../complex/SentinelStats'
 
-const TabsBox = styled(Box)`
-  padding: 0;
-`
-
 const InnerTabContainer = styled.div`
   padding: 1.5rem 1.5rem;
   background: ${({ theme }) => theme.bg2};
@@ -27,7 +23,7 @@ const Nodes = () => {
 
   return (
     <PageTemplate bgthemecolor="transparent">
-      <TabsBox>
+      <Box noPadding>
         <Tabs
           defaultActiveKey={searchParams.get('selected') || 'sentinel'}
           fill
@@ -35,17 +31,19 @@ const Nodes = () => {
         >
           <Tab eventKey="sentinel" title="Sentinel">
             <InnerTabContainer>
-              <SentinelStats />
+              <SentinelStats type="stake" />
             </InnerTabContainer>
           </Tab>
           <Tab eventKey="borrowed-sentinel" title="Borrowed Sentinel">
-            <InnerTabContainer></InnerTabContainer>
+            <InnerTabContainer>
+              <SentinelStats type="borrow" />
+            </InnerTabContainer>
           </Tab>
           <Tab eventKey="guardian" title="Guardian">
             <InnerTabContainer></InnerTabContainer>
           </Tab>
         </Tabs>
-      </TabsBox>
+      </Box>
     </PageTemplate>
   )
 }

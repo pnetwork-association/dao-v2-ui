@@ -97,9 +97,9 @@ const ReadMoreText = styled(ProposalNumberText)`
   cursor: pointer;
 `
 
-const ShowScript = styled(ReadMoreText)`
+/*const ShowScript = styled(ReadMoreText)`
   margin-left: 0;
-`
+`*/
 
 const QuorumText = styled(Text)`
   color: ${({ theme, quorumreached }) => (quorumreached ? theme.yellow : theme.red)};
@@ -317,13 +317,13 @@ const Proposal = ({
             ))}
           </Fragment>
         )}
-        {script && script !== '0x' && script !== '0x00000001' && (
+        {/*script && script !== '0x' && script !== '0x00000001' && (
           <Row className="mt-2">
             <Col>
               <ShowScript onClick={() => setShowScript(true)}>SHOW SCRIPT</ShowScript>
             </Col>
           </Row>
-        )}
+        )*/}
       </DataContainer>
       <Modal show={Boolean(readMoreContent)} title={`#${id}`} onClose={() => setReadMoreContent(null)} size="xl">
         <ReadMoreContent dangerouslySetInnerHTML={{ __html: readMoreContent }}></ReadMoreContent>

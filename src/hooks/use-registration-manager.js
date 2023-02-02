@@ -17,7 +17,8 @@ import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
 import RegistrationManagerABI from '../utils/abis/RegistrationManager.json'
 import { slicer } from '../utils/address'
 import { isValidHexString } from '../utils/format'
-import { range, SECONDS_IN_ONE_DAY } from '../utils/time'
+import { getNickname } from '../utils/nicknames'
+import { range, SECONDS_IN_ONE_HOUR } from '../utils/time'
 import { useEpochs } from './use-epochs'
 import { useFeesDistributionByMonthlyRevenues } from './use-fees-manager'
 
@@ -64,46 +65,41 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   })
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
-  const duration = useMemo(
-    () => (currentEpochEndsIn && epochs && type === 'stake' ? currentEpochEndsIn + epochs * epochDuration : null),
+  const lockTime = useMemo(
+    () =>
+      currentEpochEndsIn && epochs && type === 'stake'
+        ? currentEpochEndsIn + epochs * epochDuration + SECONDS_IN_ONE_HOUR
+        : null,
     [currentEpochEndsIn, epochs, epochDuration, type]
   )
 
   const isSignatureValid = useMemo(() => isValidHexString(signature), [signature])
-
   const updateSentinelRegistrationByStakingEnabled = useMemo(
     () =>
       onChainAmount.gt(ethers.utils.parseEther('0')) &&
       approved &&
       pntBalanceData &&
       onChainAmount.lte(pntBalanceData.value) &&
-      duration &&
-      duration >= settings.stakingManager.minStakeDays &&
+      lockTime &&
+      lockTime >= settings.stakingManager.minStakeSeconds &&
       isSignatureValid &&
       type === 'stake',
-    [onChainAmount, approved, duration, pntBalanceData, isSignatureValid, type]
+    [onChainAmount, approved, lockTime, pntBalanceData, isSignatureValid, type]
   )
 
   const { config: updateSentinelRegistrationByStakingConfigs } = usePrepareContractWrite({
     address: settings.contracts.registrationManager,
     abi: RegistrationManagerABI,
     functionName: 'updateSentinelRegistrationByStaking',
-    args: [onChainAmount, duration * SECONDS_IN_ONE_DAY, isSignatureValid ? signature : '0x'],
+    args: [onChainAmount, lockTime, isSignatureValid ? signature : '0x'],
     enabled: updateSentinelRegistrationByStakingEnabled
   })
-
-  console.log(updateSentinelRegistrationByStakingConfigs)
 
   const {
     write: updateSentinelRegistrationByStaking,
     error: updateSentinelRegistrationByStakingError,
     data: updateSentinelRegistrationByStakingData
-  } = useContractWrite({
-    ...updateSentinelRegistrationByStakingConfigs,
-    overrides: {
-      gasLimit: 1000000
-    }
-  })
+  } = useContractWrite(updateSentinelRegistrationByStakingConfigs)
 
   const { isLoading: isApproving } = useWaitForTransaction({
     hash: approveData?.hash
@@ -169,7 +165,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     approveData,
     approveEnabled,
     approveError,
-    duration,
+    lockTime,
     epochs,
     isApproving,
     isUpdatingSentinelRegistrationByBorrowing,
@@ -198,7 +194,8 @@ const useSentinel = () => {
     abi: RegistrationManagerABI,
     functionName: 'sentinelOf',
     args: [address],
-    enabled: address
+    enabled: address,
+    watch: true
   })
 
   const sentinelAddress =
@@ -215,18 +212,20 @@ const useSentinel = () => {
   })
 
   return {
-    endEpoch: sentinelRegistrationData?.endEpoch.toNumber(),
+    endEpoch: sentinelRegistrationData?.endEpoch,
     formattedSentinelAddress: sentinelAddress ? slicer(sentinelAddress) : '-',
     formattedKind: sentinelRegistrationData ? kind[sentinelRegistrationData.kind] : '-',
     kind: sentinelRegistrationData?.kind,
     sentinelAddress: sentinelAddress || '-',
-    startEpoch: sentinelRegistrationData?.startEpoch.toNumber()
+    sentinelNickname: sentinelAddress ? getNickname(sentinelAddress) : '-',
+    startEpoch: sentinelRegistrationData?.startEpoch
   }
 }
 
 const useBorrowingSentinelProspectus = () => {
   const { currentEpoch } = useEpochs()
   const [epochs, setEpochs] = useState(0)
+  const { startEpoch: currentStartEpoch = 0, endEpoch: currentEndEpoch = 0 } = useSentinel()
 
   const [_startEpoch, _endEpoch] = useMemo(
     () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
@@ -250,12 +249,22 @@ const useBorrowingSentinelProspectus = () => {
   const totalBorrowedAmountInEpoch = useMemo(() => (data && data[0] ? data[0] : []), [data])
 
   const { startEpoch, endEpoch } = useMemo(() => {
-    // TODO: handle previous registration
-    return {
-      startEpoch: currentEpoch + 1,
-      endEpoch: currentEpoch + 1 + epochs
+    if (!currentEpoch && currentEpoch !== 0) {
+      return {
+        startEpoch: null,
+        endEpoch: null
+      }
     }
-  }, [currentEpoch, epochs])
+
+    let startEpoch = currentEpoch >= currentEndEpoch ? currentEpoch + 1 : currentEndEpoch + 1
+    startEpoch = currentEpoch >= currentEndEpoch ? currentEpoch + 1 : currentEndEpoch
+    const endEpoch = startEpoch + epochs - (currentEpoch >= currentEndEpoch ? 1 : 0)
+
+    return {
+      endEpoch,
+      startEpoch: currentEpoch >= currentEndEpoch ? currentEpoch + 1 : currentStartEpoch
+    }
+  }, [currentEpoch, epochs, currentEndEpoch, currentStartEpoch])
 
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
     startEpoch,
@@ -270,20 +279,23 @@ const useBorrowingSentinelProspectus = () => {
 
   const epochsRevenues = useMemo(
     () =>
-      range(currentEpoch + 1, currentEpoch + epochs + 1).map((_epoch) => {
-        const sentinelsBorrowingFeesAmount =
-          feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_epoch]
-            ? feeDistributionByMonthlyRevenues[_epoch].sentinelsBorrowingFeesAmount
-            : BigNumber(0)
-        const numberOfSentinels = numberOfSentinelsInEpoch[_epoch]
-        const borrowingFeePercentage =
-          !numberOfSentinels || numberOfSentinels.isNaN() || numberOfSentinels.isEqualTo(0)
-            ? new BigNumber(1)
-            : BigNumber(1).dividedBy(numberOfSentinels)
+      (startEpoch || startEpoch === 0) && endEpoch
+        ? range(startEpoch, endEpoch + 1).map((_, _index) => {
+            const sentinelsBorrowingFeesAmount =
+              feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_index]
+                ? feeDistributionByMonthlyRevenues[_index].sentinelsBorrowingFeesAmount
+                : BigNumber(0)
 
-        return sentinelsBorrowingFeesAmount.multipliedBy(borrowingFeePercentage).toFixed()
-      }),
-    [currentEpoch, epochs, numberOfSentinelsInEpoch, feeDistributionByMonthlyRevenues]
+            const numberOfSentinels = numberOfSentinelsInEpoch[_index]
+            const borrowingFeePercentage =
+              !numberOfSentinels || numberOfSentinels.isNaN() || numberOfSentinels.isEqualTo(0)
+                ? new BigNumber(1)
+                : BigNumber(1).dividedBy(numberOfSentinels)
+
+            return sentinelsBorrowingFeesAmount.multipliedBy(borrowingFeePercentage).toFixed()
+          })
+        : [],
+    [numberOfSentinelsInEpoch, feeDistributionByMonthlyRevenues, endEpoch, startEpoch]
   )
 
   return {

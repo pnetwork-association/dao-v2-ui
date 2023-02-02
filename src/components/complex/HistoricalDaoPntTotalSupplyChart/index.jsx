@@ -6,6 +6,7 @@ import { ThemeContext } from 'styled-components'
 import { useHistoricalDaoPntTotalSupply } from '../../../hooks/use-staking-manager'
 
 const options = {
+  elements: { point: { radius: 0 } },
   responsive: true,
   interaction: {
     mode: 'index',

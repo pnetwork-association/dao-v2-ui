@@ -13,6 +13,7 @@ import Proposal from '../Proposal'
 
 const NewProposalContainer = styled.div`
   cursor: pointer;
+  padding-bottom: 0.75rem;
 `
 
 const StyledIcon = styled(Icon)`

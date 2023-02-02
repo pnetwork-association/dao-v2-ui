@@ -10,19 +10,14 @@ import Stats from '../../complex/Stats'
 import PageTemplate from '../../templates/PageTemplate'
 
 const ActivitiesContainer = styled.div`
-  border-radius: 15pt;
+  border-radius: 10px;
   overflow: hidden;
 `
 
 const StyledActivities = styled(Activities)`
-  height: 232px;
-  max-height: 232px;
+  height: 224px;
+  max-height: 224px;
   overflow-y: auto;
-`
-
-const TabsBox = styled(Box)`
-  padding: 0;
-  padding-bottom: 0.5rem;
 `
 
 const Overview = () => {
@@ -32,7 +27,7 @@ const Overview = () => {
         <Col xs={12} lg={6}>
           <Stats />
         </Col>
-        <Col xs={12} lg={6} className="mt-4 mt-sm-0">
+        <Col xs={12} lg={6} className="mt-4 mt-lg-0">
           <ActivitiesContainer>
             <StyledActivities />
           </ActivitiesContainer>
@@ -46,9 +41,9 @@ const Overview = () => {
         </Col>
       </Row>
       <div className="mt-4">
-        <TabsBox>
+        <Box noPadding>
           <Proposals />
-        </TabsBox>
+        </Box>
       </div>
     </PageTemplate>
   )

@@ -22,7 +22,8 @@ const settings = {
     feesManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570'
   },
   stakingManager: {
-    minStakeDays: 7
+    minStakeDays: 7,
+    minStakeSeconds: 604800
   },
   registrationManager: {
     borrowAmount: 200000,

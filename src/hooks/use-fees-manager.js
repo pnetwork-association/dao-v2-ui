@@ -44,13 +44,13 @@ const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
     () =>
       (startEpoch || startEpoch === 0) &&
       endEpoch &&
-      range(startEpoch, endEpoch + 1).map((_epoch) => {
-        const k = BigNumber(kInEpoch[_epoch] ? kInEpoch[_epoch].toString() : 0)
+      range(startEpoch, endEpoch + 1).map((_, _index) => {
+        const k = BigNumber(kInEpoch[_index] ? kInEpoch[_index].toString() : 0).multipliedBy(10 ** -6)
         const totalBorrowedAmount = BigNumber(
-          totalBorrowedAmountInEpoch[_epoch] ? totalBorrowedAmountInEpoch[_epoch].toString() : 0
+          totalBorrowedAmountInEpoch[_index] ? totalBorrowedAmountInEpoch[_index].toString() : 0
         )
         const totalSentinelStakedAmount = BigNumber(
-          totalStakedAmountInEpoch[_epoch] ? totalStakedAmountInEpoch[_epoch].toString() : 0
+          totalStakedAmountInEpoch[_index] ? totalStakedAmountInEpoch[_index].toString() : 0
         )
         const totalAmount = totalBorrowedAmount.plus(totalSentinelStakedAmount)
         const sentinelsStakingFeesPercentage = totalAmount.isEqualTo(0)

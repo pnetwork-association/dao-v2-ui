@@ -22,28 +22,12 @@
   },
   {
     "inputs": [],
-    "name": "InvalidNumberOfEpochs",
+    "name": "LendPeriodTooBig",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "NothingToClaim",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "borrower",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "epoch",
-        "type": "uint16"
-      }
-    ],
-    "name": "NothingToRelease",
     "type": "error"
   },
   {
@@ -90,13 +74,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "startEpoch",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "endEpoch",
+        "name": "epoch",
         "type": "uint256"
       },
       {
@@ -350,38 +328,17 @@
       },
       {
         "internalType": "uint16",
-        "name": "numberOfEpochs",
+        "name": "epoch",
         "type": "uint16"
       },
       {
         "internalType": "address",
         "name": "borrower",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "maxAmount",
-        "type": "uint256"
       }
     ],
     "name": "borrow",
-    "outputs": [
-      {
-        "internalType": "uint16",
-        "name": "",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "",
-        "type": "uint16"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -676,17 +633,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "stakingManager_",
+        "name": "_token",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "token_",
+        "name": "_stakingManager",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "epochsManager_",
+        "name": "_epochsManager",
         "type": "address"
       },
       {
@@ -760,6 +717,11 @@
         "internalType": "uint16",
         "name": "epoch",
         "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
     "name": "release",
@@ -902,6 +864,30 @@
     "inputs": [
       {
         "internalType": "uint16",
+        "name": "startEpoch",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "endEpoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "totalBorrowedAmountByEpochsRange",
+    "outputs": [
+      {
+        "internalType": "uint24[]",
+        "name": "",
+        "type": "uint24[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
         "name": "epoch",
         "type": "uint16"
       }
@@ -909,9 +895,9 @@
     "name": "totalLendedAmountByEpoch",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
@@ -1039,9 +1025,9 @@
     "name": "utilizationRatioByEpoch",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
@@ -1063,9 +1049,9 @@
     "name": "utilizationRatioByEpochsRange",
     "outputs": [
       {
-        "internalType": "uint256[]",
+        "internalType": "uint24[]",
         "name": "",
-        "type": "uint256[]"
+        "type": "uint24[]"
       }
     ],
     "stateMutability": "view",
