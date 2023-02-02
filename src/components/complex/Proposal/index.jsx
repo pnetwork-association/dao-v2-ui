@@ -1,10 +1,13 @@
-import React, { Fragment, useMemo, useState, useEffect } from 'react'
+import React, { Fragment, useCallback, useContext, useMemo, useState, useEffect } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import styled from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
+import retry from 'async-retry'
 import { usePrepareContractWrite, useContractWrite } from 'wagmi'
 import { toast } from 'react-toastify'
 import BigNumber from 'bignumber.js'
+import axios from 'axios'
 
+import { styleProposalHtml } from '../../../utils/proposals'
 import DandelionVotingABI from '../../../utils/abis/DandelionVoting'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useBalances } from '../../../hooks/use-balances'
@@ -16,7 +19,6 @@ import Modal from '../../base/Modal'
 import ButtonSecondary from '../../base/ButtonSecondary'
 import Action from '../Action'
 import Line from '../../base/Line'
-import A from '../../base/A'
 
 const ProposalContainer = styled.div`
   display: flex;
@@ -90,16 +92,12 @@ const VoteText = styled(ProposalResultText)`
   }
 `
 
-const ReadMore = styled(A)`
+const ReadMoreText = styled(ProposalNumberText)`
   margin-left: 5px;
   cursor: pointer;
-  color: ${({ theme }) => theme.text2};
-  &:hover {
-    color: ${({ theme }) => theme.text2};
-  }
 `
 
-/*const ShowScript = styled(ReadMore)`
+/*const ShowScript = styled(ReadMoreText)`
   margin-left: 0;
 `*/
 
@@ -109,6 +107,10 @@ const QuorumText = styled(Text)`
 
 const StyledIcon = styled(Icon)`
   margin-right: 5px;
+`
+
+const ReadMoreContent = styled.div`
+  color: ${({ theme }) => theme.text2} !important;
 `
 
 const VoteButton = styled(ButtonSecondary)`
@@ -146,7 +148,9 @@ const Proposal = ({
   url,
   vote
 }) => {
+  const theme = useContext(ThemeContext)
   const { daoPntBalance } = useBalances()
+  const [readMoreContent, setReadMoreContent] = useState(null)
   const [showScript, setShowScript] = useState(null)
   const type = useMemo(() => (open ? 'open' : passed ? 'passed' : 'notPassed'), [open, passed])
 
@@ -162,6 +166,15 @@ const Proposal = ({
         return '-'
     }
   }, [type])
+
+  const onReadMore = useCallback(async () => {
+    try {
+      const { data: html } = await retry(() => axios.get(url), { retries: 3 })
+      setReadMoreContent(styleProposalHtml(html, theme))
+    } catch (_err) {
+      console.error(_err)
+    }
+  }, [url, theme])
 
   const canVote = useMemo(
     () => open && vote === 0 && BigNumber(daoPntBalance).isGreaterThan(0),
@@ -227,9 +240,7 @@ const Proposal = ({
         <Row className="mt-2">
           <Col>
             <Text>{description}</Text>
-            <ReadMore href={url} target="_blank">
-              READ MORE
-            </ReadMore>
+            <ReadMoreText onClick={onReadMore}>READ MORE</ReadMoreText>
           </Col>
         </Row>
         <Row className="mt-2">
@@ -313,6 +324,9 @@ const Proposal = ({
           </Row>
         )*/}
       </DataContainer>
+      <Modal show={Boolean(readMoreContent)} title={`#${id}`} onClose={() => setReadMoreContent(null)} size="xl">
+        <ReadMoreContent dangerouslySetInnerHTML={{ __html: readMoreContent }}></ReadMoreContent>
+      </Modal>
       <Modal show={showScript} title={'Script'} onClose={() => setShowScript(false)}>
         <ScriptContainer>
           <Text>{script}</Text>
