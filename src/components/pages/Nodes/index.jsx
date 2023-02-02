@@ -8,10 +8,6 @@ import Box from '../../base/Box'
 import Tabs from '../../base/Tabs'
 import SentinelStats from '../../complex/SentinelStats'
 
-const TabsBox = styled(Box)`
-  padding: 0;
-`
-
 const InnerTabContainer = styled.div`
   padding: 1.5rem 1.5rem;
   background: ${({ theme }) => theme.bg2};
@@ -27,7 +23,7 @@ const Nodes = () => {
 
   return (
     <PageTemplate bgthemecolor="transparent">
-      <TabsBox>
+      <Box noPadding>
         <Tabs
           defaultActiveKey={searchParams.get('selected') || 'sentinel'}
           fill
@@ -47,7 +43,7 @@ const Nodes = () => {
             <InnerTabContainer></InnerTabContainer>
           </Tab>
         </Tabs>
-      </TabsBox>
+      </Box>
     </PageTemplate>
   )
 }
