@@ -73,8 +73,8 @@ const Action = ({ action }) => {
           </A>
           <Text>&nbsp;voted&nbsp;</Text>
           <Text variant="text2">&nbsp;{supports ? 'YES' : 'NO'}&nbsp;</Text>
-          <Text>&nbsp;to vote&nbsp;</Text>
-          <Text variant="text2">{voteId}</Text>
+          <Text>&nbsp;to proposal&nbsp;</Text>
+          <Text variant="text2">#{voteId}</Text>
         </span>
       </div>
     )

@@ -278,7 +278,7 @@ const Proposal = ({
         </Row>
         <Row className="mt-2">
           <Col xs={6}>
-            <Text>Your vote: </Text>
+            {formattedVote !== '-' && <Text>Your vote: </Text>}
             {formattedVote === 'NOT VOTED' && open ? (
               <div className="d-flex align-items-center">
                 <VoteButton disabled={!canVote} vote={'YES'} onClick={() => yes?.()}>
@@ -294,7 +294,7 @@ const Proposal = ({
               <Fragment>
                 {formattedVote === 'YES' && <StyledIcon icon="verified" />}
                 {formattedVote === 'NO' && <StyledIcon icon="block" />}
-                <VoteText vote={formattedVote}>{formattedVote}</VoteText>
+                {formattedVote !== '-' && <VoteText vote={formattedVote}>{formattedVote}</VoteText>}
               </Fragment>
             )}
           </Col>

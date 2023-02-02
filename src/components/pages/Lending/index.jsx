@@ -46,7 +46,7 @@ const Lending = () => {
 
   return (
     <PageTemplate bgthemecolor="transparent">
-      <Box noPadding>
+      <Box bodyStyle={{ padding: 0 }}>
         <Tabs
           defaultActiveKey="lenders"
           fill
@@ -118,7 +118,7 @@ const Lending = () => {
               <Box className="mt-4">
                 <UtilizationRatioChart />
               </Box>
-              <Box className="mt-4" noPadding>
+              <Box className="mt-4" bodyStyle={{ padding: 0 }}>
                 <ClaimInterests />
               </Box>
             </InnerTabContainer>
