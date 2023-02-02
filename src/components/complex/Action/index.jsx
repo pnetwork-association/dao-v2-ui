@@ -91,7 +91,7 @@ const Action = ({ action }) => {
           </A>
           <Text>&nbsp;staked&nbsp;</Text>
           <Text variant="text2">{formattedAmount}&nbsp;</Text>
-          <AssetLogo src={'assets/svg/PNT.svg'} />
+          <AssetLogo src={'./assets/svg/PNT.svg'} />
           <Text>&nbsp;&nbsp;for&nbsp;</Text>
           <Text variant="text2">{formattedDuration}</Text>
         </span>
@@ -110,7 +110,7 @@ const Action = ({ action }) => {
           </A>
           <Text>&nbsp;lended&nbsp;</Text>
           <Text variant="text2">{formattedAmount}&nbsp;</Text>
-          <AssetLogo src={'assets/svg/PNT.svg'} />
+          <AssetLogo src={'./assets/svg/PNT.svg'} />
           <Text>&nbsp;&nbsp;for&nbsp;</Text>
           <Text variant="text2">{endEpoch - startEpoch}</Text>
           <Text variant="text2">&nbsp;epochs</Text>

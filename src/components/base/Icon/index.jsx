@@ -33,7 +33,7 @@ const Icon = ({ icon, color, ..._props }) => {
         width: '20px',
         heigth: '20px'
       }}
-      src={`../assets/svg/${icon}.svg`}
+      src={`./assets/svg/${icon}.svg`}
       wrapper="span"
       {..._props}
     />

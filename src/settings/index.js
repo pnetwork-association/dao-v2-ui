@@ -36,7 +36,7 @@ const settings = {
       name: 'pNetwork Token',
       decimals: 18,
       symbol: 'ethPNT',
-      logo: 'assets/svg/PNT.svg',
+      logo: './assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: false,
       symbolPrice: 'PNT'
     },
@@ -45,7 +45,7 @@ const settings = {
       name: 'pNetwork Token',
       decimals: 18,
       symbol: 'PNT',
-      logo: 'assets/svg/PNT.svg',
+      logo: './assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: true,
       symbolPrice: 'PNT'
     },
@@ -54,7 +54,7 @@ const settings = {
       name: 'pTokens pBTC',
       decimals: 18,
       symbol: 'pBTC',
-      logo: 'assets/svg/pBTC.svg',
+      logo: './assets/svg/pBTC.svg',
       borrowingManagerClaimEnabled: true,
       symbolPrice: 'BTC'
     },
@@ -63,7 +63,7 @@ const settings = {
       name: 'GALA',
       decimals: 18,
       symbol: 'pGALA',
-      logo: 'assets/svg/GALA.svg',
+      logo: './assets/svg/GALA.svg',
       borrowingManagerClaimEnabled: true,
       symbolPrice: 'GALA'
     },
@@ -72,7 +72,7 @@ const settings = {
       name: 'USD Coin',
       decimals: 6,
       symbol: 'USDC',
-      logo: 'assets/svg/USDC.svg',
+      logo: './assets/svg/USDC.svg',
       borrowingManagerClaimEnabled: true,
       symbolPrice: 'USDC'
     }
