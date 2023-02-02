@@ -13,7 +13,7 @@ const options = {
   },
   plugins: {
     legend: {
-      display: false
+      display: true
     },
     tooltip: {
       callbacks: {
@@ -76,6 +76,10 @@ const options = {
     x: {
       grid: {
         display: false
+      },
+      title: {
+        display: true,
+        text: 'Past epochs'
       }
     }
   }

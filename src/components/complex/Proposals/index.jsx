@@ -43,7 +43,7 @@ const Proposals = () => {
   return (
     <Fragment>
       <Tabs defaultActiveKey="new" fill>
-        <Tab eventKey="new" title="New Proposals">
+        <Tab eventKey="new" title="New proposals">
           {newProposals.map((_proposal) => (
             <div className="mt-2" key={`proposal_${_proposal.id}`}>
               <Proposal {..._proposal} />
@@ -57,7 +57,7 @@ const Proposals = () => {
             <StyledIcon icon="plus" /> <Text variant="text2">&nbsp;&nbsp;CREATE A NEW PROPOSAL</Text>
           </NewProposalContainer>
         </Tab>
-        <Tab eventKey="past" title="Past Proposals">
+        <Tab eventKey="past" title="Past proposals">
           {pastProposals.map((_proposal) => (
             <div key={`proposal_${_proposal.id}`} className="mt-2">
               <Proposal {..._proposal} />
