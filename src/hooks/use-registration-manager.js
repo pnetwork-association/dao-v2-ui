@@ -18,7 +18,7 @@ import RegistrationManagerABI from '../utils/abis/RegistrationManager.json'
 import { slicer } from '../utils/address'
 import { isValidHexString } from '../utils/format'
 import { getNickname } from '../utils/nicknames'
-import { range } from '../utils/time'
+import { range, SECONDS_IN_ONE_HOUR } from '../utils/time'
 import { useEpochs } from './use-epochs'
 import { useFeesDistributionByMonthlyRevenues } from './use-fees-manager'
 
@@ -66,7 +66,10 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
   const lockTime = useMemo(
-    () => (currentEpochEndsIn && epochs && type === 'stake' ? currentEpochEndsIn + epochs * epochDuration : null),
+    () =>
+      currentEpochEndsIn && epochs && type === 'stake'
+        ? currentEpochEndsIn + epochs * epochDuration + SECONDS_IN_ONE_HOUR
+        : null,
     [currentEpochEndsIn, epochs, epochDuration, type]
   )
 

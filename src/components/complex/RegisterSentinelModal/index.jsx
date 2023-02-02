@@ -192,7 +192,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
     }
 
     if (type === 'stake') {
-      return currentEpoch + epochs - 1
+      return currentEpoch + epochs
     }
   }, [type, currentEpoch, currentEndEpoch, epochs])
 
@@ -251,7 +251,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
               <Text>Number of epochs</Text>
             </Col>
             <Col xs={6} className="text-end">
-              <Text variant={'text2'}>{epochs - 1}</Text>
+              <Text variant={'text2'}>{epochs}</Text>
             </Col>
           </Row>
           <Row className="mt-1">
