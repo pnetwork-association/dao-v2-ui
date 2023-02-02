@@ -14,7 +14,7 @@ import BigNumber from 'bignumber.js'
 import moment from 'moment'
 
 import settings from '../settings'
-import VotingABI from '../utils/abis/Voting'
+import DandelionVotingABI from '../utils/abis/DandelionVoting'
 import { formatAssetAmount } from '../utils/amount'
 import { hexToAscii } from '../utils/format'
 import { extractActionsFromTransaction } from '../utils/logs'
@@ -45,7 +45,7 @@ const useProposals = () => {
         const {
           data: { result }
         } = await axios.get(
-          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.voting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=73VMNN33QYMXJ428F5KA69R35FNADTN94W`
+          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=73VMNN33QYMXJ428F5KA69R35FNADTN94W`
         )
         setEtherscanProposals(
           result.map((_proposal, _id) => {
@@ -68,8 +68,8 @@ const useProposals = () => {
 
   const { data: votesData } = useContractReads({
     contracts: etherscanProposals.map(({ id }) => ({
-      address: settings.contracts.voting,
-      abi: VotingABI,
+      address: settings.contracts.dandelionVoting,
+      abi: DandelionVotingABI,
       functionName: 'getVote',
       args: [id]
     }))
@@ -113,7 +113,7 @@ const useProposals = () => {
               axios
                 .get(
                   `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=${executionBlock.toNumber()}&toBlock=latest&address=${
-                    settings.contracts.voting
+                    settings.contracts.dandelionVoting
                   }&topic0=0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab&topic1=${ethers.utils.hexZeroPad(
                     ethers.utils.hexlify(id),
                     32
@@ -221,8 +221,8 @@ const useProposals = () => {
 
   const { data: voterStatesData } = useContractReads({
     contracts: etherscanProposals.map(({ id }) => ({
-      address: settings.contracts.voting,
-      abi: VotingABI,
+      address: settings.contracts.dandelionVoting,
+      abi: DandelionVotingABI,
       functionName: 'getVoterState',
       args: [id, address]
     }))
@@ -274,11 +274,11 @@ const useCreateProposal = () => {
         address: settings.contracts.acl,
         abi: ACLAbi,
         functionName: 'hasPermission',
-        args: [address, settings.contracts.voting, getRole('CREATE_VOTES_ROLE'), '0x']
+        args: [address, settings.contracts.dandelionVoting, getRole('CREATE_VOTES_ROLE'), '0x']
       },
       {
-        address: settings.contracts.voting,
-        abi: VotingABI,
+        address: settings.contracts.dandelionVoting,
+        abi: DandelionVotingABI,
         functionName: 'minOpenVoteAmount',
         args: []
       }
@@ -312,8 +312,8 @@ const useCreateProposal = () => {
   )
 
   const { config: newProposalConfig } = usePrepareContractWrite({
-    address: settings.contracts.voting,
-    abi: VotingABI,
+    address: settings.contracts.dandelionVoting,
+    abi: DandelionVotingABI,
     functionName: 'newVote',
     args: [showScript && isScriptValid ? script : '0x', metadata, false],
     enabled: canCreateProposal

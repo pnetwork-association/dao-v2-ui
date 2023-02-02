@@ -8,7 +8,7 @@ import BigNumber from 'bignumber.js'
 import axios from 'axios'
 
 import { styleProposalHtml } from '../../../utils/proposals'
-import VotingABI from '../../../utils/abis/Voting'
+import DandelionVotingABI from '../../../utils/abis/DandelionVoting'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useBalances } from '../../../hooks/use-balances'
 import settings from '../../../settings'
@@ -136,7 +136,6 @@ const Proposal = ({
   actions,
   description,
   formattedCloseDate,
-  formattedOpenDate,
   formattedPercentageNay,
   formattedPercentageYea,
   formattedVote,
@@ -183,8 +182,8 @@ const Proposal = ({
   )
 
   const { config: configYes } = usePrepareContractWrite({
-    address: settings.contracts.voting,
-    abi: VotingABI,
+    address: settings.contracts.dandelionVoting,
+    abi: DandelionVotingABI,
     functionName: 'vote',
     args: [id, true],
     enabled: canVote
@@ -192,8 +191,8 @@ const Proposal = ({
   const { data: yesData, /*isLoading: isLoadingYes,*/ write: yes, error: yesError } = useContractWrite(configYes)
 
   const { config: configNo } = usePrepareContractWrite({
-    address: settings.contracts.voting,
-    abi: VotingABI,
+    address: settings.contracts.dandelionVoting,
+    abi: DandelionVotingABI,
     functionName: 'vote',
     args: [id, false],
     enabled: canVote
