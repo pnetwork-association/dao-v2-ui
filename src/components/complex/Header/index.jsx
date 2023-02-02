@@ -177,7 +177,7 @@ const Header = (_props) => {
       <HeaderContainer>
         <Navbar.Brand>
           <Link to={'/'}>
-            <Logo src="../assets/svg/PNT.svg" />
+            <Logo src="./assets/svg/PNT.svg" />
           </Link>
         </Navbar.Brand>
         <StyledNav className="me-auto">
