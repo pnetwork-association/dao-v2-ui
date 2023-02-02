@@ -69,7 +69,7 @@ const useStats = () => {
     daoPntTotalSupply: daoPntTotalSupply.toFixed(),
     formattedCurrentEpoch,
     formattedCurrentEpochEndAt,
-    formattedDaoPntTotalSupply: formatAssetAmount(daoPntTotalSupply, 'daoPNT'),
+    formattedDaoPntTotalSupply: formatAssetAmount(daoPntTotalSupply, 'daoPNT', { decimals: 0 }),
     formattedPercentageStakedPnt: formatAssetAmount(percentageStakedPnt, '%', {
       decimals: 2
     }),

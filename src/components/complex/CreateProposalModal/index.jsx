@@ -6,13 +6,14 @@ import { ethers } from 'ethers'
 
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useCreateProposal } from '../../../hooks/use-proposals'
+import { formatAssetAmount } from '../../../utils/amount'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
 import TextArea from '../../base/TextArea'
 import Button from '../../base/Button'
 import InfoBox from '../../base/InfoBox'
-import { formatAssetAmount } from '../../../utils/amount'
+import Input from '../../base/Input'
 
 const UseScriptText = styled(Text)`
   font-size: 13px;
@@ -23,6 +24,10 @@ const UseScriptText = styled(Text)`
   }
 `
 
+const IPFSAttachmentInput = styled(Input)`
+  font-size: 17px;
+`
+
 const CreateProposalModal = ({ show, onClose }) => {
   const {
     canCreateProposal,
@@ -30,10 +35,12 @@ const CreateProposalModal = ({ show, onClose }) => {
     createProposalData,
     createProposalError,
     hasPermissionOrEnoughBalance,
+    ipfsMultihash,
     isLoading,
     metadata,
     minOpenVoteAmount,
     script,
+    setIpfsMultihash,
     setMetadata,
     setScript,
     setShowScript,
@@ -78,11 +85,21 @@ const CreateProposalModal = ({ show, onClose }) => {
           <TextArea rows="4" value={metadata} onChange={(_e) => setMetadata(_e.target.value)} />
         </Col>
       </Row>
+      <Row className="mt-2">
+        <Col>
+          <Text>IPFS attachment (optional)</Text>
+        </Col>
+      </Row>
+      <Row className="mt-1">
+        <Col xs={12}>
+          <IPFSAttachmentInput value={ipfsMultihash} onChange={(_e) => setIpfsMultihash(_e.target.value)} />
+        </Col>
+      </Row>
       {!hasPermissionOrEnoughBalance && (
         <Row className="mt-2">
           <Col>
             <InfoBox type="warning">
-              In order to be able to open a vote you should either have at least 200,000 daoPNT
+              In order to be able to open a vote you should either have at least&nbsp;
               {formatAssetAmount(ethers.utils.formatEther(minOpenVoteAmount).toString(), 'daoPNT')} or be granted a
               special permission via a DAO vote
             </InfoBox>

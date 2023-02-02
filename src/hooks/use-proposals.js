@@ -267,6 +267,7 @@ const useCreateProposal = () => {
   const [metadata, setMetadata] = useState('')
   const [script, setScript] = useState('')
   const [showScript, setShowScript] = useState(false)
+  const [ipfsMultihash, setIpfsMultihash] = useState('')
 
   const { data } = useContractReads({
     contracts: [
@@ -315,7 +316,11 @@ const useCreateProposal = () => {
     address: settings.contracts.dandelionVoting,
     abi: DandelionVotingABI,
     functionName: 'newVote',
-    args: [showScript && isScriptValid ? script : '0x', metadata, false],
+    args: [
+      showScript && isScriptValid ? script : '0x',
+      ipfsMultihash.length > 0 ? `${metadata} https://ipfs.io/ipfs/${ipfsMultihash}` : metadata,
+      false
+    ],
     enabled: canCreateProposal
   })
   const {
@@ -332,14 +337,17 @@ const useCreateProposal = () => {
     createProposalError,
     hasPermission,
     hasPermissionOrEnoughBalance,
+    ipfsMultihash,
     isLoading,
     isScriptValid,
     metadata,
     minOpenVoteAmount,
     script,
+    setIpfsMultihash,
     setMetadata,
     setScript,
-    setShowScript
+    setShowScript,
+    showScript
   }
 }
 
