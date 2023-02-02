@@ -27,7 +27,7 @@ const Staking = () => {
       <Box>
         <Row className="mt-2">
           <Col xs={6}>
-            <Text>Epoch</Text>
+            <Text>Current epoch</Text>
           </Col>
           <Col xs={6} className="text-end">
             <Text variant={'text2'}>#36</Text>
