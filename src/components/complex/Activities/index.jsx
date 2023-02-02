@@ -19,7 +19,15 @@ const Activities = ({ ..._props }) => {
   const { activities, isLoading } = useActivities()
 
   return (
-    <Box {..._props} headerTitle="Recent Activities">
+    <Box
+      {..._props}
+      headerTitle="Recent Activities"
+      bodyStyle={{
+        height: 174,
+        maxHeight: 174,
+        overflowY: 'auto'
+      }}
+    >
       {isLoading && (
         <SpinnerContainer>
           <Spinner size="lg" />

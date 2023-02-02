@@ -82,7 +82,7 @@ const UnstakeModal = ({ show, onClose }) => {
       </Row>
       <Row>
         <Col xs={6}>
-          <Text>Available for unstake</Text>
+          <Text>Available to unstake</Text>
         </Col>
         <Col xs={6} className="text-end">
           <Text variant={'text2'}>{fomattedAvailableToUnstakePntAmount}</Text>

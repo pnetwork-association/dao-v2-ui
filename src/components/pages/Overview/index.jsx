@@ -1,6 +1,5 @@
 import React from 'react'
 import { Col, Row } from 'react-bootstrap'
-import styled from 'styled-components'
 
 import Box from '../../base/Box'
 import Activities from '../../complex/Activities'
@@ -8,17 +7,6 @@ import Proposals from '../../complex/Proposals'
 import SentinelHistoricalChart from '../../complex/SentinelHistoricalChart'
 import Stats from '../../complex/Stats'
 import PageTemplate from '../../templates/PageTemplate'
-
-const ActivitiesContainer = styled.div`
-  border-radius: 10px;
-  overflow: hidden;
-`
-
-const StyledActivities = styled(Activities)`
-  height: 184px;
-  max-height: 184px;
-  overflow-y: auto;
-`
 
 const Overview = () => {
   return (
@@ -28,9 +16,7 @@ const Overview = () => {
           <Stats />
         </Col>
         <Col xs={12} lg={6} className="mt-4 mt-lg-0">
-          <ActivitiesContainer>
-            <StyledActivities />
-          </ActivitiesContainer>
+          <Activities />
         </Col>
       </Row>
       <Row className="mt-4">
@@ -41,7 +27,7 @@ const Overview = () => {
         </Col>
       </Row>
       <div className="mt-4">
-        <Box noPadding>
+        <Box bodyStyle={{ padding: 0 }}>
           <Proposals />
         </Box>
       </div>

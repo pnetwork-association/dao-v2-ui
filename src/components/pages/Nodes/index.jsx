@@ -23,7 +23,7 @@ const Nodes = () => {
 
   return (
     <PageTemplate bgthemecolor="transparent">
-      <Box noPadding>
+      <Box bodyStyle={{ padding: 0 }}>
         <Tabs
           defaultActiveKey={searchParams.get('selected') || 'sentinel'}
           fill

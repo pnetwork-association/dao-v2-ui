@@ -82,9 +82,9 @@ const CreateProposalModal = ({ show, onClose }) => {
         <Row className="mt-2">
           <Col>
             <InfoBox type="warning">
-              In order to be able to open a vote you should have at least{' '}
-              {formatAssetAmount(ethers.utils.formatEther(minOpenVoteAmount).toString(), 'daoPNT')} or at least have the
-              permission
+              In order to be able to open a vote you should either have at least 200,000 daoPNT
+              {formatAssetAmount(ethers.utils.formatEther(minOpenVoteAmount).toString(), 'daoPNT')} or be granted a
+              special permission via a DAO vote
             </InfoBox>
           </Col>
         </Row>

@@ -5,11 +5,10 @@ import styled from 'styled-components'
 import Line from '../../base/Line'
 import Text from '../Text'
 
-const InnerContainer = styled.div`
+const Body = styled.div`
   background: ${({ theme }) => theme.bg3};
   border-radius: 10px;
-  padding: ${({ withHeader, noPadding }) =>
-    noPadding ? '0' : withHeader ? '0rem 0.75rem 0.75rem 0.75rem' : '0.75rem'};
+  padding: ${({ withHeader }) => (withHeader ? '0.5rem 0.75rem 0.75rem 0.75rem' : '0.75rem')};
   @media (max-width: 767.98px) {
     padding: 0.5rem 0.5rem;
   }
@@ -20,7 +19,8 @@ const GlobalContainer = styled.div`
   background: ${({ theme }) => theme.bg3};
 `
 
-const HeaderContainer = styled.div`
+const Header = styled.div`
+  border-radius: 10px;
   background: ${({ theme }) => theme.bg3};
   padding: 0.75rem 0.75rem 0 0.75rem;
   @media (max-width: 767.98px) {
@@ -32,12 +32,16 @@ const HeaderTitle = styled(Text)`
   font-weight: bold;
 `
 
-const Box = ({ headerTitle, noPadding, children, ..._props }) => {
+const StyledLine = styled(Line)`
+  margin-bottom: 0rem;
+`
+
+const Box = ({ headerTitle, children, bodyStyle, ..._props }) => {
   return (
     <GlobalContainer {..._props}>
       {headerTitle && (
         <Fragment>
-          <HeaderContainer>
+          <Header>
             <Row>
               <Col>
                 <HeaderTitle variant="text4" size="md">
@@ -45,13 +49,13 @@ const Box = ({ headerTitle, noPadding, children, ..._props }) => {
                 </HeaderTitle>
               </Col>
             </Row>
-          </HeaderContainer>
-          <Line />
+          </Header>
+          <StyledLine />
         </Fragment>
       )}
-      <InnerContainer withHeader={Boolean(headerTitle)} noPadding={noPadding}>
+      <Body withHeader={Boolean(headerTitle)} style={bodyStyle}>
         {children}
-      </InnerContainer>
+      </Body>
     </GlobalContainer>
   )
 }

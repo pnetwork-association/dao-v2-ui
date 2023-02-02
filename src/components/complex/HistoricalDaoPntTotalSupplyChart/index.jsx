@@ -16,7 +16,7 @@ const options = {
   plugins: {
     title: {
       display: true,
-      text: 'Evolution of PNT staked in the DAO'
+      text: 'PNT staked in the DAO'
     },
     legend: {
       display: false
