@@ -15,8 +15,8 @@ const ActivitiesContainer = styled.div`
 `
 
 const StyledActivities = styled(Activities)`
-  height: 224px;
-  max-height: 224px;
+  height: 186px;
+  max-height: 186px;
   overflow-y: auto;
 `
 
