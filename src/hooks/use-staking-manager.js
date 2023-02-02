@@ -11,14 +11,12 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction
 } from 'wagmi'
-// import axios from 'axios'
+import axios from 'axios'
 
 import settings from '../settings'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import { formatAssetAmount } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
-
-import HistoricalDaoPntTotalSupplyData from './historical-dao-pnt-total-supply.json'
 
 const useStake = () => {
   const [approved, setApproved] = useState(false)
@@ -214,18 +212,11 @@ const useHistoricalDaoPntTotalSupply = () => {
   useEffect(() => {
     const fetch = async () => {
       try {
-        /*const { data } = await axios.get(
-          `https://pnetwork.watch:443/api/datasources/proxy/1/query?db=pnetwork-volumes-1&q=SELECT%20%22daopnt_supply_sum%22%20FROM%20%22daopnt_supply_sum%22%20WHERE%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()%3BSELECT%20%22daopnt_supply%22%20FROM%20%22daopnt_supply%22%20WHERE%20(%22chain%22%20%3D%20%27eth%27)%20AND%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()%3BSELECT%20%22daopnt_supply%22%20FROM%20%22daopnt_supply%22%20WHERE%20(%22chain%22%20%3D%20%27bsc%27)%20AND%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()&epoch=ms`,
-          {
-            headers: {
-              'Access-Control-Allow-Origin': '*'
-            }
-          }
-        )*/
+        const { data } = await axios.get(
+          `https://pnetwork.watch:443/api/datasources/proxy/1/query?db=pnetwork-volumes-1&q=SELECT%20%22daopnt_supply_sum%22%20FROM%20%22daopnt_supply_sum%22%20WHERE%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()%3BSELECT%20%22daopnt_supply%22%20FROM%20%22daopnt_supply%22%20WHERE%20(%22chain%22%20%3D%20%27eth%27)%20AND%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()%3BSELECT%20%22daopnt_supply%22%20FROM%20%22daopnt_supply%22%20WHERE%20(%22chain%22%20%3D%20%27bsc%27)%20AND%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()&epoch=ms`
+        )
 
-        const data = HistoricalDaoPntTotalSupplyData
         const daoPntTotalSupply = data.results[0].series[0].values
-
         setHistoricalDaoPntTotalSupply({
           daoPntTotalSupply: daoPntTotalSupply.sort((_a, _b) => _a[0] - _b[0])
         })
