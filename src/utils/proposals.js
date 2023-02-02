@@ -21,6 +21,7 @@ const styleProposalHtml = (_html, _theme) => {
   html = html.replace(/Summary/g, `<span style="font-size:14pt;font-weight:700">Summary</span>`)
   html = html.replace(/Motivation/g, `<span style="font-size:14pt;font-weight:700">Motivation</span>`)
   html = html.replace(/Specification/g, `<span style="font-size:14pt;font-weight:700">Specification</span>`)
+  html = html.replace(/href/g, `target="_blank" href`)
   const index = html.indexOf('</style>')
 
   const rules = `

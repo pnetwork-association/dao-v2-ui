@@ -107,7 +107,7 @@ const CreateProposalModal = ({ show, onClose }) => {
         </Row>
       )}
       <Row>
-        <Col className="text-center">
+        <Col className="text-center mt-2">
           <UseScriptText onClick={onShowOrHideUseScript} variant="text4">
             {showScript ? 'Remove' : 'Add'} script
           </UseScriptText>
@@ -117,7 +117,7 @@ const CreateProposalModal = ({ show, onClose }) => {
         <Fragment>
           <Row>
             <Col>
-              <Text>Script</Text>
+              <Text>Script (optional)</Text>
             </Col>
           </Row>
           <Row className="mt-1">
