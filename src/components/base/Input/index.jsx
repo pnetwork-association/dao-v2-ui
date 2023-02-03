@@ -12,7 +12,7 @@ const Input = styled.input`
   font-size: 27px;
   color: ${({ theme }) => theme.text2};
   margin-right: 0.5rem;
-  background: ${({ theme }) => theme.bg1};
+  background: ${({ theme }) => theme.white} !important;
 
   ::placeholder {
     /* Chrome, Firefox, Opera, Safari 10.1+ */

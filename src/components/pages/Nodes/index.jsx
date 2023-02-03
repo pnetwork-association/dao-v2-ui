@@ -32,7 +32,7 @@ const Nodes = () => {
         >
           <Tab eventKey="sentinel" title="Sentinel">
             <InnerTabContainer>
-              <SentinelStats type="stakingSentinel" />
+              <SentinelStats type="stake" />
               <Box className="mt-4" bodyStyle={{ padding: 0 }}>
                 <ClaimFees type="stakingSentinel" />
               </Box>
