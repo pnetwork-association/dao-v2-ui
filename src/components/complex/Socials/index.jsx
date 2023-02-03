@@ -25,7 +25,7 @@ const StyledFaGithub = styled(FaGithub)`
   width: 32px;
   height: 32px;
 
-  @media (max-width: 767.98px) {
+  @media (max-width: 1400px) {
     width: 24px;
     height: 24px;
   }
@@ -36,7 +36,7 @@ const StyledFaTwitter = styled(FaTwitter)`
   width: 32px;
   height: 32px;
 
-  @media (max-width: 767.98px) {
+  @media (max-width: 1400px) {
     width: 24px;
     height: 24px;
   }
@@ -47,7 +47,7 @@ const StyledFaTelegram = styled(FaTelegram)`
   width: 32px;
   height: 32px;
 
-  @media (max-width: 767.98px) {
+  @media (max-width: 1400px) {
     width: 24px;
     height: 24px;
   }
@@ -57,7 +57,7 @@ const StyledIcon = styled(Icon)`
   width: 32px !important;
   height: 32px !important;
 
-  @media (max-width: 767.98px) {
+  @media (max-width: 1400px) {
     width: 24px !important;
     height: 24px !important;
   }

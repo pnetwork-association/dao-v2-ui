@@ -5,7 +5,7 @@ import Version from '../Version'
 import Socials from '../Socials'
 
 const FooterContainer = styled.footer`
-  @media (max-width: 767.98px) {
+  @media (max-width: 1400px) {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -15,7 +15,7 @@ const FooterContainer = styled.footer`
 const StyledSocials = styled(Socials)`
   position: fixed;
   bottom: 10px;
-  @media (max-width: 767.98px) {
+  @media (max-width: 1400px) {
     position: relative;
     bottom: 0;
   }
@@ -27,7 +27,7 @@ const StyledVersion = styled(Version)`
   right: 0;
   padding-right: 15px;
 
-  @media (max-width: 767.98px) {
+  @media (max-width: 1400px) {
     position: relative;
     bottom: 0;
   }
