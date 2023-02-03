@@ -75,28 +75,61 @@ const CreateProposalModal = ({ show, onClose }) => {
 
   return (
     <Modal show={show} title="Create Proposal" onClose={onClose} size="lg">
-      <Row className="mt-2">
-        <Col>
-          <Text>Question</Text>
-        </Col>
-      </Row>
-      <Row className="mt-1">
-        <Col xs={12}>
-          <TextArea rows="4" value={metadata} onChange={(_e) => setMetadata(_e.target.value)} />
-        </Col>
-      </Row>
-      <Row className="mt-2">
-        <Col>
-          <Text>IPFS attachment (optional)</Text>
-        </Col>
-      </Row>
-      <Row className="mt-1">
-        <Col xs={12}>
-          <IPFSAttachmentInput value={ipfsMultihash} onChange={(_e) => setIpfsMultihash(_e.target.value)} />
-        </Col>
-      </Row>
+      {hasPermissionOrEnoughBalance && (
+        <Fragment>
+          <Row className="mt-2">
+            <Col>
+              <Text>Question</Text>
+            </Col>
+          </Row>
+          <Row className="mt-1">
+            <Col xs={12}>
+              <TextArea rows="4" value={metadata} onChange={(_e) => setMetadata(_e.target.value)} />
+            </Col>
+          </Row>
+          <Row className="mt-2">
+            <Col>
+              <Text>IPFS attachment (optional)</Text>
+            </Col>
+          </Row>
+          <Row className="mt-1">
+            <Col xs={12}>
+              <IPFSAttachmentInput value={ipfsMultihash} onChange={(_e) => setIpfsMultihash(_e.target.value)} />
+            </Col>
+          </Row>
+
+          <Row>
+            <Col className="text-center mt-2">
+              <UseScriptText onClick={onShowOrHideUseScript} variant="text4">
+                {showScript ? 'Remove' : 'Add'} script (optional)
+              </UseScriptText>
+            </Col>
+          </Row>
+          {showScript && (
+            <Fragment>
+              <Row>
+                <Col>
+                  <Text>Script</Text>
+                </Col>
+              </Row>
+              <Row className="mt-1">
+                <Col xs={12}>
+                  <TextArea rows="3" value={script} onChange={(_e) => setScript(_e.target.value)} />
+                </Col>
+              </Row>
+            </Fragment>
+          )}
+          <Row className="mt-2 mb-2">
+            <Col>
+              <Button disabled={!canCreateProposal} loading={isLoading} onClick={() => createProposal?.()}>
+                Create proposal
+              </Button>
+            </Col>
+          </Row>
+        </Fragment>
+      )}
       {!hasPermissionOrEnoughBalance && (
-        <Row className="mt-2">
+        <Row className="mt-2 mb-2">
           <Col>
             <InfoBox type="warning">
               In order to be able to open a vote you should either have at least&nbsp;
@@ -106,34 +139,6 @@ const CreateProposalModal = ({ show, onClose }) => {
           </Col>
         </Row>
       )}
-      <Row>
-        <Col className="text-center mt-2">
-          <UseScriptText onClick={onShowOrHideUseScript} variant="text4">
-            {showScript ? 'Remove' : 'Add'} script (optional)
-          </UseScriptText>
-        </Col>
-      </Row>
-      {showScript && (
-        <Fragment>
-          <Row>
-            <Col>
-              <Text>Script</Text>
-            </Col>
-          </Row>
-          <Row className="mt-1">
-            <Col xs={12}>
-              <TextArea rows="3" value={script} onChange={(_e) => setScript(_e.target.value)} />
-            </Col>
-          </Row>
-        </Fragment>
-      )}
-      <Row className="mt-2 mb-2">
-        <Col>
-          <Button disabled={!canCreateProposal} loading={isLoading} onClick={() => createProposal?.()}>
-            Create proposal
-          </Button>
-        </Col>
-      </Row>
     </Modal>
   )
 }
