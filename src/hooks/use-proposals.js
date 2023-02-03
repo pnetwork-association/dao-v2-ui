@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   erc20ABI,
   useAccount,
@@ -31,7 +31,6 @@ const useProposals = () => {
   const [votesActions, setVoteActions] = useState({})
   const { address } = useAccount()
   const provider = useProvider()
-  const fetchedActions = useRef(false)
 
   const { data: daoPntTotalSupply } = useContractRead({
     address: settings.contracts.daoPnt,
@@ -50,6 +49,7 @@ const useProposals = () => {
         } = await axios.get(
           `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=73VMNN33QYMXJ428F5KA69R35FNADTN94W`
         )
+
         setEtherscanProposals(
           result.map((_proposal, _id) => {
             const data = extrapolateProposalData(hexToAscii(_proposal.data))
@@ -102,22 +102,11 @@ const useProposals = () => {
   useEffect(() => {
     const fetchExecutionBlockLogs = async () => {
       try {
-        const validVotesData = votesData
-          .map((_vote, _id) => ({
-            ..._vote,
-            id: _id + 1
-          }))
-          .filter(({ executed }) => executed)
-
         const {
           data: { result }
         } = await axios.get(
-          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=${validVotesData[0]?.executionBlock?.toNumber()}&toBlock=latest&address=${
-            settings.contracts.dandelionVoting
-          }&topic0=0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab&${validVotesData.map(
-            ({ id }, _index) => `&topic${_index + 1}=${ethers.utils.hexZeroPad(ethers.utils.hexlify(id), 32)}`
-          )}&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`
-        )
+          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=16090616&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`
+        ) // 16090616 block of the first votes containing a script
 
         const eventsVoteIds = result.reduce((_acc, _event) => {
           const voteId = ethers.BigNumber.from(ethers.utils.hexStripZeros(_event.topics[1])).toNumber()
@@ -141,11 +130,8 @@ const useProposals = () => {
       }
     }
 
-    if (!fetchedActions.current) {
-      fetchedActions.current = true
-      fetchExecutionBlockLogs()
-    }
-  }, [votesData, provider])
+    fetchExecutionBlockLogs()
+  }, [])
 
   const proposals = useMemo(() => {
     if (votesData?.length > 0 && etherscanProposals.length === votesData.length && votesData[0]) {
