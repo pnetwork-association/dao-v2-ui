@@ -21,7 +21,7 @@ const Activities = ({ ..._props }) => {
   return (
     <Box
       {..._props}
-      headerTitle="Recent Activities"
+      headerTitle="Recent activities"
       bodyStyle={{
         height: 174,
         maxHeight: 174,

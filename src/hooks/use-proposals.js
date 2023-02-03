@@ -131,6 +131,7 @@ const useProposals = () => {
     }
 
     fetchExecutionBlockLogs()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const proposals = useMemo(() => {

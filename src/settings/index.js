@@ -38,6 +38,7 @@ const settings = {
       symbol: 'ethPNT',
       logo: './assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: false,
+      feesManagerClaimEnabled: false,
       symbolPrice: 'PNT'
     },
     {
@@ -47,6 +48,7 @@ const settings = {
       symbol: 'PNT',
       logo: './assets/svg/PNT.svg',
       borrowingManagerClaimEnabled: true,
+      feesManagerClaimEnabled: true,
       symbolPrice: 'PNT'
     },
     {
@@ -56,6 +58,7 @@ const settings = {
       symbol: 'pBTC',
       logo: './assets/svg/pBTC.svg',
       borrowingManagerClaimEnabled: true,
+      feesManagerClaimEnabled: true,
       symbolPrice: 'BTC'
     },
     {
@@ -65,6 +68,7 @@ const settings = {
       symbol: 'pGALA',
       logo: './assets/svg/GALA.svg',
       borrowingManagerClaimEnabled: true,
+      feesManagerClaimEnabled: true,
       symbolPrice: 'GALA'
     },
     {
@@ -74,6 +78,7 @@ const settings = {
       symbol: 'USDC',
       logo: './assets/svg/USDC.svg',
       borrowingManagerClaimEnabled: true,
+      feesManagerClaimEnabled: true,
       symbolPrice: 'USDC'
     }
   ]

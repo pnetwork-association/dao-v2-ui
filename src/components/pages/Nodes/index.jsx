@@ -7,6 +7,7 @@ import PageTemplate from '../../templates/PageTemplate'
 import Box from '../../base/Box'
 import Tabs from '../../base/Tabs'
 import SentinelStats from '../../complex/SentinelStats'
+import ClaimFees from '../../complex/ClaimFees'
 
 const InnerTabContainer = styled.div`
   padding: 1.5rem 1.5rem;
@@ -31,12 +32,18 @@ const Nodes = () => {
         >
           <Tab eventKey="sentinel" title="Sentinel">
             <InnerTabContainer>
-              <SentinelStats type="stake" />
+              <SentinelStats type="stakingSentinel" />
+              <Box className="mt-4" bodyStyle={{ padding: 0 }}>
+                <ClaimFees type="stakingSentinel" />
+              </Box>
             </InnerTabContainer>
           </Tab>
           <Tab eventKey="borrowed-sentinel" title="Borrowed Sentinel">
             <InnerTabContainer>
               <SentinelStats type="borrow" />
+              <Box className="mt-4" bodyStyle={{ padding: 0 }}>
+                <ClaimFees type="borrowingSentinel" />
+              </Box>
             </InnerTabContainer>
           </Tab>
           <Tab eventKey="guardian" title="Guardian">
