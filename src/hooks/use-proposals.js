@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   erc20ABI,
   useAccount,
@@ -7,7 +7,8 @@ import {
   useContractRead,
   useContractReads,
   useContractWrite,
-  usePrepareContractWrite
+  usePrepareContractWrite,
+  useProvider
 } from 'wagmi'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
@@ -29,6 +30,8 @@ const useProposals = () => {
   const [executionBlockNumberTimestamps, setExecutionBlockNumberTimestamps] = useState([])
   const [votesActions, setVoteActions] = useState({})
   const { address } = useAccount()
+  const provider = useProvider()
+  const fetchedActions = useRef(false)
 
   const { data: daoPntTotalSupply } = useContractRead({
     address: settings.contracts.daoPnt,
@@ -78,7 +81,6 @@ const useProposals = () => {
   useEffect(() => {
     const fetchExecutionBlockNumberTimestamps = async () => {
       try {
-        const provider = new ethers.providers.InfuraProvider('homestead', process.env.REACT_APP_INFURA_KEY)
         const res = await Promise.all(
           votesData.map(({ executionBlock }) => provider.getBlock(executionBlock.toNumber()))
         )
@@ -95,7 +97,7 @@ const useProposals = () => {
     if (votesData) {
       fetchExecutionBlockNumberTimestamps()
     }
-  }, [votesData])
+  }, [votesData, provider])
 
   useEffect(() => {
     const fetchExecutionBlockLogs = async () => {
@@ -107,36 +109,31 @@ const useProposals = () => {
           }))
           .filter(({ executed }) => executed)
 
-        const res = await Promise.all(
-          validVotesData.map(({ executionBlock, id }) => {
-            return new Promise((_resolve, _reject) =>
-              axios
-                .get(
-                  `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=${executionBlock.toNumber()}&toBlock=latest&address=${
-                    settings.contracts.dandelionVoting
-                  }&topic0=0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab&topic1=${ethers.utils.hexZeroPad(
-                    ethers.utils.hexlify(id),
-                    32
-                  )}&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`
-                )
-                .then(({ data }) => _resolve(data?.result[0]))
-                .catch(_reject)
-            )
-          })
+        const {
+          data: { result }
+        } = await axios.get(
+          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=${validVotesData[0]?.executionBlock?.toNumber()}&toBlock=latest&address=${
+            settings.contracts.dandelionVoting
+          }&topic0=0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab&${validVotesData.map(
+            ({ id }, _index) => `&topic${_index + 1}=${ethers.utils.hexZeroPad(ethers.utils.hexlify(id), 32)}`
+          )}&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`
         )
 
-        const provider = new ethers.providers.InfuraProvider('homestead', process.env.REACT_APP_INFURA_KEY)
+        const eventsVoteIds = result.reduce((_acc, _event) => {
+          const voteId = ethers.BigNumber.from(ethers.utils.hexStripZeros(_event.topics[1])).toNumber()
+          _acc[voteId] = _event
+          return _acc
+        }, {})
 
         const transactions = await Promise.all(
-          res.map(({ transactionHash }) => provider.getTransactionReceipt(transactionHash))
+          Object.values(eventsVoteIds).map(({ transactionHash }) => provider.getTransactionReceipt(transactionHash))
         )
 
-        const actions = transactions
-          .map((_transaction) => extractActionsFromTransaction(_transaction))
-          .reduce((_acc, _actions, _index) => {
-            _acc[validVotesData[_index]?.id] = _actions.filter((_action) => _action)
-            return _acc
-          }, {})
+        const actions = Object.keys(eventsVoteIds).reduce((_acc, _voteId, _index) => {
+          const transaction = transactions[_index]
+          _acc[_voteId] = extractActionsFromTransaction(transaction).filter((_action) => _action)
+          return _acc
+        }, {})
 
         setVoteActions(actions)
       } catch (_err) {
@@ -144,8 +141,11 @@ const useProposals = () => {
       }
     }
 
-    fetchExecutionBlockLogs()
-  }, [votesData])
+    if (!fetchedActions.current) {
+      fetchedActions.current = true
+      fetchExecutionBlockLogs()
+    }
+  }, [votesData, provider])
 
   const proposals = useMemo(() => {
     if (votesData?.length > 0 && etherscanProposals.length === votesData.length && votesData[0]) {
