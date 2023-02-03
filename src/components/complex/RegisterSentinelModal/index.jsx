@@ -14,6 +14,7 @@ import settings from '../../../settings'
 import { range } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { formatAssetAmount } from '../../../utils/amount'
+import { STAKING_SENTINEL, BORROWING_SENTINEL } from '../../../contants'
 
 import Button from '../../base/Button'
 import InputAmount from '../../base/InputAmount'
@@ -101,8 +102,8 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
 
   const { kind, endEpoch: currentEndEpoch = 0 } = useSentinel()
   const enabled = useMemo(() => {
-    if (type === 'stake' && kind === '0x01') return true
-    if (type === 'borrow' && kind === '0x02') return true
+    if (type === 'stake' && kind === STAKING_SENTINEL) return true
+    if (type === 'borrow' && kind === BORROWING_SENTINEL) return true
   }, [type, kind])
 
   const {

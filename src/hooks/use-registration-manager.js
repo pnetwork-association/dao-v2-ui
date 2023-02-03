@@ -216,7 +216,7 @@ const useSentinel = () => {
     formattedSentinelAddress: sentinelAddress ? slicer(sentinelAddress) : '-',
     formattedKind: sentinelRegistrationData ? kind[sentinelRegistrationData.kind] : '-',
     kind: sentinelRegistrationData?.kind,
-    sentinelAddress: sentinelAddress || '-',
+    sentinelAddress,
     sentinelNickname: sentinelAddress ? getNickname(sentinelAddress) : '-',
     startEpoch: sentinelRegistrationData?.startEpoch
   }

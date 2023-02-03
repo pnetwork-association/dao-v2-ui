@@ -4,6 +4,7 @@ import { Col, Row } from 'react-bootstrap'
 
 import { useEpochs } from '../../../hooks/use-epochs'
 import { useSentinel } from '../../../hooks/use-registration-manager'
+import { BORROWING_SENTINEL, STAKING_SENTINEL } from '../../../contants'
 
 import Box from '../../base/Box'
 import Text from '../../base/Text'
@@ -20,8 +21,8 @@ const SentinelStats = ({ type = 'stake' }) => {
 
   const enabled = useMemo(() => {
     if (!kind) return true
-    if (type === 'stake' && kind === '0x01') return true
-    if (type === 'borrow' && kind === '0x02') return true
+    if (type === 'stake' && kind === STAKING_SENTINEL) return true
+    if (type === 'borrow' && kind === BORROWING_SENTINEL) return true
     return false
   }, [type, kind])
 
