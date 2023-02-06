@@ -10,7 +10,7 @@ const A = styled.a`
   text-decoration: none;
   line-height: 1.5;
   @media (max-width: 767.98px) {
-    font-size: 11px !important;
+    font-size: 13px !important;
   }
 
   &:hover {

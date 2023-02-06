@@ -86,7 +86,7 @@ root.render(
     <ThemeProvider>
       <ThemedGlobalStyle />
       <App />
-      <StyledContainer position="bottom-right" />
+      <StyledContainer position="bottom-right" autoClose={5000} />
     </ThemeProvider>
   </React.StrictMode>
 )

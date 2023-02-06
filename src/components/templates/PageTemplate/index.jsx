@@ -11,13 +11,15 @@ const StyledContainer = styled(Container)`
   padding: 1.5rem;
   background: ${({ theme, bgthemecolor }) => theme[bgthemecolor] || theme.bg1};
   border-radius: 10px;
+  heigth: 100%;
 
   @media (min-width: 1200px) {
     max-width: 1000px !important;
   }
 
   @media (max-width: 767.98px) {
-    padding: 0.75rem !important;
+    margin-top: 0rem;
+    padding: 0.5rem !important;
   }
 `
 

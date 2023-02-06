@@ -37,7 +37,7 @@ const Text = styled.span`
         case 'xl':
           return 17
         default:
-          return 11
+          return 13
       }
     }}px;
   }

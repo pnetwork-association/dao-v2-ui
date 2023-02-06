@@ -1,6 +1,5 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import { Tooltip } from 'react-tooltip'
 
 import { useActivities } from '../../../hooks/use-activities'
 
@@ -37,16 +36,13 @@ const Activities = ({ ..._props }) => {
         activities.map(({ type, ..._activity }, _index) => {
           const key = `activity_${_index}`
           return (
-            <Fragment key={key}>
-              <div>
-                <Action action={{ ..._activity, name: type }} />
-                <Text id={key} data-tooltip-content={_activity.formattedDate} size="xs">
-                  {_activity.formattedDateFromNow}
-                </Text>
-                <Tooltip anchorId={key} />
-              </div>
+            <div key={key}>
+              <Action action={{ ..._activity, name: type }} />
+              <Text id={key} size="xs">
+                {_activity.formattedDateFromNow}
+              </Text>
               {_index !== activities.length - 1 && <Line />}
-            </Fragment>
+            </div>
           )
         })}
     </Box>
