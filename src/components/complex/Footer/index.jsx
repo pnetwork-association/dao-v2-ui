@@ -26,10 +26,8 @@ const StyledVersion = styled(Version)`
   bottom: 5px;
   right: 0;
   padding-right: 15px;
-
   @media (max-width: 1400px) {
     position: relative;
-    bottom: 0;
   }
 `
 

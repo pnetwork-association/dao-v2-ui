@@ -5,7 +5,7 @@ const VersionContainer = styled.div`
   background: transparent;
 `
 
-const VersionText = styled.p`
+const VersionText = styled.span`
   justify-content: right !important;
   display: flex;
   color: ${({ theme }) => theme.text2};
