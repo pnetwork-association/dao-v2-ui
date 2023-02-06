@@ -45,7 +45,7 @@ const Lending = () => {
   const { formattedValue: formattedValueApy } = useApy()
 
   return (
-    <PageTemplate bgthemecolor="transparent">
+    <PageTemplate bgThemeColor="transparent" removePaddingOnMobile>
       <Box bodyStyle={{ padding: 0 }}>
         <Tabs
           defaultActiveKey="lenders"

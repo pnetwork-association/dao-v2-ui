@@ -19,16 +19,18 @@ const StyledContainer = styled(Container)`
 
   @media (max-width: 767.98px) {
     margin-top: 0rem;
-    padding: 0.5rem !important;
+    padding: ${({ removepaddingonmobile }) => (removepaddingonmobile === 'true' ? 0 : 0.5)}rem !important;
     overflow-x: hidden;
   }
 `
 
-const PageTemplate = ({ children, bgthemecolor }) => {
+const PageTemplate = ({ children, bgThemeColor, removePaddingOnMobile = false }) => {
   return (
     <React.Fragment>
       <Header />
-      <StyledContainer bgthemecolor={bgthemecolor}>{children}</StyledContainer>
+      <StyledContainer bgthemecolor={bgThemeColor} removepaddingonmobile={removePaddingOnMobile.toString()}>
+        {children}
+      </StyledContainer>
       <Footer />
     </React.Fragment>
   )
