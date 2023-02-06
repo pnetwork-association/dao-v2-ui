@@ -12,6 +12,7 @@ import DandelionVotingABI from '../../../utils/abis/DandelionVoting'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useBalances } from '../../../hooks/use-balances'
 import settings from '../../../settings'
+import { isValidError } from '../../../utils/errors'
 
 import Text from '../../base/Text'
 import Icon from '../../base/Icon'
@@ -200,18 +201,16 @@ const Proposal = ({
   const { data: noData, /*isLoading: isLoadingNo,*/ write: no, error: noError } = useContractWrite(configNo)
 
   useEffect(() => {
-    if (yesError) {
-      if (!yesError.message.includes('user rejected transaction')) {
-        toast.error(yesError.message)
-      }
+    if (yesError && isValidError(yesError.message)) {
+      toast.error(yesError.message)
     }
+  }, [yesError])
 
-    if (noError) {
-      if (!noError.message.includes('user rejected transaction')) {
-        toast.error(noError.message)
-      }
+  useEffect(() => {
+    if (noError && isValidError(noError.message)) {
+      toast.error(noError.message)
     }
-  }, [yesError, noError])
+  }, [noError])
 
   useEffect(() => {
     if (yesData) {

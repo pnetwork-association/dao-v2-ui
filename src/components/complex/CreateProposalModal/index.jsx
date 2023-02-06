@@ -7,6 +7,7 @@ import { ethers } from 'ethers'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useCreateProposal } from '../../../hooks/use-proposals'
 import { formatAssetAmount } from '../../../utils/amount'
+import { isValidError } from '../../../utils/errors'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
@@ -49,7 +50,7 @@ const CreateProposalModal = ({ show, onClose }) => {
 
   useEffect(() => {
     if (createProposalError) {
-      if (!createProposalError.message.includes('user rejected transaction')) {
+      if (isValidError(createProposalError.message)) {
         toast.error(createProposalError.message)
       }
     }

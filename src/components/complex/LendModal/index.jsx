@@ -10,6 +10,7 @@ import { useEstimateApy, useLend } from '../../../hooks/use-borrowing-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
 import { range, SECONDS_IN_ONE_DAY } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
+import { isValidError } from '../../../utils/errors'
 
 import AdvancedInput from '../../base/AdvancedInput'
 import Button from '../../base/Button'
@@ -168,16 +169,12 @@ const LendModal = ({ show, onClose }) => {
   }, [chartEpochs, userWeightPercentages, currentEpoch, startEpoch, apy?.value, theme])
 
   useEffect(() => {
-    if (lendError) {
-      if (!lendError.message.includes('user rejected transaction')) {
-        toast.error(lendError.message)
-      }
+    if (lendError && isValidError(lendError.message)) {
+      toast.error(lendError.message)
     }
 
-    if (approveError) {
-      if (!approveError.message.includes('user rejected transaction')) {
-        toast.error(approveError.message)
-      }
+    if (approveError && isValidError(approveError.message)) {
+      toast.error(approveError.message)
     }
   }, [approveError, lendError])
 

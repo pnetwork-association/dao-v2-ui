@@ -20,6 +20,7 @@ const StyledContainer = styled(Container)`
   @media (max-width: 767.98px) {
     margin-top: 0rem;
     padding: 0.5rem !important;
+    overflow-x: hidden;
   }
 `
 
