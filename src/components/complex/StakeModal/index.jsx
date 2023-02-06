@@ -8,6 +8,7 @@ import { useStake } from '../../../hooks/use-staking-manager'
 import { useBalances } from '../../../hooks/use-balances'
 import { toastifyTransaction } from '../../../utils/transaction'
 import settings from '../../../settings'
+import { isValidError } from '../../../utils/errors'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
@@ -60,18 +61,20 @@ const StakeModal = ({ show, onClose }) => {
   } = useStake()
 
   useEffect(() => {
-    if (stakeError) {
-      if (!stakeError.message.includes('user rejected transaction')) {
-        toast.error(stakeError.message)
-      }
-    }
-
     if (approveError) {
-      if (!approveError.message.includes('user rejected transaction')) {
+      if (isValidError(approveError.message)) {
         toast.error(approveError.message)
       }
     }
-  }, [approveError, stakeError])
+  }, [approveError])
+
+  useEffect(() => {
+    if (stakeError) {
+      if (isValidError(stakeError.message)) {
+        toast.error(stakeError.message)
+      }
+    }
+  }, [stakeError])
 
   useEffect(() => {
     if (approveData) {

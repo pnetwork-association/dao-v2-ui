@@ -8,6 +8,7 @@ import { useBalances } from '../../../hooks/use-balances'
 import { useUserStake } from '../../../hooks/use-staking-manager'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useUnstake } from '../../../hooks/use-staking-manager'
+import { isValidError } from '../../../utils/errors'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
@@ -29,10 +30,8 @@ const UnstakeModal = ({ show, onClose }) => {
   const { amount, isUnstaking, setAmount, unstake, unstakeData, unstakeError } = useUnstake()
 
   useEffect(() => {
-    if (unstakeError) {
-      if (!unstakeError.message.includes('user rejected transaction')) {
-        toast.error(unstakeError.message)
-      }
+    if (unstakeError && isValidError(unstakeError.message)) {
+      toast.error(unstakeError.message)
     }
   }, [unstakeError])
 
