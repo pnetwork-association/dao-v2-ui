@@ -1,34 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { format } from 'currency-formatter'
+import numeral from 'numeral'
 
 export const formatAssetAmount = (_amount, _symbol, _opts = {}) => {
-  const { decimals = 3, checkApproximation = false } = _opts
+  const { decimals = 3 } = _opts
   if (BigNumber(_amount).isNaN()) {
     return '-'
   }
 
-  if (shouldBeApproximated(_amount, decimals) && checkApproximation) {
-    return formatAssetAmountWithEstimation(_amount, _symbol, _opts)
-  }
-
-  return `${BigNumber(_amount)
-    .toFixed(decimals)
-    .replace(/(\.0+|0+)$/, '')
-    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
-    .replace(/\B(?=(\d{decimals})+(?!\d))/g, ',')} ${_symbol}`
-}
-
-export const formatAssetAmountWithEstimation = (_amount, _symbol, _opts = {}) => {
-  const { decimals = 6 } = _opts
-  if (BigNumber(_amount).isEqualTo(0) || BigNumber(_amount).isNaN()) {
-    return `- ${_symbol}`
-  }
-
-  return `~${BigNumber(_amount)
-    .toFixed(decimals)
-    .replace(/(\.0+|0+)$/, '')
-    .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
-    .replace(/\B(?=(\d{decimals})+(?!\d))/g, ',')} ${_symbol}`
+  const formattedNumber = numeral(_amount).format(`0,0[.]${'0'.repeat(decimals)}`)
+  return `${formattedNumber} ${_symbol}`
 }
 
 export const removeUselessZeros = (_amount) => _amount.replace(/(\.0+|0+)$/, '')
