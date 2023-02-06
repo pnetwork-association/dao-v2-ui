@@ -11,6 +11,7 @@ import { styleRainbowKit } from '../theme/rainbow-configs'
 
 import ActivitiesProvider from './context/Activities'
 import CryptoCompareProvider from './context/CryptoCompare'
+import ProposalsProvider from './context/Proposals'
 import Avatar from './base/Avatar'
 import Overview from './pages/Overview'
 import Lending from './pages/Lending'
@@ -64,7 +65,9 @@ const App = () => {
       <RainbowKitProvider chains={chains} theme={rainbowTheme} avatar={Avatar}>
         <CryptoCompareProvider apiKey={process.env.REACT_APP_CRYPTO_COMPARE_API_KEY}>
           <ActivitiesProvider>
-            <RouterProvider router={router} />
+            <ProposalsProvider>
+              <RouterProvider router={router} />
+            </ProposalsProvider>
           </ActivitiesProvider>
         </CryptoCompareProvider>
       </RainbowKitProvider>
