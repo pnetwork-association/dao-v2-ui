@@ -1,4 +1,4 @@
-export const isValidError = (_msg) =>
-  !_msg.includes('user rejected transaction') &&
-  !_msg.includes('User denied to sign a transaction') &&
-  !_msg.includes('internal json-rpc error')
+export const isValidError = (_error) => {
+  const message = _error?.data?.originalError?.error?.message || _error?.message?.toLowerCase()
+  return !message.includes('user rejected transaction') && !message.includes('User denied to sign a transaction')
+}

@@ -30,7 +30,7 @@ const UnstakeModal = ({ show, onClose }) => {
   const { amount, isUnstaking, setAmount, unstake, unstakeData, unstakeError } = useUnstake()
 
   useEffect(() => {
-    if (unstakeError && isValidError(unstakeError.message)) {
+    if (unstakeError && isValidError(unstakeError)) {
       toast.error(unstakeError.message)
     }
   }, [unstakeError])

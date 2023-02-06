@@ -61,18 +61,14 @@ const StakeModal = ({ show, onClose }) => {
   } = useStake()
 
   useEffect(() => {
-    if (approveError) {
-      if (isValidError(approveError.message)) {
-        toast.error(approveError.message)
-      }
+    if (approveError && isValidError(approveError)) {
+      toast.error(approveError.message)
     }
   }, [approveError])
 
   useEffect(() => {
-    if (stakeError) {
-      if (isValidError(stakeError.message)) {
-        toast.error(stakeError.message)
-      }
+    if (stakeError && isValidError(stakeError)) {
+      toast.error(stakeError.message)
     }
   }, [stakeError])
 
