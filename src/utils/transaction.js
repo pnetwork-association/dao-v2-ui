@@ -3,9 +3,13 @@ import styled from 'styled-components'
 import { toast } from 'react-toastify'
 
 import A from '../components/base/A'
+import Text from '../components/base/Text'
 
 const StyledA = styled(A)`
-  font-size: 16px;
+  font-size: 17px !important;
+  @media (max-width: 767.98px) {
+    font-size: 15px !important;
+  }
 `
 
 const toastifyTransaction = (_data, _cb) => {
@@ -14,7 +18,9 @@ const toastifyTransaction = (_data, _cb) => {
       <StyledA href={`https://etherscan.io/tx/${_data.hash}`} target="_blank">
         Transaction
       </StyledA>{' '}
-      broadcasted!
+      <Text size="lg" variant="white">
+        broadcasted!
+      </Text>
     </div>
   )
 
@@ -24,7 +30,9 @@ const toastifyTransaction = (_data, _cb) => {
         <StyledA href={`https://etherscan.io/tx/${_data.hash}`} target="_blank">
           Transaction
         </StyledA>{' '}
-        confirmed!
+        <Text size="lg" variant="white">
+          confirmed!
+        </Text>
       </div>
     )
     _cb?.()
