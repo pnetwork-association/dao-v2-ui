@@ -24,6 +24,10 @@ const StyledIcon = styled(Icon)`
 const StyledLine = styled(Line)`
   margin-top: 1rem;
   margin-bottom: 1rem;
+
+  @media (max-width: 767.98px) {
+    margin-bottom: 0rem;
+  }
 `
 
 const Proposals = () => {
