@@ -201,13 +201,13 @@ const Proposal = ({
   const { data: noData, /*isLoading: isLoadingNo,*/ write: no, error: noError } = useContractWrite(configNo)
 
   useEffect(() => {
-    if (yesError && isValidError(yesError.message)) {
+    if (yesError && isValidError(yesError)) {
       toast.error(yesError.message)
     }
   }, [yesError])
 
   useEffect(() => {
-    if (noError && isValidError(noError.message)) {
+    if (noError && isValidError(noError)) {
       toast.error(noError.message)
     }
   }, [noError])

@@ -50,7 +50,7 @@ const CreateProposalModal = ({ show, onClose }) => {
 
   useEffect(() => {
     if (createProposalError) {
-      if (isValidError(createProposalError.message)) {
+      if (isValidError(createProposalError)) {
         toast.error(createProposalError.message)
       }
     }

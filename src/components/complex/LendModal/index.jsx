@@ -169,11 +169,11 @@ const LendModal = ({ show, onClose }) => {
   }, [chartEpochs, userWeightPercentages, currentEpoch, startEpoch, apy?.value, theme])
 
   useEffect(() => {
-    if (lendError && isValidError(lendError.message)) {
+    if (lendError && isValidError(lendError)) {
       toast.error(lendError.message)
     }
 
-    if (approveError && isValidError(approveError.message)) {
+    if (approveError && isValidError(approveError)) {
       toast.error(approveError.message)
     }
   }, [approveError, lendError])
