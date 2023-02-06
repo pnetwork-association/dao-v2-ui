@@ -23,7 +23,7 @@ const Nodes = () => {
   const [searchParams, setSearchParams] = useSearchParams()
 
   return (
-    <PageTemplate bgthemecolor="transparent">
+    <PageTemplate bgThemeColor="transparent" removePaddingOnMobile>
       <Box bodyStyle={{ padding: 0 }}>
         <Tabs
           defaultActiveKey={searchParams.get('selected') || 'sentinel'}
