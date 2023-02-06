@@ -12,12 +12,10 @@ import {
 } from 'chart.js'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { Provider } from 'react-redux'
 import { ToastContainer } from 'react-toastify'
 import styled from 'styled-components'
 
 import reportWebVitals from './reportWebVitals'
-import store from './store'
 import ThemeProvider, { ThemedGlobalStyle } from './theme/ThemeProvider'
 
 import App from './components/App'
@@ -85,13 +83,11 @@ const StyledContainer = styled(ToastContainer)`
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-      <ThemeProvider>
-        <ThemedGlobalStyle />
-        <App />
-        <StyledContainer position="bottom-right" />
-      </ThemeProvider>
-    </Provider>
+    <ThemeProvider>
+      <ThemedGlobalStyle />
+      <App />
+      <StyledContainer position="bottom-right" />
+    </ThemeProvider>
   </React.StrictMode>
 )
 

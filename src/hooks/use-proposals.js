@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useContext, useRef } from 'react'
 import {
   erc20ABI,
   useAccount,
@@ -25,12 +25,15 @@ import ACLAbi from '../utils/abis/ACL.json'
 import { getRole } from '../utils/role'
 import { isValidHexString } from '../utils/format'
 
-const useProposals = () => {
+import { ProposalsContext } from '../components/context/Proposals'
+
+// hook used only by ProposalsProvider in order to store immediately the votes
+const useFetchProposals = ({ setProposals }) => {
   const [etherscanProposals, setEtherscanProposals] = useState([])
   const [executionBlockNumberTimestamps, setExecutionBlockNumberTimestamps] = useState([])
   const [votesActions, setVoteActions] = useState({})
-  const { address } = useAccount()
   const provider = useProvider()
+  const fetched = useRef(false)
 
   const { data: daoPntTotalSupply } = useContractRead({
     address: settings.contracts.daoPnt,
@@ -47,7 +50,7 @@ const useProposals = () => {
         const {
           data: { result }
         } = await axios.get(
-          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=73VMNN33QYMXJ428F5KA69R35FNADTN94W`
+          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`
         )
 
         setEtherscanProposals(
@@ -65,8 +68,10 @@ const useProposals = () => {
         console.error(_err)
       }
     }
-
-    fetchProposals()
+    if (!fetched.current) {
+      fetched.current = true
+      fetchProposals()
+    }
   }, [])
 
   const { data: votesData } = useContractReads({
@@ -134,80 +139,88 @@ const useProposals = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const proposals = useMemo(() => {
-    if (votesData?.length > 0 && etherscanProposals.length === votesData.length && votesData[0]) {
-      return etherscanProposals.map((_proposal, _index) => {
-        const voteData = votesData[_index]
-        const { executed, executionBlock, open, script, snapshotBlock, startBlock } = voteData
+  useEffect(() => {
+    setProposals(
+      votesData?.length > 0 && etherscanProposals.length === votesData.length
+        ? etherscanProposals.map((_proposal, _index) => {
+            const voteData = votesData[_index]
+            const { executed, executionBlock, open, script, snapshotBlock, startBlock } = voteData
 
-        const votingPower = BigNumber(voteData.votingPower.toString()).dividedBy(10 ** 18)
-        const no = BigNumber(voteData.nay.toString()).dividedBy(10 ** 18)
-        const yes = BigNumber(voteData.yea.toString()).dividedBy(10 ** 18)
+            const votingPower = BigNumber(voteData.votingPower.toString()).dividedBy(10 ** 18)
+            const no = BigNumber(voteData.nay.toString()).dividedBy(10 ** 18)
+            const yes = BigNumber(voteData.yea.toString()).dividedBy(10 ** 18)
 
-        const votingPnt = yes.plus(no)
-        const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
-        const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
+            const votingPnt = yes.plus(no)
+            const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
+            const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
 
-        const totalSupply = daoPntTotalSupply
-          ? BigNumber(daoPntTotalSupply.toString()).dividedBy(10 ** 18)
-          : BigNumber(null)
-        const quorum = yes.dividedBy(totalSupply)
-        const minAcceptQuorum = BigNumber(voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
+            const totalSupply = daoPntTotalSupply
+              ? BigNumber(daoPntTotalSupply.toString()).dividedBy(10 ** 18)
+              : BigNumber(null)
+            const quorum = yes.dividedBy(totalSupply)
+            const minAcceptQuorum = BigNumber(voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
 
-        const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
-        const passed = percentageYea.isGreaterThan(51) && quorumReached
+            const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
+            const passed = percentageYea.isGreaterThan(51) && quorumReached
 
-        const countdown =
-          currentBlockNumber < executionBlock.toNumber() ? (executionBlock.toNumber() - currentBlockNumber) * 13 : -1
+            const countdown =
+              currentBlockNumber < executionBlock.toNumber()
+                ? (executionBlock.toNumber() - currentBlockNumber) * 13
+                : -1
 
-        const formattedCloseDate =
-          countdown > 0
-            ? `~${moment.unix(moment().unix() + countdown).format('MMM DD YYYY - HH:mm:ss')}`
-            : executionBlockNumberTimestamps[_index]
-            ? moment.unix(executionBlockNumberTimestamps[_index]).format('MMM DD YYYY - HH:mm:ss')
-            : null
+            const formattedCloseDate =
+              countdown > 0
+                ? `~${moment.unix(moment().unix() + countdown).format('MMM DD YYYY - HH:mm:ss')}`
+                : executionBlockNumberTimestamps[_index]
+                ? moment.unix(executionBlockNumberTimestamps[_index]).format('MMM DD YYYY - HH:mm:ss')
+                : null
 
-        return {
-          actions: votesActions && votesActions[_index + 1] ? votesActions[_index + 1] : [],
-          executed,
-          executionBlock: executionBlock.toNumber(),
-          formattedCloseDate,
-          formattedPercentageNay: formatAssetAmount(percentageNay, '%', {
-            decimals: 2
-          }),
-          formattedPercentageYea: formatAssetAmount(percentageYea, '%', {
-            decimals: 2
-          }),
-          formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
-          minAcceptQuorum: minAcceptQuorum.toFixed(),
-          no: no.toFixed(),
-          open,
-          passed,
-          quorum: quorum.toFixed(),
-          quorumReached,
-          snapshotBlock: snapshotBlock.toNumber(),
-          startBlock: startBlock.toNumber(),
-          script,
-          votingPnt,
-          votingPower: votingPower.toFixed(),
-          yes: yes.toFixed(),
-          ..._proposal
-        }
-      })
-    }
-
-    return []
+            return {
+              actions: votesActions && votesActions[_index + 1] ? votesActions[_index + 1] : [],
+              executed,
+              executionBlock: executionBlock.toNumber(),
+              formattedCloseDate,
+              formattedPercentageNay: formatAssetAmount(percentageNay, '%', {
+                decimals: 2
+              }),
+              formattedPercentageYea: formatAssetAmount(percentageYea, '%', {
+                decimals: 2
+              }),
+              formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
+              minAcceptQuorum: minAcceptQuorum.toFixed(),
+              no: no.toFixed(),
+              open,
+              passed,
+              quorum: quorum.toFixed(),
+              quorumReached,
+              snapshotBlock: snapshotBlock.toNumber(),
+              startBlock: startBlock.toNumber(),
+              script,
+              votingPnt,
+              votingPower: votingPower.toFixed(),
+              yes: yes.toFixed(),
+              ..._proposal
+            }
+          })
+        : []
+    )
   }, [
     etherscanProposals,
     votesData,
     daoPntTotalSupply,
     currentBlockNumber,
     executionBlockNumberTimestamps,
-    votesActions
+    votesActions,
+    setProposals
   ])
+}
+
+const useProposals = () => {
+  const { proposals } = useContext(ProposalsContext)
+  const { address } = useAccount()
 
   const { data: voterStatesData } = useContractReads({
-    contracts: etherscanProposals.map(({ id }) => ({
+    contracts: proposals.map(({ id }) => ({
       address: settings.contracts.dandelionVoting,
       abi: DandelionVotingABI,
       functionName: 'getVoterState',
@@ -338,4 +351,4 @@ const useCreateProposal = () => {
   }
 }
 
-export { useCreateProposal, useProposals }
+export { useCreateProposal, useFetchProposals, useProposals }
