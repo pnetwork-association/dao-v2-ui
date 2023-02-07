@@ -258,7 +258,7 @@ const useUtilizationRatio = () => {
   })
 
   return data?.reduce((_acc, _amount, _index) => {
-    const ratio = BigNumber(_amount?.toString()).dividedBy(10 ** 16)
+    const ratio = BigNumber(_amount?.toString()).dividedBy(10 ** (6 - 2))
 
     _acc[_index + currentEpoch] = {
       value: ratio.toFixed(),
@@ -554,9 +554,10 @@ const useEstimateApy = () => {
     }
 
     const totalUserRevenuesAnnualized = totalUserRevenues.multipliedBy(24).dividedBy(endEpoch - startEpoch + 1)
+    const divAmount = BigNumber(amount).multipliedBy(pntUsd).isEqualTo(0) ? 1 : BigNumber(amount).multipliedBy(pntUsd)
 
     return {
-      apy: BigNumber(totalUserRevenuesAnnualized).dividedBy(BigNumber(amount).multipliedBy(pntUsd)),
+      apy: BigNumber(totalUserRevenuesAnnualized).dividedBy(divAmount),
       userWeightPercentages
     }
   }, [amount, pntUsd, totalWeights, startEpoch, endEpoch, userWeights, feeDistributionByMonthlyRevenues])
@@ -650,7 +651,8 @@ const useApy = () => {
 
     // NOTE: What does it happen if an user stake (without lending) and then lend another amount? The APY would be wrong
     // since if we check the staked amount could be possibile that we show an higher apy
-    const apy = BigNumber(totalUserRevenuesAnnualized).dividedBy(stakedAmount.multipliedBy(pntUsd))
+    const divAmount = stakedAmount.multipliedBy(pntUsd).isEqualTo(0) ? 1 : stakedAmount.multipliedBy(pntUsd)
+    const apy = BigNumber(totalUserRevenuesAnnualized).dividedBy(divAmount)
 
     return {
       value: apy.toFixed(),

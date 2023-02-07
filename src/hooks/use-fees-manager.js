@@ -63,16 +63,16 @@ const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
         const sentinelsStakingFeesPercentage = totalAmount.isEqualTo(0)
           ? BigNumber(0)
           : totalSentinelStakedAmount.dividedBy(totalAmount)
-        const sentinelsStakingFeesAmount = BigNumber(mr).multipliedBy(sentinelsStakingFeesPercentage)
-        const sentinelsBorrowingFeesAndLendersInterestsAmount = BigNumber(mr).minus(sentinelsStakingFeesAmount)
+        const stakingSentinelsFeesAmount = BigNumber(mr).multipliedBy(sentinelsStakingFeesPercentage)
+        const sentinelsBorrowingFeesAndLendersInterestsAmount = BigNumber(mr).minus(stakingSentinelsFeesAmount)
         const lendersInterestsAmount = sentinelsBorrowingFeesAndLendersInterestsAmount.multipliedBy(k)
-        const sentinelsBorrowingFeesAmount =
+        const borrowingSentinelsFeesAmount =
           sentinelsBorrowingFeesAndLendersInterestsAmount.minus(lendersInterestsAmount)
 
         return {
           lendersInterestsAmount,
-          sentinelsBorrowingFeesAmount,
-          sentinelsStakingFeesAmount
+          stakingSentinelsFeesAmount,
+          borrowingSentinelsFeesAmount
         }
       }),
     [totalBorrowedAmountInEpoch, totalStakedAmountInEpoch, kInEpoch, startEpoch, endEpoch, mr]
@@ -236,10 +236,135 @@ const useClaimFeeByEpochsRange = () => {
   }
 }
 
+const useStakingSentinelEstimatedRevenues = () => {
+  const { currentEpoch } = useEpochs()
+  const { endEpoch: sentinelRegistrationEndEpoch, kind, startEpoch: sentinelRegistrationStartEpoch } = useSentinel()
+
+  const { startEpoch, endEpoch } = useMemo(() => {
+    if (kind !== STAKING_SENTINEL) {
+      return {
+        startEpoch: null,
+        endEpoch: null
+      }
+    }
+    return {
+      startEpoch: sentinelRegistrationStartEpoch > currentEpoch ? sentinelRegistrationStartEpoch : currentEpoch + 1,
+      endEpoch: currentEpoch - sentinelRegistrationEndEpoch < 6 ? currentEpoch + 6 : sentinelRegistrationEndEpoch
+    }
+  }, [kind, currentEpoch, sentinelRegistrationStartEpoch, sentinelRegistrationEndEpoch])
+
+  const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
+    startEpoch,
+    endEpoch,
+    mr: 150
+  })
+
+  // NOTE: i need the current number of staking sentinels
+  const numberOfSentinelsInEpoch = BigNumber(1)
+
+  const revenues = useMemo(
+    () =>
+      (startEpoch || startEpoch === 0) && endEpoch && kind === STAKING_SENTINEL
+        ? range(startEpoch, endEpoch + 1).map((_, _index) => {
+            const stakingSentinelsFeesAmount =
+              feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_index]
+                ? feeDistributionByMonthlyRevenues[_index].stakingSentinelsFeesAmount
+                : BigNumber(0)
+
+            const numberOfSentinels = numberOfSentinelsInEpoch
+            const stakingFeePercentage =
+              !numberOfSentinels || numberOfSentinels.isNaN() || numberOfSentinels.isEqualTo(0)
+                ? new BigNumber(0)
+                : BigNumber(1).dividedBy(numberOfSentinels)
+
+            return stakingSentinelsFeesAmount.multipliedBy(stakingFeePercentage).toFixed()
+          })
+        : [],
+    [numberOfSentinelsInEpoch, feeDistributionByMonthlyRevenues, endEpoch, startEpoch, kind]
+  )
+
+  return {
+    endEpoch,
+    revenues,
+    startEpoch
+  }
+}
+
+const useBorrowingSentinelEstimatedRevenues = () => {
+  const { currentEpoch } = useEpochs()
+  const { endEpoch: sentinelRegistrationEndEpoch, kind, startEpoch: sentinelRegistrationStartEpoch } = useSentinel()
+
+  const { startEpoch, endEpoch } = useMemo(() => {
+    if (kind !== BORROWING_SENTINEL) {
+      return {
+        startEpoch: null,
+        endEpoch: null
+      }
+    }
+    return {
+      startEpoch: sentinelRegistrationStartEpoch > currentEpoch ? sentinelRegistrationStartEpoch : currentEpoch + 1,
+      endEpoch: currentEpoch - sentinelRegistrationEndEpoch < 6 ? currentEpoch + 6 : sentinelRegistrationEndEpoch
+    }
+  }, [kind, currentEpoch, sentinelRegistrationEndEpoch, sentinelRegistrationStartEpoch])
+
+  const { data } = useContractRead({
+    address: settings.contracts.borrowingManager,
+    abi: BorrowingManagerABI,
+    functionName: 'totalBorrowedAmountByEpochsRange',
+    args: [startEpoch, endEpoch],
+    enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
+    cacheTime: 1000 * 60 * 2
+  })
+
+  const borrowedAmount = settings.registrationManager.borrowAmount
+  const totalBorrowedAmountInEpoch = useMemo(() => (data ? data : []), [data])
+
+  const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
+    startEpoch,
+    endEpoch,
+    mr: 150
+  })
+
+  // NOTE: onchain borrowed amount has no decimals
+  const numberOfSentinelsInEpoch = useMemo(() => {
+    return totalBorrowedAmountInEpoch.map((_val) => BigNumber(_val.toString()).dividedBy(borrowedAmount))
+  }, [totalBorrowedAmountInEpoch, borrowedAmount])
+
+  const revenues = useMemo(
+    () =>
+      (startEpoch || startEpoch === 0) && endEpoch && kind === BORROWING_SENTINEL
+        ? range(startEpoch, endEpoch + 1).map((_, _index) => {
+            const borrowingSentinelsFeesAmount =
+              feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_index]
+                ? feeDistributionByMonthlyRevenues[_index].borrowingSentinelsFeesAmount
+                : BigNumber(0)
+
+            const numberOfSentinels = numberOfSentinelsInEpoch[_index]
+
+            const borrowingFeePercentage =
+              !numberOfSentinels || numberOfSentinels.isNaN() || numberOfSentinels.isEqualTo(0)
+                ? new BigNumber(0)
+                : BigNumber(1).dividedBy(numberOfSentinels)
+
+            return borrowingSentinelsFeesAmount.multipliedBy(borrowingFeePercentage).toFixed()
+          })
+        : [],
+    [numberOfSentinelsInEpoch, feeDistributionByMonthlyRevenues, endEpoch, startEpoch, kind]
+  )
+
+  return {
+    endEpoch,
+    revenues,
+    startEpoch
+  }
+}
+
 export {
+  useBorrowingSentinelEstimatedRevenues,
   useClaimableFeesAssetsByAssets,
   useClaimableFeesAssetsByEpochs,
   useClaimFeeByEpoch,
   useClaimFeeByEpochsRange,
-  useFeesDistributionByMonthlyRevenues
+  useFeesDistributionByMonthlyRevenues,
+  useStakingSentinelEstimatedRevenues
 }
