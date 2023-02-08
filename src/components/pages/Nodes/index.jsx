@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Tab } from 'react-bootstrap'
 import { useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
@@ -9,7 +9,9 @@ import { useEpochs } from '../../../hooks/use-epochs'
 import { useSentinel } from '../../../hooks/use-registration-manager'
 
 import Box from '../../base/Box'
+import Switch from '../../base/Switch'
 import Tabs from '../../base/Tabs'
+import Text from '../../base/Text'
 import BorrowingSentinelRevenuesChart from '../../complex/BorrowingSentinelRevenuesChart'
 import ClaimFees from '../../complex/ClaimFees'
 import SentinelHistoricalChart from '../../complex/SentinelHistoricalChart'
@@ -28,6 +30,8 @@ const InnerTabContainer = styled.div`
 `
 
 const Nodes = () => {
+  const [borrowingSwitchChecked, setBorrowingSwitchChecked] = useState(false)
+  const [stakingSwitchChecked, setStakingSwitchChecked] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const { currentEpoch } = useEpochs()
   const { kind, endEpoch } = useSentinel()
@@ -45,7 +49,16 @@ const Nodes = () => {
             <InnerTabContainer>
               <SentinelStats type="stake" />
               <Box className="mt-4">
-                {!address || kind !== STAKING_SENTINEL || (kind === STAKING_SENTINEL && endEpoch < currentEpoch) ? (
+                {kind === STAKING_SENTINEL && (
+                  <div className="d-flex justify-content-end align-items-center">
+                    <Text size="sm">Show {stakingSwitchChecked ? 'prediction' : 'history'}&nbsp;&nbsp;&nbsp;</Text>
+                    <Switch checked={stakingSwitchChecked} onChange={setStakingSwitchChecked} />
+                  </div>
+                )}
+                {!address ||
+                kind !== STAKING_SENTINEL ||
+                (kind === STAKING_SENTINEL && endEpoch < currentEpoch) ||
+                stakingSwitchChecked ? (
                   <SentinelHistoricalChart />
                 ) : (
                   <StakingSentinelRevenuesChart />
@@ -60,7 +73,16 @@ const Nodes = () => {
             <InnerTabContainer>
               <SentinelStats type="borrow" />
               <Box className="mt-4">
-                {!address || kind !== BORROWING_SENTINEL || (kind === BORROWING_SENTINEL && endEpoch < currentEpoch) ? (
+                {kind === BORROWING_SENTINEL && (
+                  <div className="d-flex justify-content-end align-items-center">
+                    <Text size="sm">Show {borrowingSwitchChecked ? 'prediction' : 'history'}&nbsp;&nbsp;&nbsp;</Text>
+                    <Switch checked={borrowingSwitchChecked} onChange={setBorrowingSwitchChecked} />
+                  </div>
+                )}
+                {!address ||
+                kind !== BORROWING_SENTINEL ||
+                (kind === BORROWING_SENTINEL && endEpoch < currentEpoch) ||
+                borrowingSwitchChecked ? (
                   <SentinelHistoricalChart />
                 ) : (
                   <BorrowingSentinelRevenuesChart />
