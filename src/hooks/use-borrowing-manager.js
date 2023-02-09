@@ -530,10 +530,10 @@ const useEstimateApy = () => {
     const userWeightPercentages = []
     let totalUserRevenues = new BigNumber(0)
 
-    for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
+    for (let epoch = startEpoch, index = 0; epoch <= endEpoch; epoch++, index++) {
       const poolRevenue =
-        feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[epoch]
-          ? feeDistributionByMonthlyRevenues[epoch].lendersInterestsAmount
+        feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[index]
+          ? feeDistributionByMonthlyRevenues[index].lendersInterestsAmount
           : BigNumber(0)
 
       const currentUserWeight = BigNumber(userWeights && userWeights[epoch] ? userWeights[epoch] : 0)
