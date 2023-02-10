@@ -4,7 +4,7 @@ import { Chart } from 'react-chartjs-2'
 import { ThemeContext } from 'styled-components'
 import { formatAssetAmount } from '../../../utils/amount'
 
-const labels = ['Epoch 30', 'Epoch 31', 'Epoch 32', 'Epoch 33', 'Epoch 34', 'Epoch 35']
+import { useSentinelsHistoricalData } from '../../../hooks/use-sentinels-historical-data'
 
 const options = {
   fill: false,
@@ -87,10 +87,14 @@ const options = {
 
 const SentinelHistoricalChart = () => {
   const theme = useContext(ThemeContext)
+  const { accruedFees, epochs, numberOfNodes } = useSentinelsHistoricalData()
 
   const data = useMemo(() => {
     return {
-      labels,
+      labels: epochs
+        .reverse()
+        .slice(-10)
+        .map((_epoch) => `Epoch ${_epoch}`),
       datasets: [
         /*{
           type: 'line',
@@ -104,20 +108,20 @@ const SentinelHistoricalChart = () => {
           type: 'bar',
           backgroundColor: theme.text4,
           fill: false,
-          data: ['11500.00', '14800.00', '12800.00', '11600.00', '20900', '43300.00'].reverse(),
+          data: accruedFees.reverse().slice(-10),
           yAxisID: 'totalEarnedFees',
           label: 'Accrued fees'
         },
         {
           type: 'bar',
           backgroundColor: theme.primary1,
-          data: [25, 27, 27, 24, 23, 18].reverse(),
+          data: numberOfNodes.reverse().slice(-10),
           yAxisID: 'totalNumberOfNodes',
           label: 'Number of nodes'
         }
       ]
     }
-  }, [theme])
+  }, [accruedFees, epochs, numberOfNodes, theme])
 
   return <Chart id="sentinelHistoricalChart" data={data} options={options} />
 }
