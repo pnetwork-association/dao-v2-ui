@@ -30,6 +30,7 @@
     "react-router-dom": "^6.4.5",
     "react-scripts": "5.0.1",
     "react-svg": "^15.1.15",
+    "react-switch": "^7.0.0",
     "react-toastify": "^9.1.1",
     "react-tooltip": "^5.7.0",
     "redux": "^4.2.0",

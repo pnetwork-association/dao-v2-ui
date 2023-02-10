@@ -281,9 +281,9 @@ const useBorrowingSentinelProspectus = () => {
     () =>
       (startEpoch || startEpoch === 0) && endEpoch
         ? range(startEpoch, endEpoch + 1).map((_, _index) => {
-            const sentinelsBorrowingFeesAmount =
+            const borrowingSentinelsFeesAmount =
               feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_index]
-                ? feeDistributionByMonthlyRevenues[_index].sentinelsBorrowingFeesAmount
+                ? feeDistributionByMonthlyRevenues[_index].borrowingSentinelsFeesAmount
                 : BigNumber(0)
 
             const numberOfSentinels = numberOfSentinelsInEpoch[_index]
@@ -292,7 +292,7 @@ const useBorrowingSentinelProspectus = () => {
                 ? new BigNumber(1)
                 : BigNumber(1).dividedBy(numberOfSentinels)
 
-            return sentinelsBorrowingFeesAmount.multipliedBy(borrowingFeePercentage).toFixed()
+            return borrowingSentinelsFeesAmount.multipliedBy(borrowingFeePercentage).toFixed()
           })
         : [],
     [numberOfSentinelsInEpoch, feeDistributionByMonthlyRevenues, endEpoch, startEpoch]

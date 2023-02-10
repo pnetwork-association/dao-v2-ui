@@ -164,7 +164,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
 
   const chartData = useMemo(() => {
     return {
-      labels: chartEpochs.map((_epoch) => `Epoch #${_epoch + currentEpoch}`),
+      labels: chartEpochs.map((_epoch) => `Epoch #${_epoch}`),
       datasets: [
         {
           label: 'Revenues',
@@ -179,7 +179,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
         }
       ]
     }
-  }, [chartEpochs, prospectusBorrowingEpochsRevenues, currentEpoch, theme])
+  }, [chartEpochs, prospectusBorrowingEpochsRevenues, theme])
 
   const effectiveEndEpoch = useMemo(() => {
     if (type === 'borrow') {

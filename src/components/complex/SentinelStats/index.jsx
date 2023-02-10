@@ -10,7 +10,7 @@ import Box from '../../base/Box'
 import Text from '../../base/Text'
 import Line from '../../base/Line'
 import RegisterSentinelModal from '../RegisterSentinelModal'
-import SentinelHistoricalChart from '../SentinelHistoricalChart'
+
 import Button from '../../base/Button'
 
 const SentinelStats = ({ type = 'stake' }) => {
@@ -73,7 +73,6 @@ const SentinelStats = ({ type = 'stake' }) => {
           </Col>
         </Row>
       </Box>
-      <Box className="mt-4">{/*(!address || kind === '0x00') &&*/ <SentinelHistoricalChart />}</Box>
       <RegisterSentinelModal
         show={showRegisterSentinelModal}
         onClose={() => setShowRegisterSentinelModal(false)}
