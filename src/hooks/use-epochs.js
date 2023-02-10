@@ -31,7 +31,7 @@ const useEpochs = () => {
     ]
   })
 
-  const currentEpoch = useMemo(() => (data && data[0] ? data[0].toNumber() : null), [data])
+  const currentEpoch = useMemo(() => (data && data[0] ? data[0].toNumber() + 1 : null), [data])
   const epochDuration = useMemo(() => (data && data[1] ? data[1].toNumber() : null), [data])
   const startFirstEpochTimestamp = 1596182898 //useMemo(() => (data && data[2] ? data[2].toNumber() : null), [data])
 
