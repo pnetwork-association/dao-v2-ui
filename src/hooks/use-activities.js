@@ -52,7 +52,7 @@ const useActivities = () => {
 
   const { fromBlock, toBlock } = useMemo(
     () => ({
-      fromBlock: blockNumber ? (cachedLastBlock === 0 ? blockNumber - 8 * 10080 : cachedLastBlock + 1) : 0,
+      fromBlock: blockNumber ? (cachedLastBlock === 0 ? blockNumber - 130000 : cachedLastBlock + 1) : 0,
       toBlock: blockNumber ? blockNumber + 1 : 0
     }),
     [blockNumber, cachedLastBlock]
