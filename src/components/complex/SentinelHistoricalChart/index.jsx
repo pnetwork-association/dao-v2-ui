@@ -91,16 +91,13 @@ const SentinelHistoricalChart = () => {
 
   const data = useMemo(() => {
     return {
-      labels: epochs
-        .reverse()
-        .slice(-10)
-        .map((_epoch) => `Epoch ${_epoch}`),
+      labels: epochs.slice(-10).map((_epoch) => `Epoch ${_epoch}`),
       datasets: [
         /*{
           type: 'line',
           backgroundColor: theme.yellow,
           borderColor: theme.yellow,
-          data: [25, 27, 27, 24, 23, 18].reverse(),
+          data: [25, 27, 27, 24, 23, 18],
           yAxisID: 'apy',
           label: 'APY'
         },*/
@@ -108,14 +105,14 @@ const SentinelHistoricalChart = () => {
           type: 'bar',
           backgroundColor: theme.text4,
           fill: false,
-          data: accruedFees.reverse().slice(-10),
+          data: accruedFees.slice(-10),
           yAxisID: 'totalEarnedFees',
           label: 'Accrued fees'
         },
         {
           type: 'bar',
           backgroundColor: theme.primary1,
-          data: numberOfNodes.reverse().slice(-10),
+          data: numberOfNodes.slice(-10),
           yAxisID: 'totalNumberOfNodes',
           label: 'Number of nodes'
         }
