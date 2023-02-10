@@ -14,6 +14,7 @@ const settings = {
     dandelionVoting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
     stakingManager: '0xeb10e80D99655B51E3a981E888a73D0B21e21A6C',
+    votingRewards: '0xB86722B7C003516500c709b1D5AB833fFeEb9f6B',
     // TODO: use real ones once deployed on mainnet
     //stakingManager: '0x3E661784267F128e5f706De17Fac1Fc1c9d56f30',
     borrowingManager: '0xD1760AA0FCD9e64bA4ea43399Ad789CFd63C7809',

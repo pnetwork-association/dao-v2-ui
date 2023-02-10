@@ -11,29 +11,29 @@ const useEpochs = () => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.epochsManager,
+        address: settings.contracts.votingRewards,
         abi: EpochsManagerABI,
         functionName: 'currentEpoch',
         args: []
       },
       {
-        address: settings.contracts.epochsManager,
+        address: settings.contracts.votingRewards,
         abi: EpochsManagerABI,
         functionName: 'epochDuration',
         args: []
-      },
-      {
+      }
+      /*{
         address: settings.contracts.epochsManager,
         abi: EpochsManagerABI,
         functionName: 'startFirstEpochTimestamp',
         args: []
-      }
+      }*/
     ]
   })
 
   const currentEpoch = useMemo(() => (data && data[0] ? data[0].toNumber() : null), [data])
   const epochDuration = useMemo(() => (data && data[1] ? data[1].toNumber() : null), [data])
-  const startFirstEpochTimestamp = useMemo(() => (data && data[2] ? data[2].toNumber() : null), [data])
+  const startFirstEpochTimestamp = 1596182898 //useMemo(() => (data && data[2] ? data[2].toNumber() : null), [data])
 
   const secondsPassedUntilNow = useMemo(
     () => (startFirstEpochTimestamp ? moment().unix() - startFirstEpochTimestamp : null),

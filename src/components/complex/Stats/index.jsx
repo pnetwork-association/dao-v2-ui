@@ -3,6 +3,7 @@ import { Col, Row } from 'react-bootstrap'
 
 import { useStats } from '../../../hooks/use-stats'
 import { useProposals } from '../../../hooks/use-proposals'
+import { useEpochs } from '../../../hooks/use-epochs'
 
 import Box from '../../base/Box'
 import Line from '../../base/Line'
@@ -10,6 +11,7 @@ import ProgressBar from '../../base/ProgressBar'
 import Text from '../../base/Text'
 
 const Stats = () => {
+  const { formattedCurrentEpoch } = useEpochs()
   const { formattedDaoPntTotalSupply, formattedPercentageStakedPnt, percentageStakedPnt } = useStats()
   const proposals = useProposals()
 
@@ -20,7 +22,7 @@ const Stats = () => {
           <Text>Current epoch</Text>
         </Col>
         <Col xs={6} className="text-end">
-          <Text variant={'text2'}>#36</Text>
+          <Text variant={'text2'}>{formattedCurrentEpoch}</Text>
         </Col>
       </Row>
       <Line />
