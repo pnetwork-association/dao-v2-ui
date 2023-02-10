@@ -4,6 +4,7 @@ import { Col, Row } from 'react-bootstrap'
 import { Chart } from 'react-chartjs-2'
 import { toast } from 'react-toastify'
 import styled, { ThemeContext } from 'styled-components'
+import { Tooltip } from 'react-tooltip'
 
 import { useBalances } from '../../../hooks/use-balances'
 import { useEstimateApy, useLend } from '../../../hooks/use-borrowing-manager'
@@ -282,6 +283,10 @@ const LendModal = ({ show, onClose }) => {
       <Row className="mt-3">
         <Col xs={6}>
           <Text>APY</Text>
+          <Text id="apyInfo" data-tooltip-content={'TODOTODOTODOTODOTODOTODO'}>
+            &nbsp;*
+          </Text>
+          <Tooltip anchorId="apyInfo" />
         </Col>
         <Col xs={6} className="text-end">
           <Text variant={'text2'}>{apy?.formattedValue}</Text>
