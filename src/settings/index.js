@@ -13,12 +13,11 @@ const settings = {
     daoPnt: '0xe824F81cD136BB7a28480baF8d7E5f0E8E4B693E',
     dandelionVoting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
-    // TODO: use real ones once deployed on mainnet
-    stakingManager: '0xD94A92749C0bb33c4e4bA7980c6dAD0e3eFfb720',
-    borrowingManager: '0xe14058B1c3def306e2cb37535647A04De03Db092',
-    epochsManager: '0x4f42528B7bF8Da96516bECb22c1c6f53a8Ac7312',
-    registrationManager: '0xF5b81Fe0B6F378f9E6A3fb6A6cD1921FCeA11799',
-    feesManager: '0x6533158b042775e2FdFeF3cA1a782EFDbB8EB9b1'
+    stakingManager: '0x67baFF31318638F497f4c4894Cd73918563942c8',
+    borrowingManager: '0x2b639Cc84e1Ad3aA92D4Ee7d2755A6ABEf300D72',
+    epochsManager: '0x73C68f1f41e4890D06Ba3e71b9E9DfA555f1fb46',
+    registrationManager: '0x0b27a79cb9C0B38eE06Ca3d94DAA68e0Ed17F953',
+    feesManager: '0xB468647B04bF657C9ee2de65252037d781eABafD'
   },
   stakingManager: {
     minStakeDays: 7,

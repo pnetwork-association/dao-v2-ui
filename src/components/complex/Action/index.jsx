@@ -99,6 +99,23 @@ const Action = ({ action }) => {
     )
   }
 
+  if (action.name === 'Unstaked') {
+    const { formattedAmount, owner, ownerNickname } = action
+
+    return (
+      <div className="d-flex">
+        <span>
+          <A href={getAddressExplorerLink(owner)} target="_blank">
+            {ownerNickname}
+          </A>
+          <Text>&nbsp;unstaked&nbsp;</Text>
+          <Text variant="text2">{formattedAmount}&nbsp;</Text>
+          <AssetLogo src={'./assets/svg/PNT.svg'} />
+        </span>
+      </div>
+    )
+  }
+
   if (action.name === 'Lended') {
     const { startEpoch, endEpoch, formattedAmount, lender, lenderNickname } = action
 

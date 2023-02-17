@@ -61,12 +61,12 @@ const useActivities = () => {
   useEffect(() => {
     const fetchStakingManagerData = async () => {
       try {
-        const [stakeEvents /*unstakeEvents*/] = await Promise.all([
-          stakingManager.queryFilter('Staked', fromBlock, toBlock)
-          // stakingManager.queryFilter('Unstaked', fromBlock, toBlock)
+        const [stakeEvents, unstakeEvents] = await Promise.all([
+          stakingManager.queryFilter('Staked', fromBlock, toBlock),
+          stakingManager.queryFilter('Unstaked', fromBlock, toBlock)
         ])
 
-        setStakingManagerActivities(await extractActivityFromEvents(stakeEvents))
+        setStakingManagerActivities(await extractActivityFromEvents([...stakeEvents, ...unstakeEvents]))
       } catch (_err) {
         console.error(_err)
       }
