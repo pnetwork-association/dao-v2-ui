@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
+import { useContext } from 'react'
 import { Tab } from 'react-bootstrap'
 import { useSearchParams } from 'react-router-dom'
-import styled from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
 import { useAccount } from 'wagmi'
 
 import { BORROWING_SENTINEL, STAKING_SENTINEL } from '../../../contants'
@@ -30,6 +31,7 @@ const InnerTabContainer = styled.div`
 `
 
 const Nodes = () => {
+  const theme = useContext(ThemeContext)
   const [borrowingSwitchChecked, setBorrowingSwitchChecked] = useState(false)
   const [stakingSwitchChecked, setStakingSwitchChecked] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -51,8 +53,9 @@ const Nodes = () => {
               <Box className="mt-4">
                 {kind === STAKING_SENTINEL && (
                   <div className="d-flex justify-content-end align-items-center">
-                    <Text size="sm">Show {stakingSwitchChecked ? 'prediction' : 'history'}&nbsp;&nbsp;&nbsp;</Text>
+                    <Text size="sm">History&nbsp;&nbsp;&nbsp;</Text>
                     <Switch checked={stakingSwitchChecked} onChange={setStakingSwitchChecked} />
+                    <Text size="sm">&nbsp;&nbsp;&nbsp;Prediction</Text>
                   </div>
                 )}
                 {!address ||
@@ -75,8 +78,13 @@ const Nodes = () => {
               <Box className="mt-4">
                 {kind === BORROWING_SENTINEL && (
                   <div className="d-flex justify-content-end align-items-center">
-                    <Text size="sm">Show {borrowingSwitchChecked ? 'prediction' : 'history'}&nbsp;&nbsp;&nbsp;</Text>
-                    <Switch checked={borrowingSwitchChecked} onChange={setBorrowingSwitchChecked} />
+                    <Text size="sm">History&nbsp;&nbsp;&nbsp;</Text>
+                    <Switch
+                      checked={borrowingSwitchChecked}
+                      onChange={setBorrowingSwitchChecked}
+                      onColor={theme.secondary4}
+                    />
+                    <Text size="sm">&nbsp;&nbsp;&nbsp;Prediction</Text>
                   </div>
                 )}
                 {!address ||

@@ -63,6 +63,24 @@ const extractActivityFromEvents = async (_events) => {
         }
       }
 
+      if (event === 'Unstaked') {
+        const { amount, owner } = data
+        const am = BigNumber(amount?.toString())
+          .dividedBy(10 ** 18)
+          .toFixed()
+
+        return {
+          amount: am,
+          formattedAmount: formatAssetAmount(am, 'PNT'),
+          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDateFromNow,
+          owner,
+          ownerNickname: getNickname(owner),
+          timestamp,
+          type: 'Unstaked'
+        }
+      }
+
       if (event === 'Lended') {
         const { amount, endEpoch, lender, startEpoch } = data
         const am = BigNumber(amount?.toString())

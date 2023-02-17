@@ -154,10 +154,7 @@ const useFetchProposals = ({ setProposals }) => {
             const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
             const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
 
-            const totalSupply = daoPntTotalSupply
-              ? BigNumber(daoPntTotalSupply.toString()).dividedBy(10 ** 18)
-              : BigNumber(null)
-            const quorum = yes.dividedBy(totalSupply)
+            const quorum = yes.dividedBy(votingPower)
             const minAcceptQuorum = BigNumber(voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
 
             const quorumReached = quorum.isGreaterThan(minAcceptQuorum)

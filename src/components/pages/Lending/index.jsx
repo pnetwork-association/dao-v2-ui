@@ -1,8 +1,8 @@
-import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js'
 import React, { useState } from 'react'
 import { Row, Col, Tab } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { Tooltip } from 'react-tooltip'
 
 import {
   useAccountLoanEndEpoch,
@@ -32,12 +32,10 @@ const InnerTabContainer = styled.div`
   }
 `
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
-
 const Lending = () => {
   const navigate = useNavigate()
   const [showLendModal, setShowLendModal] = useState(false)
-  const { formattedCurrentEpoch, formattedCurrentEpochEndAt } = useEpochs()
+  const { formattedCurrentEpoch, formattedCurrentEpochEndIn } = useEpochs()
   const utilizationRatioCurrentEpoch = useUtilizationRatioInTheCurrentEpoch()
 
   const { formattedValue: formattedValueAccountLoanStartEpoch } = useAccountLoanStartEpoch()
@@ -69,7 +67,7 @@ const Lending = () => {
                     <Text>Current epochs ends at</Text>
                   </Col>
                   <Col xs={6} className="text-end">
-                    <Text variant={'text2'}>{formattedCurrentEpochEndAt}</Text>
+                    <Text variant={'text2'}>{formattedCurrentEpochEndIn}</Text>
                   </Col>
                 </Row>
                 <Line />
@@ -85,6 +83,10 @@ const Lending = () => {
                 <Row className="mt-2">
                   <Col xs={8}>
                     <Text>Estimated APY</Text>
+                    <Text id="estimatedApyInfo" data-tooltip-content={'TODOTODOTODOTODOTODOTODO'}>
+                      &nbsp;*
+                    </Text>
+                    <Tooltip anchorId="estimatedApyInfo" />
                   </Col>
                   <Col xs={4} className="text-end">
                     <Text variant={'text2'}>{formattedValueApy}</Text>
