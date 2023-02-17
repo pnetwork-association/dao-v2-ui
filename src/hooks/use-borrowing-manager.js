@@ -330,7 +330,7 @@ const useClaimableInterestsAssetsByEpochs = () => {
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
-    args: [address, assets.map(({ address }) => address), 0, currentEpoch],
+    args: [address, assets.map(({ address }) => address), 0, currentEpoch - 1],
     enabled: address && (currentEpoch || currentEpoch === 0),
     watch: true
   })
@@ -338,7 +338,7 @@ const useClaimableInterestsAssetsByEpochs = () => {
   return useMemo(() => {
     if (!data) return null
 
-    return Array.from(Array(currentEpoch + 1).keys()).reduce((_acc, _epoch) => {
+    return Array.from(Array(currentEpoch).keys()).reduce((_acc, _epoch) => {
       _acc[_epoch] = data
         .slice(_epoch * assets.length, _epoch * assets.length + assets.length)
         .map((_value, _index) => {
