@@ -1,9 +1,10 @@
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
-import { useAccount, useBalance, useContractRead, erc20ABI } from 'wagmi'
+import { useAccount, useBalance } from 'wagmi'
 
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
+import { useStats } from './use-stats'
 
 const useBalances = () => {
   const { address } = useAccount()
@@ -37,15 +38,7 @@ const useBalances = () => {
 
 const useVotingPower = () => {
   const { daoPntBalance } = useBalances()
-
-  const { data } = useContractRead({
-    address: settings.contracts.daoPnt,
-    abi: erc20ABI,
-    functionName: 'totalSupply',
-    args: []
-  })
-
-  const daoPntTotalSupply = useMemo(() => BigNumber(data?.toString()).dividedBy(10 ** 18), [data])
+  const { daoPntTotalSupply } = useStats()
 
   const votingPower = useMemo(
     () => BigNumber(daoPntBalance).dividedBy(daoPntTotalSupply).multipliedBy(100),
