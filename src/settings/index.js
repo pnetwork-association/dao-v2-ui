@@ -9,15 +9,17 @@ const settings = {
     github: 'https://github.com/pnetwork-association'
   },
   contracts: {
-    pnt: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
-    daoPnt: '0xe824F81cD136BB7a28480baF8d7E5f0E8E4B693E',
-    dandelionVoting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
-    acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
-    stakingManager: '0x67baFF31318638F497f4c4894Cd73918563942c8',
-    borrowingManager: '0x2b639Cc84e1Ad3aA92D4Ee7d2755A6ABEf300D72',
-    epochsManager: '0x73C68f1f41e4890D06Ba3e71b9E9DfA555f1fb46',
-    registrationManager: '0x0b27a79cb9C0B38eE06Ca3d94DAA68e0Ed17F953',
-    feesManager: '0xB468647B04bF657C9ee2de65252037d781eABafD'
+    pnt: '0xb6bcae6468760bc0cdfb9c8ef4ee75c9dd23e1ed',
+    daoPnt: '0xd73EfE7D4884c124A854bFB499D48626ef062539',
+    dandelionVotingOld: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
+    dandelionVoting: '0x915466bCF63e09F1ce8D4956b1C585497904a2f5',
+    acl: '0xfba85667439d33151fc04ac5ad00a4cca084a2c3',
+    stakingManager: '0x3eFEd2C910957f89527e26c4dA2A5752b58A786a',
+    borrowingManager: '0xe6a300719e17729f7E362886897C834904e2D452',
+    epochsManager: '0x1552c19C72432323038a2bcd1DaEa42Ba7Ef11C9',
+    registrationManager: '0x6754b68aC5268f551B0f43cE2c6CD9632654b4e0',
+    feesManager: '0xF3f8B14DD4fa790B1aF979263c5acA18e2700e8e',
+    forwarder: '0x9FCd0F305367f504b032cb750FE1A4B395A1A476'
   },
   stakingManager: {
     minStakeDays: 7,
