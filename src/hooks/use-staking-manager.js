@@ -3,7 +3,6 @@ import { ethers } from 'ethers'
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import {
-  erc20ABI,
   useAccount,
   useBalance,
   useChainId,
@@ -18,10 +17,14 @@ import axios from 'axios'
 
 import settings from '../settings'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
-import PTokensVaultABI from '../utils/abis/PTokensVault.json'
 import { formatAssetAmount } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
-import { getForwarderStakeUserData } from '../utils/forwarder'
+import {
+  prepareContractReadAllowanceApproveStake,
+  prepareContractWriteStake,
+  prepareContractWriteApproveStake
+} from '../utils/preparers/staking-manager'
+import { getPntAddressByChainId } from '../utils/preparers/balance'
 
 const useStake = () => {
   const [approved, setApproved] = useState(false)
@@ -30,23 +33,13 @@ const useStake = () => {
   const [duration, setDuration] = useState(settings.stakingManager.minStakeDays)
   const { address } = useAccount()
   const activeChainId = useChainId()
-  const { switchNetwork } = useSwitchNetwork({
-    chainId: mainnet.id
-  })
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pntOnEthereum,
-    address,
-    chainId: mainnet.id
+    token: getPntAddressByChainId(activeChainId),
+    address
   })
 
-  const { data: allowance } = useContractRead({
-    address: settings.contracts.pntOnEthereum,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, settings.contracts.pTokensVault],
-    chainId: mainnet.id
-  })
+  const { data: allowance } = useContractRead(prepareContractReadAllowanceApproveStake({ activeChainId, address }))
 
   const onChainAmount = useMemo(
     () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
@@ -54,53 +47,29 @@ const useStake = () => {
   )
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
-  const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pntOnEthereum,
-    abi: erc20ABI,
-    functionName: 'approve',
-    args: [settings.contracts.pTokensVault, onChainAmount],
-    enabled: approveEnabled,
-    chainId: mainnet.id
-  })
+  const { config: approveConfigs } = usePrepareContractWrite(
+    prepareContractWriteApproveStake({ activeChainId, amount: onChainAmount, approveEnabled })
+  )
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
   const stakeEnabled = useMemo(
     () =>
       onChainAmount.gt(0) &&
-      approved &&
+      (approved || (activeChainId !== polygon.id && activeChainId !== mainnet.id)) &&
       onChainAmount.lte(pntBalanceData.value) &&
       duration >= settings.stakingManager.minStakeDays,
-    [onChainAmount, approved, pntBalanceData, duration]
+    [onChainAmount, approved, pntBalanceData, activeChainId, duration]
   )
 
-  const peginData = useMemo(
-    () =>
-      onChainAmount && duration && receiver
-        ? getForwarderStakeUserData({
-            amount: onChainAmount,
-            duration: duration * SECONDS_IN_ONE_DAY,
-            pntOnPolygonAddress: settings.contracts.pntOnPolygon,
-            receiverAddress: receiver,
-            stakingManagerAddress: settings.contracts.stakingManager
-          })
-        : '0x',
-    [onChainAmount, duration, receiver]
+  const { config: stakeConfigs } = usePrepareContractWrite(
+    prepareContractWriteStake({
+      activeChainId,
+      amount: onChainAmount,
+      duration: duration * SECONDS_IN_ONE_DAY,
+      receiver,
+      stakeEnabled
+    })
   )
-
-  const { config: stakeConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pTokensVault,
-    abi: PTokensVaultABI,
-    functionName: 'pegIn',
-    args: [
-      onChainAmount,
-      settings.contracts.pntOnEthereum,
-      settings.contracts.forwarderOnPolygon,
-      peginData,
-      '0x0075dd4c'
-    ],
-    enabled: stakeEnabled,
-    chainId: mainnet.id
-  })
   const { write: stake, error: stakeError, data: stakeData } = useContractWrite(stakeConfigs)
 
   const { isLoading: isApproving } = useWaitForTransaction({
@@ -138,7 +107,7 @@ const useStake = () => {
   return {
     allowance,
     amount,
-    approve: activeChainId !== mainnet.id && switchNetwork ? switchNetwork : approve,
+    approve: approve,
     approved,
     approveData,
     approveEnabled,
@@ -151,7 +120,7 @@ const useStake = () => {
     setApproved,
     setDuration,
     setReceiver,
-    stake: activeChainId !== mainnet.id && switchNetwork ? switchNetwork : stake,
+    stake: stake,
     stakeData,
     stakeEnabled,
     stakeError

@@ -12,6 +12,7 @@ const settings = {
     pTokensVault: '0xe396757EC7E6aC7C8E5ABE7285dde47b98F22db8',
     pntOnPolygon: '0xb6bcae6468760bc0cdfb9c8ef4ee75c9dd23e1ed',
     pntOnEthereum: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
+    pntOnBsc: '0xdaacB0Ab6Fb34d24E8a67BfA14BF4D95D4C7aF92',
     daoPnt: '0xd73EfE7D4884c124A854bFB499D48626ef062539',
     dandelionVotingOld: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     dandelionVoting: '0x915466bCF63e09F1ce8D4956b1C585497904a2f5',
@@ -32,7 +33,11 @@ const settings = {
     minStakeAmount: 200000,
     estimatedSentinelRunningCost: 150
   },
-  explorer: 'https://etherscan.io',
+  explorers: {
+    mainnet: 'https://etherscan.io',
+    bsc: 'https://bscscan.com',
+    polygon: 'https://polygonscan.com'
+  },
   assets: [
     {
       address: '0xf4ea6b892853413bd9d9f1a5d3a620a0ba39c5b2',

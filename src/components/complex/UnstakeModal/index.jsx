@@ -3,6 +3,7 @@ import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 import BigNumber from 'bignumber.js'
 import { toast } from 'react-toastify'
+import { polygon } from 'wagmi/chains'
 
 import { useBalances } from '../../../hooks/use-balances'
 import { useUserStake } from '../../../hooks/use-staking-manager'
@@ -37,7 +38,7 @@ const UnstakeModal = ({ show, onClose }) => {
 
   useEffect(() => {
     if (unstakeData) {
-      toastifyTransaction(unstakeData, () => {
+      toastifyTransaction(unstakeData, { chainId: polygon.id }, () => {
         setAmount('')
       })
     }

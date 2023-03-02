@@ -1,24 +1,26 @@
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
-import { useAccount, useBalance } from 'wagmi'
+import { useAccount, useBalance, useChainId } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
 import { useStats } from './use-stats'
+import { getPntAddressByChainId } from '../utils/preparers/balance'
 
 const useBalances = () => {
   const { address } = useAccount()
+  const activeChainId = useChainId()
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pntOnEthereum,
-    address,
-    chainId: 1
+    token: getPntAddressByChainId(activeChainId),
+    address
   })
 
   const { data: daoPntBalanceData } = useBalance({
     token: settings.contracts.daoPnt,
     address,
-    chainId: 137
+    chainId: polygon.id
   })
 
   const pntBalance = useMemo(

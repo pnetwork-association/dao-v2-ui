@@ -1,6 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-toastify'
+import { mainnet } from 'wagmi'
+
+import { getExplorerUrlByChainId } from './explorer'
 
 import A from '../components/base/A'
 import Text from '../components/base/Text'
@@ -12,10 +15,12 @@ const StyledA = styled(A)`
   }
 `
 
-const toastifyTransaction = (_data, _cb) => {
+const toastifyTransaction = (_data, _opts = {}, _cb) => {
+  const { chainId = mainnet.id } = _opts
+
   toast.success(
     <div>
-      <StyledA href={`https://etherscan.io/tx/${_data.hash}`} target="_blank">
+      <StyledA href={`${getExplorerUrlByChainId(chainId)}/tx/${_data.hash}`} target="_blank">
         Transaction
       </StyledA>{' '}
       <Text size="lg" variant="white">
@@ -27,7 +32,7 @@ const toastifyTransaction = (_data, _cb) => {
   _data.wait(1).then(() => {
     toast.success(
       <div>
-        <StyledA href={`https://etherscan.io/tx/${_data.hash}`} target="_blank">
+        <StyledA href={`${getExplorerUrlByChainId(chainId)}/tx/${_data.hash}`} target="_blank">
           Transaction
         </StyledA>{' '}
         <Text size="lg" variant="white">

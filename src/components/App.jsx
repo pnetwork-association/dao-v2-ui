@@ -3,7 +3,7 @@ import { ThemeContext } from 'styled-components'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { configureChains, createClient, WagmiConfig } from 'wagmi'
-import { mainnet, polygon } from 'wagmi/chains'
+import { mainnet, polygon, bsc } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 
@@ -38,7 +38,7 @@ const router = createHashRouter([
 ])
 
 const { chains, provider } = configureChains(
-  [mainnet, polygon],
+  [mainnet, polygon, bsc],
   [alchemyProvider({ apiKey: process.env.REACT_APP_ALCHEMY_ID }), publicProvider()]
 )
 
