@@ -392,13 +392,15 @@ const useCreateProposal = () => {
         address: settings.contracts.acl,
         abi: ACLAbi,
         functionName: 'hasPermission',
-        args: [address, settings.contracts.dandelionVoting, getRole('CREATE_VOTES_ROLE'), '0x']
+        args: [address, settings.contracts.dandelionVoting, getRole('CREATE_VOTES_ROLE'), '0x'],
+        chainId: 137
       },
       {
         address: settings.contracts.dandelionVoting,
         abi: DandelionVotingABI,
         functionName: 'minOpenVoteAmount',
-        args: []
+        args: [],
+        chainId: 137
       }
     ]
   })

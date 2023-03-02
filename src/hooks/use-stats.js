@@ -17,16 +17,18 @@ const useStats = () => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.pnt,
+        address: settings.contracts.pntOnPolygon,
         abi: erc20ABI,
         functionName: 'totalSupply',
-        args: []
+        args: [],
+        chainId: 137
       },
       {
         address: settings.contracts.daoPnt,
         abi: erc20ABI,
         functionName: 'totalSupply',
-        args: []
+        args: [],
+        chainId: 137
       }
     ]
   })

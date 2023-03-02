@@ -31,7 +31,7 @@ const useLend = () => {
   const { address } = useAccount()
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pnt,
+    token: settings.contracts.pntOnPolygon,
     address
   })
 
@@ -41,7 +41,7 @@ const useLend = () => {
   )
 
   const { data: allowance } = useContractRead({
-    address: settings.contracts.pnt,
+    address: settings.contracts.pntOnPolygon,
     abi: erc20ABI,
     functionName: 'allowance',
     args: [address, settings.contracts.borrowingManager]
@@ -49,7 +49,7 @@ const useLend = () => {
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
   const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pnt,
+    address: settings.contracts.pntOnPolygon,
     abi: erc20ABI,
     functionName: 'approve',
     args: [settings.contracts.borrowingManager, onChainAmount],

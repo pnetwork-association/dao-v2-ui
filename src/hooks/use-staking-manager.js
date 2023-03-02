@@ -9,14 +9,17 @@ import {
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
+  useSwitchNetwork,
   useWaitForTransaction
 } from 'wagmi'
 import axios from 'axios'
 
 import settings from '../settings'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
+import PTokensVaultABI from '../utils/abis/PTokensVault.json'
 import { formatAssetAmount } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
+import { getForwarderStakeUserData } from '../utils/forwarder'
 
 const useStake = () => {
   const [approved, setApproved] = useState(false)
@@ -24,17 +27,22 @@ const useStake = () => {
   const [amount, setAmount] = useState('0')
   const [duration, setDuration] = useState(settings.stakingManager.minStakeDays)
   const { address } = useAccount()
+  const network = useSwitchNetwork({
+    chainId: 1
+  })
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pnt,
-    address
+    token: settings.contracts.pntOnEthereum,
+    address,
+    chainId: 1
   })
 
   const { data: allowance } = useContractRead({
-    address: settings.contracts.pnt,
+    address: settings.contracts.pntOnEthereum,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, settings.contracts.stakingManager]
+    args: [address, settings.contracts.pTokensVault],
+    chainId: 1
   })
 
   const onChainAmount = useMemo(
@@ -44,11 +52,12 @@ const useStake = () => {
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
   const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pnt,
+    address: settings.contracts.pntOnEthereum,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [settings.contracts.stakingManager, onChainAmount],
-    enabled: approveEnabled
+    args: [settings.contracts.pTokensVault, onChainAmount],
+    enabled: approveEnabled,
+    chainId: 1
   })
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
@@ -60,12 +69,34 @@ const useStake = () => {
       duration >= settings.stakingManager.minStakeDays,
     [onChainAmount, approved, pntBalanceData, duration]
   )
+
+  const peginData = useMemo(
+    () =>
+      onChainAmount && duration && receiver
+        ? getForwarderStakeUserData({
+            amount: onChainAmount,
+            duration: duration * SECONDS_IN_ONE_DAY,
+            pntOnPolygonAddress: settings.contracts.pntOnPolygon,
+            receiverAddress: receiver,
+            stakingManagerAddress: settings.contracts.stakingManager
+          })
+        : '0x',
+    [onChainAmount, duration, receiver]
+  )
+
   const { config: stakeConfigs } = usePrepareContractWrite({
-    address: settings.contracts.stakingManager,
-    abi: StakingManagerABI,
-    functionName: 'stake',
-    args: [onChainAmount, duration * SECONDS_IN_ONE_DAY, receiver],
-    enabled: stakeEnabled
+    address: settings.contracts.pTokensVault,
+    abi: PTokensVaultABI,
+    functionName: 'pegIn',
+    args: [
+      onChainAmount,
+      settings.contracts.pntOnEthereum,
+      settings.contracts.forwarderOnPolygon,
+      peginData,
+      '0x0075dd4c'
+    ],
+    enabled: stakeEnabled,
+    chainId: 1
   })
   const { write: stake, error: stakeError, data: stakeData } = useContractWrite(stakeConfigs)
 
@@ -104,7 +135,7 @@ const useStake = () => {
   return {
     allowance,
     amount,
-    approve,
+    approve: approve || network.switchNetwork,
     approved,
     approveData,
     approveEnabled,
@@ -117,7 +148,7 @@ const useStake = () => {
     setApproved,
     setDuration,
     setReceiver,
-    stake,
+    stake: stake || network.switchNetwork,
     stakeData,
     stakeEnabled,
     stakeError
@@ -138,7 +169,8 @@ const useUnstake = () => {
     abi: StakingManagerABI,
     functionName: 'unstake',
     args: [onChainAmount],
-    enabled: BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount)
+    enabled: BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
+    chainId: 137
   })
   const { write: unstake, error: unstakeError, data: unstakeData } = useContractWrite(unstakeConfigs)
 
@@ -165,7 +197,8 @@ const useUserStake = () => {
     functionName: 'stakeOf',
     args: [address],
     enabled: address,
-    watch: true
+    watch: true,
+    chainId: 137
   })
 
   const availableToUnstakePntAmount = useMemo(() => {

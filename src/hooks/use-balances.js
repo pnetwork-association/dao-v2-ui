@@ -10,13 +10,15 @@ const useBalances = () => {
   const { address } = useAccount()
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pnt,
-    address
+    token: settings.contracts.pntOnEthereum,
+    address,
+    chainId: 1
   })
 
   const { data: daoPntBalanceData } = useBalance({
     token: settings.contracts.daoPnt,
-    address
+    address,
+    chainId: 137
   })
 
   const pntBalance = useMemo(

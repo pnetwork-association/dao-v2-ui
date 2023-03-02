@@ -4,7 +4,7 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
-    "@rainbow-me/rainbowkit": "^0.8.1",
+    "@rainbow-me/rainbowkit": "^0.11.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -38,7 +38,7 @@
     "stream": "^0.0.2",
     "styled-components": "^5.3.6",
     "unique-names-generator": "^4.7.1",
-    "wagmi": "^0.9.2",
+    "wagmi": "^0.11.7",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {

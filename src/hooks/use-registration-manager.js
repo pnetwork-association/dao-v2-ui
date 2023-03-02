@@ -36,7 +36,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   const { currentEpochEndsIn, epochDuration } = useEpochs()
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pnt,
+    token: settings.contracts.pntOnPolygon,
     address
   })
 
@@ -46,7 +46,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   )
 
   const { data: allowance } = useContractRead({
-    address: settings.contracts.pnt,
+    address: settings.contracts.pntOnPolygon,
     abi: erc20ABI,
     functionName: 'allowance',
     args: [address, settings.contracts.registrationManager]
@@ -57,7 +57,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     [onChainAmount, approved, type]
   )
   const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pnt,
+    address: settings.contracts.pntOnPolygon,
     abi: erc20ABI,
     functionName: 'approve',
     args: [settings.contracts.registrationManager, onChainAmount],
