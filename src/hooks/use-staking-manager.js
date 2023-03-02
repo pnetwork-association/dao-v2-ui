@@ -6,12 +6,14 @@ import {
   erc20ABI,
   useAccount,
   useBalance,
+  useChainId,
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
   useSwitchNetwork,
   useWaitForTransaction
 } from 'wagmi'
+import { mainnet, polygon } from 'wagmi/chains'
 import axios from 'axios'
 
 import settings from '../settings'
@@ -27,14 +29,15 @@ const useStake = () => {
   const [amount, setAmount] = useState('0')
   const [duration, setDuration] = useState(settings.stakingManager.minStakeDays)
   const { address } = useAccount()
-  const network = useSwitchNetwork({
-    chainId: 1
+  const activeChainId = useChainId()
+  const { switchNetwork } = useSwitchNetwork({
+    chainId: mainnet.id
   })
 
   const { data: pntBalanceData } = useBalance({
     token: settings.contracts.pntOnEthereum,
     address,
-    chainId: 1
+    chainId: mainnet.id
   })
 
   const { data: allowance } = useContractRead({
@@ -42,7 +45,7 @@ const useStake = () => {
     abi: erc20ABI,
     functionName: 'allowance',
     args: [address, settings.contracts.pTokensVault],
-    chainId: 1
+    chainId: mainnet.id
   })
 
   const onChainAmount = useMemo(
@@ -57,7 +60,7 @@ const useStake = () => {
     functionName: 'approve',
     args: [settings.contracts.pTokensVault, onChainAmount],
     enabled: approveEnabled,
-    chainId: 1
+    chainId: mainnet.id
   })
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
@@ -96,7 +99,7 @@ const useStake = () => {
       '0x0075dd4c'
     ],
     enabled: stakeEnabled,
-    chainId: 1
+    chainId: mainnet.id
   })
   const { write: stake, error: stakeError, data: stakeData } = useContractWrite(stakeConfigs)
 
@@ -135,7 +138,7 @@ const useStake = () => {
   return {
     allowance,
     amount,
-    approve: approve || network.switchNetwork,
+    approve: activeChainId !== mainnet.id && switchNetwork ? switchNetwork : approve,
     approved,
     approveData,
     approveEnabled,
@@ -148,7 +151,7 @@ const useStake = () => {
     setApproved,
     setDuration,
     setReceiver,
-    stake: stake || network.switchNetwork,
+    stake: activeChainId !== mainnet.id && switchNetwork ? switchNetwork : stake,
     stakeData,
     stakeEnabled,
     stakeError
@@ -158,6 +161,8 @@ const useStake = () => {
 const useUnstake = () => {
   const [amount, setAmount] = useState('0')
   const { availableToUnstakePntAmount } = useUserStake()
+  const activeChainId = useChainId()
+  const { switchNetwork } = useSwitchNetwork({ chainId: polygon.id })
 
   const onChainAmount = useMemo(
     () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
@@ -170,7 +175,7 @@ const useUnstake = () => {
     functionName: 'unstake',
     args: [onChainAmount],
     enabled: BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
-    chainId: 137
+    chainId: polygon.id
   })
   const { write: unstake, error: unstakeError, data: unstakeData } = useContractWrite(unstakeConfigs)
 
@@ -182,7 +187,7 @@ const useUnstake = () => {
     amount,
     isUnstaking,
     setAmount,
-    unstake,
+    unstake: activeChainId !== polygon.id && switchNetwork ? switchNetwork : unstake,
     unstakeData,
     unstakeError
   }
@@ -198,7 +203,7 @@ const useUserStake = () => {
     args: [address],
     enabled: address,
     watch: true,
-    chainId: 137
+    chainId: polygon.id
   })
 
   const availableToUnstakePntAmount = useMemo(() => {

@@ -1,6 +1,7 @@
 import moment from 'moment'
 import { useMemo } from 'react'
 import { useContractReads } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import EpochsManagerABI from '../utils/abis/EpochsManager.json'
@@ -14,19 +15,22 @@ const useEpochs = () => {
         address: settings.contracts.epochsManager,
         abi: EpochsManagerABI,
         functionName: 'currentEpoch',
-        args: []
+        args: [],
+        chainId: polygon.id
       },
       {
         address: settings.contracts.epochsManager,
         abi: EpochsManagerABI,
         functionName: 'epochDuration',
-        args: []
+        args: [],
+        chainId: polygon.id
       },
       {
         address: settings.contracts.epochsManager,
         abi: EpochsManagerABI,
         functionName: 'startFirstEpochTimestamp',
-        args: []
+        args: [],
+        chainId: polygon.id
       }
     ]
   })

@@ -6,21 +6,26 @@ import {
   erc20ABI,
   useAccount,
   useBalance,
+  useChainId,
   useContractRead,
   useContractReads,
   useContractWrite,
   usePrepareContractWrite,
+  useSwitchNetwork,
   useWaitForTransaction
 } from 'wagmi'
+import { mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
+import PTokensVaultABI from '../utils/abis/PTokensVault.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import { formatAssetAmount, formatCurrency } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
 import { useRates } from './use-crypto-compare'
 import { useEpochs } from './use-epochs'
 import { useFeesDistributionByMonthlyRevenues } from './use-fees-manager'
+import { getForwarderLendUserData } from '../utils/forwarder'
 
 const useLend = () => {
   const [amount, setAmount] = useState('0')
@@ -29,10 +34,15 @@ const useLend = () => {
   const [duration, setDuration] = useState(settings.stakingManager.minStakeDays)
   const [epochs, setEpochs] = useState(0)
   const { address } = useAccount()
+  const activeChainId = useChainId()
+  const { switchNetwork } = useSwitchNetwork({
+    chainId: mainnet.id
+  })
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pntOnPolygon,
-    address
+    token: settings.contracts.pntOnEthereum,
+    address,
+    chainId: mainnet.id
   })
 
   const onChainAmount = useMemo(
@@ -41,19 +51,21 @@ const useLend = () => {
   )
 
   const { data: allowance } = useContractRead({
-    address: settings.contracts.pntOnPolygon,
+    address: settings.contracts.pntOnEthereum,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, settings.contracts.borrowingManager]
+    args: [address, settings.contracts.pTokensVault],
+    chainId: mainnet.id
   })
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
   const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pntOnPolygon,
+    address: settings.contracts.pntOnEthereum,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [settings.contracts.borrowingManager, onChainAmount],
-    enabled: approveEnabled
+    args: [settings.contracts.pTokensVault, onChainAmount],
+    enabled: approveEnabled,
+    chainId: mainnet.id
   })
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
@@ -61,13 +73,36 @@ const useLend = () => {
     () => onChainAmount.gt(0) && approved && pntBalanceData && onChainAmount.lte(pntBalanceData.value) && epochs > 0,
     [onChainAmount, approved, pntBalanceData, epochs]
   )
+
+  const peginData = useMemo(
+    () =>
+      onChainAmount && duration && receiver
+        ? getForwarderLendUserData({
+            amount: onChainAmount,
+            duration: duration * SECONDS_IN_ONE_DAY,
+            pntOnPolygonAddress: settings.contracts.pntOnPolygon,
+            receiverAddress: receiver,
+            borrowingManagerAddress: settings.contracts.borrowingManager
+          })
+        : '0x',
+    [onChainAmount, duration, receiver]
+  )
+
   const { config: lendConfigs } = usePrepareContractWrite({
-    address: settings.contracts.borrowingManager,
-    abi: BorrowingManagerABI,
-    functionName: 'lend',
-    args: [onChainAmount, duration * SECONDS_IN_ONE_DAY, receiver],
-    enabled: lendEnabled
+    address: settings.contracts.pTokensVault,
+    abi: PTokensVaultABI,
+    functionName: 'pegIn',
+    args: [
+      onChainAmount,
+      settings.contracts.pntOnEthereum,
+      settings.contracts.forwarderOnPolygon,
+      peginData,
+      '0x0075dd4c'
+    ],
+    enabled: lendEnabled,
+    chainId: mainnet.id
   })
+
   const { write: lend, error: lendError, data: lendData } = useContractWrite(lendConfigs)
 
   const { isLoading: isApproving } = useWaitForTransaction({
@@ -104,7 +139,7 @@ const useLend = () => {
 
   return {
     amount,
-    approve,
+    approve: activeChainId !== mainnet.id && switchNetwork ? switchNetwork : approve,
     approved,
     approveData,
     approveEnabled,
@@ -113,7 +148,7 @@ const useLend = () => {
     epochs,
     isApproving,
     isLending,
-    lend,
+    lend: activeChainId !== mainnet.id && switchNetwork ? switchNetwork : lend,
     lendData,
     lendEnabled,
     lendError,
@@ -135,7 +170,8 @@ const useAccountLoanEndEpoch = () => {
     abi: BorrowingManagerABI,
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 23],
-    enabled: (currentEpoch || currentEpoch === 0) && address
+    enabled: (currentEpoch || currentEpoch === 0) && address,
+    chainId: polygon.id
   })
 
   const endEpoch = useMemo(
@@ -158,7 +194,8 @@ const useAccountLoanStartEpoch = () => {
     abi: BorrowingManagerABI,
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 23],
-    enabled: (currentEpoch || currentEpoch === 0) && address
+    enabled: (currentEpoch || currentEpoch === 0) && address,
+    chainId: polygon.id
   })
 
   const startEpoch = useMemo(() => {
@@ -189,7 +226,8 @@ const useTotalLendedAmountByEpoch = (_epoch) => {
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
     functionName: 'totalLendedAmountByEpoch',
-    args: [_epoch]
+    args: [_epoch],
+    chainId: polygon.id
   })
 
   const amount = useMemo(() => (data ? BigNumber(data.toString()).dividedBy(10 ** 18) : BigNumber(null)), [data])
@@ -205,7 +243,8 @@ const useTotalBorrowedAmountByEpoch = (_epoch) => {
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
     functionName: 'totaBorrowedAmountByEpoch',
-    args: [_epoch]
+    args: [_epoch],
+    chainId: polygon.id
   })
 
   const amount = useMemo(() => (data ? BigNumber(data.toString()).dividedBy(10 ** 18) : BigNumber(null)), [data])
@@ -225,7 +264,8 @@ const useTotalLendedAmountByStartAndEndEpochs = () => {
     abi: BorrowingManagerABI,
     functionName: 'totalLendedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
-    enabled: startEpoch && endEpoch
+    enabled: startEpoch && endEpoch,
+    chainId: polygon.id
   })
 
   const lendedAmount = useMemo(() => {
@@ -254,7 +294,8 @@ const useUtilizationRatio = () => {
     abi: BorrowingManagerABI,
     functionName: 'utilizationRatioByEpochsRange',
     args: [currentEpoch, currentEpoch + 12],
-    enabled: currentEpoch || currentEpoch === 0
+    enabled: currentEpoch || currentEpoch === 0,
+    chainId: polygon.id
   })
 
   return data?.reduce((_acc, _amount, _index) => {
@@ -277,7 +318,8 @@ const useUtilizationRatioInTheCurrentEpoch = () => {
     abi: BorrowingManagerABI,
     functionName: 'utilizationRatioByEpoch',
     args: [currentEpoch],
-    enabled: currentEpoch || currentEpoch === 0
+    enabled: currentEpoch || currentEpoch === 0,
+    chainId: polygon.id
   })
 
   const ratio = BigNumber(data?.toString()).dividedBy(10 ** 16)
@@ -298,7 +340,8 @@ const useAccountUtilizationRatio = () => {
     abi: BorrowingManagerABI,
     functionName: 'utilizationRatioOf',
     args: [address, startEpoch, endEpoch],
-    enabled: startEpoch && endEpoch && address
+    enabled: startEpoch && endEpoch && address,
+    chainId: polygon.id
   })
 
   return data?.reduce((_acc, _amount, _index) => {
@@ -484,14 +527,16 @@ const useEstimateApy = () => {
         abi: BorrowingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
-        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        chainId: polygon.id
       },
       {
         address: settings.contracts.borrowingManager,
         abi: BorrowingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
-        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        chainId: polygon.id
       }
     ]
   })
@@ -525,7 +570,7 @@ const useEstimateApy = () => {
 
   const { apy, userWeightPercentages } = useMemo(() => {
     if (BigNumber(amount).isEqualTo(0)) return { apy: BigNumber(), userWeightPercentages: [] }
-    if (endEpoch - startEpoch <= 0) return { apy: BigNumber(0), userWeightPercentages: [] }
+    if (endEpoch - startEpoch < 0) return { apy: BigNumber(0), userWeightPercentages: [] }
 
     const userWeightPercentages = []
     let totalUserRevenues = new BigNumber(0)
@@ -597,21 +642,24 @@ const useApy = () => {
         abi: StakingManagerABI,
         functionName: 'stakeOf',
         args: [address],
-        enabled: address
+        enabled: address,
+        chainId: polygon.id
       },
       {
         address: settings.contracts.borrowingManager,
         abi: BorrowingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
-        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        chainId: polygon.id
       },
       {
         address: settings.contracts.borrowingManager,
         abi: BorrowingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
-        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        chainId: polygon.id
       }
     ]
   })

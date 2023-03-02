@@ -13,6 +13,7 @@ import {
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import moment from 'moment'
+import { mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import DandelionVotingABI from '../utils/abis/DandelionVoting'
@@ -35,8 +36,8 @@ const useFetchProposals = ({ setProposals }) => {
   const [newExecutionBlockNumberTimestamps, setNewExecutionBlockNumberTimestamps] = useState([])
   const [oldVotesActions, setOldVoteActions] = useState({})
   const [newVotesActions, setNewVoteActions] = useState({})
-  const mainnetProvider = useProvider({ chainId: 1 })
-  const polygonProvider = useProvider({ chainId: 137 })
+  const mainnetProvider = useProvider({ chainId: mainnet.id })
+  const polygonProvider = useProvider({ chainId: polygon.id })
   const fetched = useRef(false)
 
   const { data: daoPntTotalSupply } = useContractRead({
@@ -106,7 +107,7 @@ const useFetchProposals = ({ setProposals }) => {
       abi: DandelionVotingABI,
       functionName: 'getVote',
       args: [id],
-      chainId: 1
+      chainId: mainnet.id
     }))
   })
 
@@ -116,7 +117,7 @@ const useFetchProposals = ({ setProposals }) => {
       abi: DandelionVotingABI,
       functionName: 'getVote',
       args: [id],
-      chainId: 137
+      chainId: polygon.id
     }))
   })
 
@@ -319,7 +320,7 @@ const useProposals = () => {
       abi: DandelionVotingABI,
       functionName: 'getVoterState',
       args: [id, address],
-      chainId: 1
+      chainId: mainnet.id
     }))
   })
 
@@ -329,7 +330,7 @@ const useProposals = () => {
       abi: DandelionVotingABI,
       functionName: 'getVoterState',
       args: [id, address],
-      chainId: 1
+      chainId: mainnet.id
     }))
   })
 
@@ -393,14 +394,14 @@ const useCreateProposal = () => {
         abi: ACLAbi,
         functionName: 'hasPermission',
         args: [address, settings.contracts.dandelionVoting, getRole('CREATE_VOTES_ROLE'), '0x'],
-        chainId: 137
+        chainId: polygon.id
       },
       {
         address: settings.contracts.dandelionVoting,
         abi: DandelionVotingABI,
         functionName: 'minOpenVoteAmount',
         args: [],
-        chainId: 137
+        chainId: polygon.id
       }
     ]
   })

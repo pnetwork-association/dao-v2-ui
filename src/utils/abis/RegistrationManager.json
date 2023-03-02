@@ -1,6 +1,11 @@
 [
   {
     "inputs": [],
+    "name": "InvalidAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidRegistration",
     "type": "error"
   },
@@ -173,6 +178,12 @@
         "internalType": "bytes1",
         "name": "kind",
         "type": "bytes1"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
     "name": "SentinelRegistrationUpdated",
@@ -686,13 +697,18 @@
       },
       {
         "internalType": "uint64",
-        "name": "lockTime",
+        "name": "duration",
         "type": "uint64"
       },
       {
         "internalType": "bytes",
         "name": "signature",
         "type": "bytes"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "updateSentinelRegistrationByStaking",

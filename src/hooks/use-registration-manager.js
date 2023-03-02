@@ -5,15 +5,19 @@ import {
   erc20ABI,
   useAccount,
   useBalance,
+  useChainId,
   useContractRead,
   useContractReads,
   useContractWrite,
   usePrepareContractWrite,
+  useSwitchNetwork,
   useWaitForTransaction
 } from 'wagmi'
+import { mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
+import PTokensVaultABI from '../utils/abis/PTokensVault.json'
 import RegistrationManagerABI from '../utils/abis/RegistrationManager.json'
 import { slicer } from '../utils/address'
 import { isValidHexString } from '../utils/format'
@@ -21,6 +25,7 @@ import { getNickname } from '../utils/nicknames'
 import { range, SECONDS_IN_ONE_HOUR } from '../utils/time'
 import { useEpochs } from './use-epochs'
 import { useFeesDistributionByMonthlyRevenues } from './use-fees-manager'
+import { getForwarderUpdateSentinelRegistrationByStakingUserData } from '../utils/forwarder'
 
 const kind = {
   1: 'Staking',
@@ -34,10 +39,19 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   const [epochs, setEpochs] = useState(0)
   const { address } = useAccount()
   const { currentEpochEndsIn, epochDuration } = useEpochs()
+  const activeChainId = useChainId()
+
+  const mainnetNetwork = useSwitchNetwork({
+    chainId: mainnet.id
+  })
+  const polygonNetwork = useSwitchNetwork({
+    chainId: polygon.id
+  })
 
   const { data: pntBalanceData } = useBalance({
     token: settings.contracts.pntOnPolygon,
-    address
+    address,
+    chainId: polygon.id
   })
 
   const onChainAmount = useMemo(
@@ -49,19 +63,22 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     address: settings.contracts.pntOnPolygon,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, settings.contracts.registrationManager]
+    args: [address, settings.contracts.registrationManager],
+    chainId: polygon.id
   })
 
   const approveEnabled = useMemo(
     () => onChainAmount.gt(0) && !approved && type === 'stake',
     [onChainAmount, approved, type]
   )
+
   const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pntOnPolygon,
+    address: settings.contracts.pntOnEthereum,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [settings.contracts.registrationManager, onChainAmount],
-    enabled: approveEnabled
+    args: [settings.contracts.pTokensVault, onChainAmount],
+    enabled: approveEnabled,
+    chainId: mainnet.id
   })
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
@@ -87,12 +104,34 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     [onChainAmount, approved, lockTime, pntBalanceData, isSignatureValid, type]
   )
 
+  const peginData = useMemo(
+    () =>
+      onChainAmount && lockTime && address && isSignatureValid
+        ? getForwarderUpdateSentinelRegistrationByStakingUserData({
+            amount: onChainAmount,
+            duration: lockTime,
+            pntOnPolygonAddress: settings.contracts.pntOnPolygon,
+            ownerAddress: address,
+            registrationManagerAddress: settings.contracts.registrationManager,
+            signature
+          })
+        : '0x',
+    [onChainAmount, lockTime, address, signature, isSignatureValid]
+  )
+
   const { config: updateSentinelRegistrationByStakingConfigs } = usePrepareContractWrite({
-    address: settings.contracts.registrationManager,
-    abi: RegistrationManagerABI,
-    functionName: 'updateSentinelRegistrationByStaking',
-    args: [onChainAmount, lockTime, isSignatureValid ? signature : '0x'],
-    enabled: updateSentinelRegistrationByStakingEnabled
+    address: settings.contracts.pTokensVault,
+    abi: PTokensVaultABI,
+    functionName: 'pegIn',
+    args: [
+      onChainAmount,
+      settings.contracts.pntOnEthereum,
+      settings.contracts.forwarderOnPolygon,
+      peginData,
+      '0x0075dd4c'
+    ],
+    enabled: updateSentinelRegistrationByStakingEnabled,
+    chainId: mainnet.id
   })
 
   const {
@@ -118,7 +157,8 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     abi: RegistrationManagerABI,
     functionName: 'updateSentinelRegistrationByBorrowing',
     args: [epochs, isSignatureValid ? signature : '0x'],
-    enabled: updateSentinelRegistrationByBorrowingEnabled
+    enabled: updateSentinelRegistrationByBorrowingEnabled,
+    chainId: polygon.id
   })
   const {
     write: updateSentinelRegistrationByBorrowing,
@@ -160,7 +200,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
 
   return {
     amount,
-    approve,
+    approve: activeChainId !== mainnet.id && mainnetNetwork.switchNetwork ? mainnetNetwork.switchNetwork : approve,
     approved,
     approveData,
     approveEnabled,
@@ -175,11 +215,17 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     setEpochs,
     setSignature,
     signature,
-    updateSentinelRegistrationByBorrowing,
+    updateSentinelRegistrationByBorrowing:
+      activeChainId !== polygon.id && polygonNetwork.switchNetwork
+        ? polygonNetwork.switchNetwork
+        : updateSentinelRegistrationByBorrowing,
     updateSentinelRegistrationByBorrowingData,
     updateSentinelRegistrationByBorrowingEnabled,
     updateSentinelRegistrationByBorrowingError,
-    updateSentinelRegistrationByStaking,
+    updateSentinelRegistrationByStaking:
+      activeChainId !== mainnet.id && mainnetNetwork.switchNetwork
+        ? mainnetNetwork.switchNetwork
+        : updateSentinelRegistrationByStaking,
     updateSentinelRegistrationByStakingData,
     updateSentinelRegistrationByStakingEnabled,
     updateSentinelRegistrationByStakingError
@@ -195,7 +241,8 @@ const useSentinel = () => {
     functionName: 'sentinelOf',
     args: [address],
     enabled: address,
-    watch: true
+    watch: true,
+    chainId: polygon.id
   })
 
   const sentinelAddress =
@@ -208,7 +255,8 @@ const useSentinel = () => {
     abi: RegistrationManagerABI,
     functionName: 'sentinelRegistration',
     args: [sentinelAddress],
-    enabled: sentinelAddress
+    enabled: sentinelAddress,
+    chainId: polygon.id
   })
 
   return {
@@ -240,7 +288,8 @@ const useBorrowingSentinelProspectus = () => {
         abi: BorrowingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [_startEpoch, _endEpoch],
-        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        chainId: polygon.id
       }
     ]
   })

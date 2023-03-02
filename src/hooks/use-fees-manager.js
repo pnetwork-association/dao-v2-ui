@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
 import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
-import { useContractWrite, useContractRead, useContractReads } from 'wagmi'
+import { useContractWrite, useContractRead, useContractReads, useSwitchNetwork, useChainId } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 import { groupBy } from 'lodash'
 
 import settings from '../settings'
@@ -24,21 +25,24 @@ const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
         abi: BorrowingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [startEpoch, endEpoch],
-        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0)
+        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
+        chainId: polygon.id
       },
       {
         address: settings.contracts.registrationManager,
         abi: RegistrationManagerABI,
         functionName: 'totalSentinelStakedAmountByEpochsRange',
         args: [startEpoch, endEpoch],
-        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0)
+        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
+        chainId: polygon.id
       },
       {
         address: settings.contracts.feesManager,
         abi: FeesManagerABI,
         functionName: 'kByEpochsRange',
         args: [startEpoch, endEpoch],
-        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0)
+        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
+        chainId: polygon.id
       }
     ]
   })
@@ -104,7 +108,8 @@ const useClaimableFeesAssetsByEpochs = (_opts = {}) => {
     functionName: 'claimableFeesByEpochsRangeOf',
     args: [sentinelAddress, assets.map(({ address }) => address), 0, currentEpoch],
     enabled,
-    watch: true
+    watch: true,
+    chainId: polygon.id
   })
 
   return useMemo(() => {
@@ -188,11 +193,14 @@ const useClaimableFeesAssetsByAssets = (_opts) => {
 }
 
 const useClaimFeeByEpoch = () => {
+  const { switchNetwork } = useSwitchNetwork({ chainId: polygon.id })
+  const activeChainId = useChainId()
   const { error, data, writeAsync } = useContractWrite({
     address: settings.contracts.feesManager,
     abi: FeesManagerABI,
     functionName: 'claimFeeByEpoch',
-    mode: 'recklesslyUnprepared'
+    mode: 'recklesslyUnprepared',
+    chainId: polygon.id
   })
 
   const onClaim = useCallback(
@@ -204,7 +212,7 @@ const useClaimFeeByEpoch = () => {
   )
 
   return {
-    claim: onClaim,
+    claim: activeChainId !== polygon.id && switchNetwork ? switchNetwork : onClaim,
     error,
     data
   }
@@ -212,11 +220,14 @@ const useClaimFeeByEpoch = () => {
 
 const useClaimFeeByEpochsRange = () => {
   const { currentEpoch } = useEpochs()
+  const { switchNetwork } = useSwitchNetwork({ chainId: polygon.id })
+  const activeChainId = useChainId()
   const { error, data, writeAsync } = useContractWrite({
     address: settings.contracts.feesManager,
     abi: FeesManagerABI,
     functionName: 'claimFeeByEpochsRange',
-    mode: 'recklesslyUnprepared'
+    mode: 'recklesslyUnprepared',
+    chainId: polygon.id
   })
 
   // TODO: choose better startEpoch and endEpoch
@@ -230,7 +241,7 @@ const useClaimFeeByEpochsRange = () => {
   )
 
   return {
-    claim: onClaim,
+    claim: activeChainId !== polygon.id && switchNetwork ? switchNetwork : onClaim,
     error,
     data
   }
@@ -313,7 +324,8 @@ const useBorrowingSentinelEstimatedRevenues = () => {
     functionName: 'totalBorrowedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
     enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-    cacheTime: 1000 * 60 * 2
+    cacheTime: 1000 * 60 * 2,
+    chainId: polygon.id
   })
 
   const borrowedAmount = settings.registrationManager.borrowAmount

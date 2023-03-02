@@ -3,6 +3,7 @@ import axios from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
 import { useContractReads, erc20ABI } from 'wagmi'
+import { mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
@@ -17,18 +18,18 @@ const useStats = () => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.pntOnPolygon,
+        address: settings.contracts.pntOnEthereum,
         abi: erc20ABI,
         functionName: 'totalSupply',
         args: [],
-        chainId: 137
+        chainId: mainnet.id
       },
       {
         address: settings.contracts.daoPnt,
         abi: erc20ABI,
         functionName: 'totalSupply',
         args: [],
-        chainId: 137
+        chainId: polygon.id
       }
     ]
   })
