@@ -91,6 +91,7 @@ const ChainModal = ({ show, onClose }) => {
 
             return (
               <NetworkRow
+                key={_chain.id}
                 className="mt-1"
                 onClick={
                   isCurrentChain
