@@ -3,12 +3,14 @@ import React, { Fragment, useState } from 'react'
 import { Container, Nav, Navbar } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
+import { bsc } from 'wagmi/chains'
 
 import { useNickname } from '../../../hooks/use-nickname'
 
 import Avatar from '../../base/Avatar'
 import Button from '../../base/Button'
 import AccountModal from '../AccountModal'
+import ChainModal from '../ChainModal'
 
 const Logo = styled.img`
   width: 40px;
@@ -55,6 +57,12 @@ const HeaderContainer = styled(Container)`
 const ConnectedButton = styled(Button)`
   color: ${({ theme }) => theme.text4};
   height: 40px;
+  width: auto;
+`
+
+const SelectChainButton = styled(ConnectedButton)`
+  display: flex;
+  align-items: space-between;
 `
 
 const StyledAvatar = styled(Avatar)`
@@ -91,14 +99,30 @@ const StyledNavbar = styled(Navbar)`
   padding: 0;
 `
 
+const ChainName = styled.span`
+  margin-left: 10px;
+`
+
+const ChainImg = styled.img`
+  border-radius: 50px;
+  height: 24px;
+  width: 24px;
+`
+
+const ConnectButtonButtonsContainer = styled.div`
+  display: flex;
+  gap: 12px;
+`
+
 const CustomConnectButton = () => {
   const [showAccountModal, setShowAccountModal] = useState(false)
+  const [showChainModal, setShowChainModal] = useState(false)
   const nickname = useNickname()
 
   return (
     <Fragment>
       <ConnectButton.Custom>
-        {({ account, chain, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+        {({ account, chain, openConnectModal, authenticationStatus, mounted }) => {
           const ready = mounted && authenticationStatus !== 'loading'
           const connected =
             ready && account && chain && (!authenticationStatus || authenticationStatus === 'authenticated')
@@ -112,42 +136,31 @@ const CustomConnectButton = () => {
 
                 if (chain.unsupported) {
                   return (
-                    <Button onClick={openChainModal} type="button">
+                    <Button onClick={() => setShowChainModal(true)} type="button">
                       Wrong network
                     </Button>
                   )
                 }
 
                 return (
-                  <div>
-                    {/*<button
-      onClick={openChainModal}
-      style={{ display: 'flex', alignItems: 'center' }}
-      type="button"
-    >
-      {chain.hasIcon && (
-        <div
-          style={{
-            background: chain.iconBackground,
-            width: 12,
-            height: 12,
-            borderRadius: 999,
-            overflow: 'hidden',
-            marginRight: 4,
-          }}
-        >
-          {chain.iconUrl && (
-            <img
-              alt={chain.name ?? 'Chain icon'}
-              src={chain.iconUrl}
-              style={{ width: 12, height: 12 }}
-            />
-          )}
-        </div>
-      )}
-      {chain.name}
-          </button>*/}
-
+                  <ConnectButtonButtonsContainer>
+                    {
+                      <SelectChainButton
+                        onClick={() => setShowChainModal(true)}
+                        style={{ display: 'flex', alignItems: 'center' }}
+                        type="button"
+                      >
+                        {(chain.hasIcon || chain.id === bsc.id) && (
+                          <div>
+                            {chain.id === bsc.id && (
+                              <ChainImg alt={chain.name ?? 'Chain icon'} src={'./assets/svg/bsc.svg'} />
+                            )}
+                            {chain.iconUrl && <ChainImg alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} />}
+                          </div>
+                        )}
+                        <ChainName>{chain.name}</ChainName>
+                      </SelectChainButton>
+                    }
                     <ConnectedButton onClick={() => setShowAccountModal(true)}>
                       {/*account.displayBalance
         ? ` (${account.displayBalance})`
@@ -155,7 +168,7 @@ const CustomConnectButton = () => {
                       <StyledAvatar size={6} address={account.address} />
                       {nickname}
                     </ConnectedButton>
-                  </div>
+                  </ConnectButtonButtonsContainer>
                 )
               })()}
             </div>
@@ -163,6 +176,7 @@ const CustomConnectButton = () => {
         }}
       </ConnectButton.Custom>
       <AccountModal show={showAccountModal} onClose={() => setShowAccountModal(false)} />
+      <ChainModal show={showChainModal} onClose={() => setShowChainModal(false)} />
     </Fragment>
   )
 }
