@@ -1,7 +1,6 @@
+import { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import Dropdown from 'react-bootstrap/Dropdown'
-
-import { useCallback, useMemo, useState } from 'react'
 
 const StyledDropdownToogle = styled(Dropdown.Toggle)`
   border: 1px solid ${({ theme }) => theme.superLightGray};
@@ -58,6 +57,23 @@ const StyledDropdown = styled(Dropdown)`
 
 const StyledDropdownMenu = styled(Dropdown.Menu)`
   width: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+`
+
+const StyledDropdownItem = styled(Dropdown.Item)`
+  &:hover {
+    background: ${({ theme }) => theme.superLightGray};
+  }
+
+  border-top-left-radius: ${({ first }) => (first === 'true' ? 10 : 0)}px;
+  border-top-right-radius: ${({ first }) => (first === 'true' ? 10 : 0)}px;
+  border-bottom-left-radius: ${({ last }) => (last === 'true' ? 10 : 0)}px;
+  border-bottom-right-radius: ${({ last }) => (last === 'true' ? 10 : 0)}px;
+
+  &:focus {
+    background: ${({ theme }) => theme.bg3};
+  }
 `
 
 const Select = ({ options, onSelect: _onSelect, ..._props }) => {
@@ -74,11 +90,16 @@ const Select = ({ options, onSelect: _onSelect, ..._props }) => {
   const filteredOptions = useMemo(
     () =>
       options
-        .filter(({ option }) => option !== selected)
+        .filter(({ option }, _index) => option !== selected)
         .map(({ component, option }, _index) => (
-          <Dropdown.Item key={`select${_index}`} onClick={() => onSelect(option)}>
+          <StyledDropdownItem
+            key={`select${_index}`}
+            first={_index === 0 ? 'true' : 'false'}
+            last={_index === options.length - 2 ? 'true' : 'false'}
+            onClick={() => onSelect(option)}
+          >
             {component}
-          </Dropdown.Item>
+          </StyledDropdownItem>
         )),
     [options, selected, onSelect]
   )
