@@ -40,7 +40,7 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address }) => 
   }
 }
 
-const prepareContractWriteApproveLend = ({ activeChainId, amount, approveEnabled }) => {
+const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       return {
@@ -48,7 +48,7 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, approveEnabled
         abi: erc20ABI,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
-        enabled: approveEnabled,
+        enabled,
         chainId: mainnet.id
       }
     }
@@ -58,7 +58,7 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, approveEnabled
         abi: erc20ABI,
         functionName: 'approve',
         args: [settings.contracts.borrowingManager, amount],
-        enabled: approveEnabled,
+        enabled,
         chainId: polygon.id
       }
     }
@@ -68,7 +68,7 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, approveEnabled
         abi: erc20ABI,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
-        enabled: approveEnabled,
+        enabled,
         chainId: bsc.id
       }
     }
@@ -77,7 +77,7 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, approveEnabled
   }
 }
 
-const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, lendEnabled }) => {
+const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, enabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
@@ -93,7 +93,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, l
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
-        enabled: lendEnabled,
+        enabled,
         chainId: mainnet.id
       }
     }
@@ -112,7 +112,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, l
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
-        enabled: lendEnabled,
+        enabled,
         chainId: bsc.id
       }
     }
@@ -122,7 +122,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, l
         abi: StakingManagerABI,
         functionName: 'lend',
         args: [receiver, amount, duration],
-        enabled: lendEnabled,
+        enabled,
         chainId: polygon.id
       }
     }

@@ -24,7 +24,7 @@ const settings = {
     feesManager: '0x0eCa09676953Bea0411c6fc341488fF6f155cDB4',
     forwarderOnPolygon: '0x76D079b79e20989C0dD022ABcf5fF7D76DD3964f',
     forwarderOnMainnet: '0x0e9A8c66f744fE88bf37D0b6E32f55e16BA4974E',
-    forwarderOnBsc: '0xa7E602263Ec342A193D1E6cCb6C5BcF9316BB55c'
+    forwarderOnBsc: '0x1DAa27FbB620b985ef495d28c1fD8c17Ba83D122'
   },
   stakingManager: {
     minStakeDays: 7,

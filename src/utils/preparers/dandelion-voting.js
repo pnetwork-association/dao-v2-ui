@@ -5,7 +5,7 @@ import DandelionVotingABI from '../../utils/abis/DandelionVoting.json'
 import ForwarderABI from '../abis/Forwarder.json'
 import { getForwarderVoteUserData } from '../forwarder'
 
-const prepareContractWriteVote = ({ activeChainId, address, id, vote, voteEnabled }) => {
+const prepareContractWriteVote = ({ activeChainId, address, id, vote, enabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       const userData = address
@@ -21,7 +21,7 @@ const prepareContractWriteVote = ({ activeChainId, address, id, vote, voteEnable
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
-        enabled: voteEnabled,
+        enabled,
         chainId: mainnet.id
       }
     }
@@ -39,7 +39,7 @@ const prepareContractWriteVote = ({ activeChainId, address, id, vote, voteEnable
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
-        enabled: voteEnabled,
+        enabled,
         chainId: bsc.id
       }
     }
@@ -49,7 +49,7 @@ const prepareContractWriteVote = ({ activeChainId, address, id, vote, voteEnable
         abi: DandelionVotingABI,
         functionName: 'vote',
         args: [id, vote],
-        enabled: voteEnabled
+        enabled
       }
     }
     default:

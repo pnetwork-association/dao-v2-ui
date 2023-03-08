@@ -87,9 +87,29 @@ const getForwarderVoteUserData = ({ voterAddress, id, vote }) => {
   )
 }
 
+const getForwarderUpdateSentinelRegistrationByBorrowingUserData = ({ ownerAddress, numberOfEpochs, signature }) => {
+  const registrationManagerInterface = new ethers.utils.Interface([
+    'function updateSentinelRegistrationByBorrowing(address receiver, uint16 numberOfEpochs, bytes signature)'
+  ])
+  return encode(
+    ['address[]', 'bytes[]'],
+    [
+      [settings.contracts.registrationManager],
+      [
+        registrationManagerInterface.encodeFunctionData('updateSentinelRegistrationByBorrowing', [
+          ownerAddress,
+          numberOfEpochs,
+          signature
+        ])
+      ]
+    ]
+  )
+}
+
 export {
   getForwarderLendUserData,
   getForwarderStakeUserData,
+  getForwarderUpdateSentinelRegistrationByBorrowingUserData,
   getForwarderUpdateSentinelRegistrationByStakingUserData,
   getForwarderVoteUserData
 }

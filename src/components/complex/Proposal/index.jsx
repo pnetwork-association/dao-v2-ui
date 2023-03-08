@@ -185,12 +185,12 @@ const Proposal = ({
   )
 
   const { config: configYes } = usePrepareContractWrite(
-    prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: true, voteEnabled: canVote })
+    prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: true, enabled: canVote })
   )
   const { data: yesData, /*isLoading: isLoadingYes,*/ write: yes, error: yesError } = useContractWrite(configYes)
 
   const { config: configNo } = usePrepareContractWrite(
-    prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: false, voteEnabled: canVote })
+    prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: false, enabled: canVote })
   )
   const { data: noData, /*isLoading: isLoadingNo,*/ write: no, error: noError } = useContractWrite(configNo)
 

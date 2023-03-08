@@ -40,7 +40,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
   }
 }
 
-const prepareContractWriteApproveStake = ({ activeChainId, amount, approveEnabled }) => {
+const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       return {
@@ -48,7 +48,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, approveEnable
         abi: erc20ABI,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
-        enabled: approveEnabled,
+        enabled,
         chainId: mainnet.id
       }
     }
@@ -58,7 +58,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, approveEnable
         abi: erc20ABI,
         functionName: 'approve',
         args: [settings.contracts.stakingManager, amount],
-        enabled: approveEnabled,
+        enabled,
         chainId: polygon.id
       }
     }
@@ -68,7 +68,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, approveEnable
         abi: erc20ABI,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
-        enabled: approveEnabled,
+        enabled,
         chainId: bsc.id
       }
     }
@@ -77,7 +77,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, approveEnable
   }
 }
 
-const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, stakeEnabled }) => {
+const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, enabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
@@ -94,7 +94,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
-        enabled: stakeEnabled,
+        enabled,
         chainId: mainnet.id
       }
     }
@@ -113,7 +113,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
-        enabled: stakeEnabled,
+        enabled,
         chainId: bsc.id
       }
     }
@@ -123,7 +123,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         abi: StakingManagerABI,
         functionName: 'stake',
         args: [receiver, amount, duration],
-        enabled: stakeEnabled,
+        enabled,
         chainId: polygon.id
       }
     }

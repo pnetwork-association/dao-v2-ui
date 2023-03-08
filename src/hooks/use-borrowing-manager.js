@@ -52,7 +52,7 @@ const useLend = () => {
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
   const { config: approveConfigs } = usePrepareContractWrite(
-    prepareContractWriteApproveLend({ activeChainId, amount: onChainAmount, approveEnabled })
+    prepareContractWriteApproveLend({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
   )
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
@@ -67,7 +67,7 @@ const useLend = () => {
       amount: onChainAmount,
       duration: duration * SECONDS_IN_ONE_DAY,
       receiver,
-      lendEnabled
+      enabled: lendEnabled
     })
   )
 

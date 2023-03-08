@@ -48,7 +48,7 @@ const useStake = () => {
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
   const { config: approveConfigs } = usePrepareContractWrite(
-    prepareContractWriteApproveStake({ activeChainId, amount: onChainAmount, approveEnabled })
+    prepareContractWriteApproveStake({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
   )
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
@@ -67,7 +67,7 @@ const useStake = () => {
       amount: onChainAmount,
       duration: duration * SECONDS_IN_ONE_DAY,
       receiver,
-      stakeEnabled
+      enabled: stakeEnabled
     })
   )
   const { write: stake, error: stakeError, data: stakeData } = useContractWrite(stakeConfigs)
