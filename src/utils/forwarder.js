@@ -1,6 +1,8 @@
 import { ethers } from 'ethers'
 import BigNumber from 'bignumber.js'
 
+import settings from '../settings'
+
 const encode = (...params) => new ethers.utils.AbiCoder().encode(...params)
 
 const subtractFee = (_amount) => {
@@ -8,13 +10,7 @@ const subtractFee = (_amount) => {
   return amountBn.minus(amountBn.multipliedBy(0.001)).toFixed()
 }
 
-const getForwarderLendUserData = ({
-  amount,
-  duration,
-  pntOnPolygonAddress,
-  receiverAddress,
-  borrowingManagerAddress
-}) => {
+const getForwarderLendUserData = ({ amount, duration, receiverAddress }) => {
   const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
   const stakingManagerInterface = new ethers.utils.Interface([
     'function lend(address receiver, uint256 amount, uint64 duration)'
@@ -24,22 +20,16 @@ const getForwarderLendUserData = ({
   return encode(
     ['address[]', 'bytes[]'],
     [
-      [pntOnPolygonAddress, borrowingManagerAddress],
+      [settings.contracts.pntOnPolygon, settings.contracts.borrowingManager],
       [
-        erc20Interface.encodeFunctionData('approve', [borrowingManagerAddress, amountWithoutFees]),
+        erc20Interface.encodeFunctionData('approve', [settings.contracts.borrowingManager, amountWithoutFees]),
         stakingManagerInterface.encodeFunctionData('lend', [receiverAddress, amountWithoutFees, duration])
       ]
     ]
   )
 }
 
-const getForwarderStakeUserData = ({
-  amount,
-  duration,
-  pntOnPolygonAddress,
-  receiverAddress,
-  stakingManagerAddress
-}) => {
+const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
   const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
   const stakingManagerInterface = new ethers.utils.Interface([
     'function stake(address receiver, uint256 amount, uint64 duration)'
@@ -50,23 +40,16 @@ const getForwarderStakeUserData = ({
   return encode(
     ['address[]', 'bytes[]'],
     [
-      [pntOnPolygonAddress, stakingManagerAddress],
+      [settings.contracts.pntOnPolygon, settings.contracts.stakingManager],
       [
-        erc20Interface.encodeFunctionData('approve', [stakingManagerAddress, amountWithoutFees]),
+        erc20Interface.encodeFunctionData('approve', [settings.contracts.stakingManager, amountWithoutFees]),
         stakingManagerInterface.encodeFunctionData('stake', [receiverAddress, amountWithoutFees, duration])
       ]
     ]
   )
 }
 
-const getForwarderUpdateSentinelRegistrationByStakingUserData = ({
-  amount,
-  duration,
-  pntOnPolygonAddress,
-  ownerAddress,
-  registrationManagerAddress,
-  signature
-}) => {
+const getForwarderUpdateSentinelRegistrationByStakingUserData = ({ amount, duration, ownerAddress, signature }) => {
   const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
   const registrationManagerInterface = new ethers.utils.Interface([
     'function updateSentinelRegistrationByStaking(address receiver, uint256 amount, uint64 duration, bytes signature)'
@@ -77,9 +60,9 @@ const getForwarderUpdateSentinelRegistrationByStakingUserData = ({
   return encode(
     ['address[]', 'bytes[]'],
     [
-      [pntOnPolygonAddress, registrationManagerAddress],
+      [settings.contracts.pntOnPolygon, settings.contracts.registrationManager],
       [
-        erc20Interface.encodeFunctionData('approve', [registrationManagerAddress, amountWithoutFees]),
+        erc20Interface.encodeFunctionData('approve', [settings.contracts.registrationManager, amountWithoutFees]),
         registrationManagerInterface.encodeFunctionData('updateSentinelRegistrationByStaking', [
           ownerAddress,
           amountWithoutFees,
@@ -91,4 +74,22 @@ const getForwarderUpdateSentinelRegistrationByStakingUserData = ({
   )
 }
 
-export { getForwarderLendUserData, getForwarderStakeUserData, getForwarderUpdateSentinelRegistrationByStakingUserData }
+const getForwarderVoteUserData = ({ voterAddress, id, vote }) => {
+  const dandelionVotingInterface = new ethers.utils.Interface([
+    'function delegateVote(address voter, uint256 _voteId, bool _supports)'
+  ])
+  return encode(
+    ['address[]', 'bytes[]'],
+    [
+      [settings.contracts.dandelionVoting],
+      [dandelionVotingInterface.encodeFunctionData('delegateVote', [voterAddress, id, vote])]
+    ]
+  )
+}
+
+export {
+  getForwarderLendUserData,
+  getForwarderStakeUserData,
+  getForwarderUpdateSentinelRegistrationByStakingUserData,
+  getForwarderVoteUserData
+}

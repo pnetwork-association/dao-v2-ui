@@ -2,17 +2,16 @@ import React, { Fragment, useCallback, useContext, useMemo, useState, useEffect 
 import { Row, Col } from 'react-bootstrap'
 import styled, { ThemeContext } from 'styled-components'
 import retry from 'async-retry'
-import { usePrepareContractWrite, useContractWrite } from 'wagmi'
+import { usePrepareContractWrite, useContractWrite, useChainId, useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
 import BigNumber from 'bignumber.js'
 import axios from 'axios'
 
 import { styleProposalHtml } from '../../../utils/proposals'
-import DandelionVotingABI from '../../../utils/abis/DandelionVoting'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useBalances } from '../../../hooks/use-balances'
-import settings from '../../../settings'
 import { isValidError } from '../../../utils/errors'
+import { prepareContractWriteVote } from '../../../utils/preparers/dandelion-voting'
 
 import Text from '../../base/Text'
 import Icon from '../../base/Icon'
@@ -136,6 +135,7 @@ const ScriptContainer = styled.div`
 const Proposal = ({
   actions,
   description,
+  effectiveId,
   formattedCloseDate,
   formattedPercentageNay,
   formattedPercentageYea,
@@ -153,6 +153,8 @@ const Proposal = ({
   const { daoPntBalance } = useBalances()
   const [readMoreContent, setReadMoreContent] = useState(null)
   const [showScript, setShowScript] = useState(null)
+  const activeChainId = useChainId()
+  const { address } = useAccount()
   const type = useMemo(() => (open ? 'open' : passed ? 'passed' : 'notPassed'), [open, passed])
 
   const typeText = useMemo(() => {
@@ -182,22 +184,14 @@ const Proposal = ({
     [open, daoPntBalance, vote]
   )
 
-  const { config: configYes } = usePrepareContractWrite({
-    address: settings.contracts.dandelionVoting,
-    abi: DandelionVotingABI,
-    functionName: 'vote',
-    args: [id, true],
-    enabled: canVote
-  })
+  const { config: configYes } = usePrepareContractWrite(
+    prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: true, voteEnabled: canVote })
+  )
   const { data: yesData, /*isLoading: isLoadingYes,*/ write: yes, error: yesError } = useContractWrite(configYes)
 
-  const { config: configNo } = usePrepareContractWrite({
-    address: settings.contracts.dandelionVoting,
-    abi: DandelionVotingABI,
-    functionName: 'vote',
-    args: [id, false],
-    enabled: canVote
-  })
+  const { config: configNo } = usePrepareContractWrite(
+    prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: false, voteEnabled: canVote })
+  )
   const { data: noData, /*isLoading: isLoadingNo,*/ write: no, error: noError } = useContractWrite(configNo)
 
   useEffect(() => {
@@ -214,15 +208,15 @@ const Proposal = ({
 
   useEffect(() => {
     if (yesData) {
-      toastifyTransaction(yesData)
+      toastifyTransaction(yesData, { chainId: activeChainId })
     }
-  }, [yesData])
+  }, [yesData, activeChainId])
 
   useEffect(() => {
     if (noData) {
-      toastifyTransaction(noData)
+      toastifyTransaction(noData, { chainId: activeChainId })
     }
-  }, [noData])
+  }, [noData, activeChainId])
 
   return (
     <ProposalContainer>
@@ -276,8 +270,15 @@ const Proposal = ({
           </Col>
         </Row>
         <Row className="mt-2">
-          <Col xs={6}>
-            {formattedVote !== '-' && <Text>Your vote: </Text>}
+          <Col xs={12} className="d-flex justify-content-between">
+            {formattedVote !== '-' && (
+              <Text>
+                Your vote:&nbsp;
+                {formattedVote === 'YES' && <StyledIcon icon="verified" />}
+                {formattedVote === 'NO' && <StyledIcon icon="block" />}
+                {formattedVote !== '-' && <VoteText vote={formattedVote}>{formattedVote}</VoteText>}
+              </Text>
+            )}
             {formattedVote === 'NOT VOTED' && open ? (
               <div className="d-flex align-items-center">
                 <VoteButton disabled={!canVote} vote={'YES'} onClick={() => yes?.()}>
@@ -289,13 +290,7 @@ const Proposal = ({
                   <VoteText vote={'NO'}>NO</VoteText>
                 </VoteButton>
               </div>
-            ) : (
-              <Fragment>
-                {formattedVote === 'YES' && <StyledIcon icon="verified" />}
-                {formattedVote === 'NO' && <StyledIcon icon="block" />}
-                {formattedVote !== '-' && <VoteText vote={formattedVote}>{formattedVote}</VoteText>}
-              </Fragment>
-            )}
+            ) : null}
           </Col>
         </Row>
         {actions?.length > 0 && (

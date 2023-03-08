@@ -85,9 +85,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, l
           ? getForwarderLendUserData({
               amount,
               duration,
-              pntOnPolygonAddress: settings.contracts.pntOnPolygon,
-              receiverAddress: receiver,
-              borrowingManagerAddress: settings.contracts.borrowingManager
+              receiverAddress: receiver
             })
           : '0x'
       return {
@@ -105,9 +103,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, l
           ? getForwarderLendUserData({
               amount,
               duration,
-              pntOnPolygonAddress: settings.contracts.pntOnPolygon,
-              receiverAddress: receiver,
-              borrowingManagerAddress: settings.contracts.borrowingManager
+              receiverAddress: receiver
             })
           : '0x'
 

@@ -85,9 +85,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
           ? getForwarderStakeUserData({
               amount,
               duration,
-              pntOnPolygonAddress: settings.contracts.pntOnPolygon,
-              receiverAddress: receiver,
-              stakingManagerAddress: settings.contracts.stakingManager
+              receiverAddress: receiver
             })
           : '0x'
 
@@ -106,9 +104,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
           ? getForwarderStakeUserData({
               amount,
               duration,
-              pntOnPolygonAddress: settings.contracts.pntOnPolygon,
-              receiverAddress: receiver,
-              stakingManagerAddress: settings.contracts.stakingManager
+              receiverAddress: receiver
             })
           : '0x'
 

@@ -28,6 +28,8 @@ import { isValidHexString } from '../utils/format'
 
 import { ProposalsContext } from '../components/context/Proposals'
 
+const now = moment().unix()
+
 // hook used only by ProposalsProvider in order to store immediately the votes
 const useFetchProposals = ({ setProposals }) => {
   const [etherscanProposals, setEtherscanProposals] = useState([])
@@ -47,7 +49,7 @@ const useFetchProposals = ({ setProposals }) => {
     args: []
   })
 
-  const { data: currentBlockNumber } = useBlockNumber()
+  const { data: currentBlockNumber } = useBlockNumber({ chainId: polygon.id })
 
   useEffect(() => {
     const fetchProposals = async () => {
@@ -64,7 +66,7 @@ const useFetchProposals = ({ setProposals }) => {
             `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.dandelionVotingOld}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`
           ),
           axios.get(
-            `https://api.polygonscan.com/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=${process.env.REACT_APP_POLYGONSCAN_API_KEY}`
+            `https://api.polygonscan.com/api?module=logs&action=getLogs&fromBlock=40099754&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=${process.env.REACT_APP_POLYGONSCAN_API_KEY}`
           )
         ])
 
@@ -84,7 +86,7 @@ const useFetchProposals = ({ setProposals }) => {
           resultPolygonscan.map((_proposal, _id) => {
             const data = extrapolateProposalData(hexToAscii(_proposal.data))
             return {
-              id: _id + resultEtherscan.length + 1,
+              id: _id + 1,
               formattedOpenDate: moment.unix(_proposal.timeStamp).format('MMM DD YYYY - HH:mm:ss'),
               timestamp: _proposal.timeStamp,
               ...data
@@ -209,7 +211,14 @@ const useFetchProposals = ({ setProposals }) => {
   }, [])
 
   useEffect(() => {
-    const prepareVote = (_proposal, _voteData, _voteActions, _executionBlockNumberTimestamp, _chainId) => {
+    const prepareVote = (
+      _proposal,
+      _voteData,
+      _voteActions,
+      _executionBlockNumberTimestamp,
+      _chainId,
+      _idStart = 0
+    ) => {
       const { executed, executionBlock, open, script, snapshotBlock, startBlock } = _voteData
 
       const votingPower = BigNumber(_voteData.votingPower.toString()).dividedBy(10 ** 18)
@@ -226,19 +235,26 @@ const useFetchProposals = ({ setProposals }) => {
       const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
       const passed = percentageYea.isGreaterThan(51) && quorumReached
 
+      // No need to calculate the countdown on old votes on eth since are all closed and the new ones will be only on Polygon
       const countdown =
-        currentBlockNumber < executionBlock.toNumber() ? (executionBlock.toNumber() - currentBlockNumber) * 13 : -1
+        _chainId === mainnet.id
+          ? -1
+          : currentBlockNumber < executionBlock.toNumber()
+          ? (executionBlock.toNumber() - currentBlockNumber) * 2
+          : -1 // * 2 = polygon block time
 
       const formattedCloseDate =
         countdown > 0
-          ? `~${moment.unix(moment().unix() + countdown).format('MMM DD YYYY - HH:mm:ss')}`
+          ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
           : _executionBlockNumberTimestamp
           ? moment.unix(_executionBlockNumberTimestamp).format('MMM DD YYYY - HH:mm:ss')
           : null
 
       return {
+        ..._proposal,
         actions: _voteActions,
         chainId: _chainId,
+        effectiveId: _proposal.id,
         executed,
         executionBlock: executionBlock.toNumber(),
         formattedCloseDate,
@@ -249,19 +265,19 @@ const useFetchProposals = ({ setProposals }) => {
           decimals: 2
         }),
         formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
+        id: _proposal.id + _idStart,
         minAcceptQuorum: minAcceptQuorum.toFixed(),
         no: no.toFixed(),
         open,
         passed,
         quorum: quorum.toFixed(),
         quorumReached,
+        script,
         snapshotBlock: snapshotBlock.toNumber(),
         startBlock: startBlock.toNumber(),
-        script,
         votingPnt,
         votingPower: votingPower.toFixed(),
-        yes: yes.toFixed(),
-        ..._proposal
+        yes: yes.toFixed()
       }
     }
 
@@ -286,11 +302,11 @@ const useFetchProposals = ({ setProposals }) => {
               newVotesData[_index],
               newVotesActions && newVotesActions[_index + 1] ? newVotesActions[_index + 1] : [],
               newExecutionBlockNumberTimestamps[_index],
-              137
+              137,
+              etherscanProposals.length
             )
           )
         : []
-
     setProposals([...oldProposals, ...newProposals])
   }, [
     etherscanProposals,
@@ -315,22 +331,22 @@ const useProposals = () => {
   const newProposals = useMemo(() => proposals.filter(({ chainId }) => chainId === 137), [proposals])
 
   const { data: oldVoterStatesData } = useContractReads({
-    contracts: oldProposals.map(({ id }) => ({
+    contracts: oldProposals.map(({ effectiveId }) => ({
       address: settings.contracts.dandelionVotingOld,
       abi: DandelionVotingABI,
       functionName: 'getVoterState',
-      args: [id, address],
+      args: [effectiveId, address],
       chainId: mainnet.id
     }))
   })
 
   const { data: newVoterStatesData } = useContractReads({
-    contracts: newProposals.map(({ id }) => ({
-      address: settings.contracts.dandelionVotingOld,
+    contracts: newProposals.map(({ effectiveId }) => ({
+      address: settings.contracts.dandelionVoting,
       abi: DandelionVotingABI,
       functionName: 'getVoterState',
-      args: [id, address],
-      chainId: mainnet.id
+      args: [effectiveId, address],
+      chainId: polygon.id
     }))
   })
 
@@ -359,10 +375,10 @@ const useProposals = () => {
 
   const oldProposalsWithVote = useMemo(
     () =>
-      proposals.map((_proposal, _index) =>
+      oldProposals.map((_proposal, _index) =>
         prepareVote(_proposal, oldVoterStatesData ? oldVoterStatesData[_index] : null)
       ),
-    [proposals, oldVoterStatesData]
+    [oldProposals, oldVoterStatesData]
   )
 
   const newProposalsWithVote = useMemo(
