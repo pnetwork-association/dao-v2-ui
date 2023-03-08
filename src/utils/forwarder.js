@@ -17,9 +17,8 @@ const getForwarderLendUserData = ({
 }) => {
   const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
   const stakingManagerInterface = new ethers.utils.Interface([
-    'function lend(uint256 amount, uint64 duration, address receiver)'
+    'function lend(address receiver, uint256 amount, uint64 duration)'
   ])
-
   const amountWithoutFees = subtractFee(amount)
 
   return encode(
@@ -28,7 +27,7 @@ const getForwarderLendUserData = ({
       [pntOnPolygonAddress, borrowingManagerAddress],
       [
         erc20Interface.encodeFunctionData('approve', [borrowingManagerAddress, amountWithoutFees]),
-        stakingManagerInterface.encodeFunctionData('lend', [amountWithoutFees, duration, receiverAddress])
+        stakingManagerInterface.encodeFunctionData('lend', [receiverAddress, amountWithoutFees, duration])
       ]
     ]
   )
@@ -43,7 +42,7 @@ const getForwarderStakeUserData = ({
 }) => {
   const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
   const stakingManagerInterface = new ethers.utils.Interface([
-    'function stake(uint256 amount, uint64 duration, address receiver)'
+    'function stake(address receiver, uint256 amount, uint64 duration)'
   ])
 
   const amountWithoutFees = subtractFee(amount)
@@ -54,7 +53,7 @@ const getForwarderStakeUserData = ({
       [pntOnPolygonAddress, stakingManagerAddress],
       [
         erc20Interface.encodeFunctionData('approve', [stakingManagerAddress, amountWithoutFees]),
-        stakingManagerInterface.encodeFunctionData('stake', [amountWithoutFees, duration, receiverAddress])
+        stakingManagerInterface.encodeFunctionData('stake', [receiverAddress, amountWithoutFees, duration])
       ]
     ]
   )
@@ -69,8 +68,8 @@ const getForwarderUpdateSentinelRegistrationByStakingUserData = ({
   signature
 }) => {
   const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
-  const stakingManagerInterface = new ethers.utils.Interface([
-    'function updateSentinelRegistrationByStaking(uint256 amount, uint64 duration, bytes signature, address receiver)'
+  const registrationManagerInterface = new ethers.utils.Interface([
+    'function updateSentinelRegistrationByStaking(address receiver, uint256 amount, uint64 duration, bytes signature)'
   ])
 
   const amountWithoutFees = subtractFee(amount)
@@ -81,11 +80,11 @@ const getForwarderUpdateSentinelRegistrationByStakingUserData = ({
       [pntOnPolygonAddress, registrationManagerAddress],
       [
         erc20Interface.encodeFunctionData('approve', [registrationManagerAddress, amountWithoutFees]),
-        stakingManagerInterface.encodeFunctionData('updateSentinelRegistrationByStaking', [
+        registrationManagerInterface.encodeFunctionData('updateSentinelRegistrationByStaking', [
+          ownerAddress,
           amountWithoutFees,
           duration,
-          signature,
-          ownerAddress
+          signature
         ])
       ]
     ]

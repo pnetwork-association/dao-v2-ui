@@ -3,7 +3,6 @@ import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 import { useAccount, useChainId } from 'wagmi'
 import { toast } from 'react-toastify'
-import { mainnet, polygon } from 'wagmi/chains'
 
 import { useStake } from '../../../hooks/use-staking-manager'
 import { useBalances } from '../../../hooks/use-balances'
@@ -128,15 +127,14 @@ const StakeModal = ({ show, onClose }) => {
           <InputAmount onMax={onMax} value={amount} onChange={(_e) => setAmount(_e.target.value)} />
         </Col>
       </Row>
-      {(activeChainId === polygon.id || activeChainId === mainnet.id) && (
-        <Row className="mt-2">
-          <Col>
-            <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>
-              Approve
-            </Button>
-          </Col>
-        </Row>
-      )}
+
+      <Row className="mt-2">
+        <Col>
+          <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>
+            Approve
+          </Button>
+        </Col>
+      </Row>
       <Row className="mt-2">
         <Col>
           <Button disabled={!stakeEnabled} loading={isStaking} onClick={() => stake?.()}>

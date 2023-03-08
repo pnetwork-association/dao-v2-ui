@@ -5,6 +5,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "InvalidForwarder",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "InvalidRegistration",
     "type": "error"
@@ -50,6 +61,19 @@
       }
     ],
     "name": "BeaconUpgraded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
     "type": "event"
   },
   {
@@ -236,6 +260,19 @@
   },
   {
     "inputs": [],
+    "name": "SET_FORWARDER_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "borrowingManager",
     "outputs": [
       {
@@ -250,6 +287,19 @@
   {
     "inputs": [],
     "name": "epochsManager",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "forwarder",
     "outputs": [
       {
         "internalType": "address",
@@ -409,6 +459,11 @@
         "internalType": "address",
         "name": "_borrowingManager",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_forwarder",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -424,6 +479,19 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proxiableUUID",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -570,6 +638,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "forwarder_",
+        "type": "address"
+      }
+    ],
+    "name": "setForwarder",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "stakingManager",
     "outputs": [
@@ -673,6 +754,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
         "internalType": "uint16",
         "name": "numberOfEpochs",
         "type": "uint16"
@@ -691,6 +777,29 @@
   {
     "inputs": [
       {
+        "internalType": "uint16",
+        "name": "numberOfEpochs",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      }
+    ],
+    "name": "updateSentinelRegistrationByBorrowing",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -704,11 +813,6 @@
         "internalType": "bytes",
         "name": "signature",
         "type": "bytes"
-      },
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
       }
     ],
     "name": "updateSentinelRegistrationByStaking",

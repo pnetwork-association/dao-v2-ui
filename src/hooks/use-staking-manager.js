@@ -12,7 +12,7 @@ import {
   useSwitchNetwork,
   useWaitForTransaction
 } from 'wagmi'
-import { mainnet, polygon } from 'wagmi/chains'
+import { polygon } from 'wagmi/chains'
 import axios from 'axios'
 
 import settings from '../settings'
@@ -55,10 +55,10 @@ const useStake = () => {
   const stakeEnabled = useMemo(
     () =>
       onChainAmount.gt(0) &&
-      (approved || (activeChainId !== polygon.id && activeChainId !== mainnet.id)) &&
+      approved &&
       onChainAmount.lte(pntBalanceData.value) &&
       duration >= settings.stakingManager.minStakeDays,
-    [onChainAmount, approved, pntBalanceData, activeChainId, duration]
+    [onChainAmount, approved, pntBalanceData, duration]
   )
 
   const { config: stakeConfigs } = usePrepareContractWrite(
@@ -107,7 +107,7 @@ const useStake = () => {
   return {
     allowance,
     amount,
-    approve: approve,
+    approve,
     approved,
     approveData,
     approveEnabled,
@@ -120,7 +120,7 @@ const useStake = () => {
     setApproved,
     setDuration,
     setReceiver,
-    stake: stake,
+    stake,
     stakeData,
     stakeEnabled,
     stakeError

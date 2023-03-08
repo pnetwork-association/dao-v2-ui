@@ -4,9 +4,9 @@ import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
 import StakingManagerABI from '../abis/StakingManager.json'
-import { getForwarderStakeUserData } from '../forwarder'
+import { getForwarderLendUserData } from '../forwarder'
 
-const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) => {
+const prepareContractReadAllowanceApproveLend = ({ activeChainId, address }) => {
   switch (activeChainId) {
     case mainnet.id: {
       return {
@@ -22,7 +22,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
         address: settings.contracts.pntOnPolygon,
         abi: erc20ABI,
         functionName: 'allowance',
-        args: [address, settings.contracts.stakingManager],
+        args: [address, settings.contracts.borrowingManager],
         chainId: polygon.id
       }
     }
@@ -40,7 +40,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
   }
 }
 
-const prepareContractWriteApproveStake = ({ activeChainId, amount, approveEnabled }) => {
+const prepareContractWriteApproveLend = ({ activeChainId, amount, approveEnabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       return {
@@ -57,7 +57,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, approveEnable
         address: settings.contracts.pntOnPolygon,
         abi: erc20ABI,
         functionName: 'approve',
-        args: [settings.contracts.stakingManager, amount],
+        args: [settings.contracts.borrowingManager, amount],
         enabled: approveEnabled,
         chainId: polygon.id
       }
@@ -77,38 +77,37 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, approveEnable
   }
 }
 
-const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, stakeEnabled }) => {
+const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, lendEnabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
         amount && duration && receiver
-          ? getForwarderStakeUserData({
+          ? getForwarderLendUserData({
               amount,
               duration,
               pntOnPolygonAddress: settings.contracts.pntOnPolygon,
               receiverAddress: receiver,
-              stakingManagerAddress: settings.contracts.stakingManager
+              borrowingManagerAddress: settings.contracts.borrowingManager
             })
           : '0x'
-
       return {
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
-        enabled: stakeEnabled,
+        enabled: lendEnabled,
         chainId: mainnet.id
       }
     }
     case bsc.id: {
       const userData =
         amount && duration && receiver
-          ? getForwarderStakeUserData({
+          ? getForwarderLendUserData({
               amount,
               duration,
               pntOnPolygonAddress: settings.contracts.pntOnPolygon,
               receiverAddress: receiver,
-              stakingManagerAddress: settings.contracts.stakingManager
+              borrowingManagerAddress: settings.contracts.borrowingManager
             })
           : '0x'
 
@@ -117,17 +116,17 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
-        enabled: stakeEnabled,
+        enabled: lendEnabled,
         chainId: bsc.id
       }
     }
     case polygon.id: {
       return {
-        address: settings.contracts.stakingManager,
+        address: settings.contracts.borrowingManager,
         abi: StakingManagerABI,
-        functionName: 'stake',
+        functionName: 'lend',
         args: [receiver, amount, duration],
-        enabled: stakeEnabled,
+        enabled: lendEnabled,
         chainId: polygon.id
       }
     }
@@ -136,4 +135,4 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
   }
 }
 
-export { prepareContractReadAllowanceApproveStake, prepareContractWriteApproveStake, prepareContractWriteStake }
+export { prepareContractReadAllowanceApproveLend, prepareContractWriteApproveLend, prepareContractWriteLend }

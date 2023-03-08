@@ -3,7 +3,6 @@ import { ethers } from 'ethers'
 import { groupBy } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  erc20ABI,
   useAccount,
   useBalance,
   useChainId,
@@ -11,21 +10,23 @@ import {
   useContractReads,
   useContractWrite,
   usePrepareContractWrite,
-  useSwitchNetwork,
   useWaitForTransaction
 } from 'wagmi'
 import { mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
-import PTokensVaultABI from '../utils/abis/PTokensVault.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import { formatAssetAmount, formatCurrency } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
 import { useRates } from './use-crypto-compare'
 import { useEpochs } from './use-epochs'
 import { useFeesDistributionByMonthlyRevenues } from './use-fees-manager'
-import { getForwarderLendUserData } from '../utils/forwarder'
+import {
+  prepareContractReadAllowanceApproveLend,
+  prepareContractWriteApproveLend,
+  prepareContractWriteLend
+} from '../utils/preparers/borrowing-manager'
 
 const useLend = () => {
   const [amount, setAmount] = useState('0')
@@ -35,9 +36,6 @@ const useLend = () => {
   const [epochs, setEpochs] = useState(0)
   const { address } = useAccount()
   const activeChainId = useChainId()
-  const { switchNetwork } = useSwitchNetwork({
-    chainId: mainnet.id
-  })
 
   const { data: pntBalanceData } = useBalance({
     token: settings.contracts.pntOnEthereum,
@@ -50,23 +48,12 @@ const useLend = () => {
     [amount]
   )
 
-  const { data: allowance } = useContractRead({
-    address: settings.contracts.pntOnEthereum,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, settings.contracts.pTokensVault],
-    chainId: mainnet.id
-  })
+  const { data: allowance } = useContractRead(prepareContractReadAllowanceApproveLend({ activeChainId, address }))
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
-  const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pntOnEthereum,
-    abi: erc20ABI,
-    functionName: 'approve',
-    args: [settings.contracts.pTokensVault, onChainAmount],
-    enabled: approveEnabled,
-    chainId: mainnet.id
-  })
+  const { config: approveConfigs } = usePrepareContractWrite(
+    prepareContractWriteApproveLend({ activeChainId, amount: onChainAmount, approveEnabled })
+  )
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
   const lendEnabled = useMemo(
@@ -74,34 +61,15 @@ const useLend = () => {
     [onChainAmount, approved, pntBalanceData, epochs]
   )
 
-  const peginData = useMemo(
-    () =>
-      onChainAmount && duration && receiver
-        ? getForwarderLendUserData({
-            amount: onChainAmount,
-            duration: duration * SECONDS_IN_ONE_DAY,
-            pntOnPolygonAddress: settings.contracts.pntOnPolygon,
-            receiverAddress: receiver,
-            borrowingManagerAddress: settings.contracts.borrowingManager
-          })
-        : '0x',
-    [onChainAmount, duration, receiver]
+  const { config: lendConfigs } = usePrepareContractWrite(
+    prepareContractWriteLend({
+      activeChainId,
+      amount: onChainAmount,
+      duration: duration * SECONDS_IN_ONE_DAY,
+      receiver,
+      lendEnabled
+    })
   )
-
-  const { config: lendConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pTokensVault,
-    abi: PTokensVaultABI,
-    functionName: 'pegIn',
-    args: [
-      onChainAmount,
-      settings.contracts.pntOnEthereum,
-      settings.contracts.forwarderOnPolygon,
-      peginData,
-      '0x0075dd4c'
-    ],
-    enabled: lendEnabled,
-    chainId: mainnet.id
-  })
 
   const { write: lend, error: lendError, data: lendData } = useContractWrite(lendConfigs)
 
@@ -139,7 +107,7 @@ const useLend = () => {
 
   return {
     amount,
-    approve: activeChainId !== mainnet.id && switchNetwork ? switchNetwork : approve,
+    approve,
     approved,
     approveData,
     approveEnabled,
@@ -148,7 +116,7 @@ const useLend = () => {
     epochs,
     isApproving,
     isLending,
-    lend: activeChainId !== mainnet.id && switchNetwork ? switchNetwork : lend,
+    lend,
     lendData,
     lendEnabled,
     lendError,

@@ -112,6 +112,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "previousOwner",
@@ -218,6 +231,19 @@
   {
     "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "SET_FORWARDER_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -377,6 +403,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "forwarder",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -503,6 +542,11 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "_forwarder",
+        "type": "address"
+      },
+      {
         "internalType": "uint24",
         "name": "_minimumBorrowingFee",
         "type": "uint24"
@@ -584,6 +628,19 @@
   },
   {
     "inputs": [],
+    "name": "proxiableUUID",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "registrationManager",
     "outputs": [
       {
@@ -634,6 +691,19 @@
       }
     ],
     "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "forwarder_",
+        "type": "address"
+      }
+    ],
+    "name": "setForwarder",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
