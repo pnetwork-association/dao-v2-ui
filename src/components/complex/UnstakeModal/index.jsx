@@ -3,7 +3,7 @@ import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 import BigNumber from 'bignumber.js'
 import { toast } from 'react-toastify'
-import { polygon } from 'wagmi/chains'
+import { useChainId } from 'wagmi'
 
 import { useBalances } from '../../../hooks/use-balances'
 import { useUserStake } from '../../../hooks/use-staking-manager'
@@ -16,6 +16,7 @@ import Text from '../../base/Text'
 import Button from '../../base/Button'
 import MiniButton from '../../base/MiniButton'
 import AdvancedInput from '../../base/AdvancedInput'
+import ChainSelection from '../../complex/ChainSelection'
 
 const MaxButton = styled(MiniButton)`
   margin-left: 0.75rem;
@@ -26,9 +27,10 @@ const MaxButton = styled(MiniButton)`
 `
 
 const UnstakeModal = ({ show, onClose }) => {
+  const activeChainId = useChainId()
   const { formattedPntBalance, formattedDaoPntBalance } = useBalances()
   const { availableToUnstakePntAmount, fomattedAvailableToUnstakePntAmount } = useUserStake()
-  const { amount, isUnstaking, setAmount, unstake, unstakeData, unstakeError } = useUnstake()
+  const { amount, isUnstaking, setAmount, setChainId, unstake, unstakeData, unstakeError } = useUnstake()
 
   useEffect(() => {
     if (unstakeError && isValidError(unstakeError)) {
@@ -38,11 +40,11 @@ const UnstakeModal = ({ show, onClose }) => {
 
   useEffect(() => {
     if (unstakeData) {
-      toastifyTransaction(unstakeData, { chainId: polygon.id }, () => {
+      toastifyTransaction(unstakeData, { chainId: activeChainId }, () => {
         setAmount('')
       })
     }
-  }, [unstakeData, setAmount])
+  }, [unstakeData, setAmount, activeChainId])
 
   useEffect(() => {
     if (!show) {
@@ -95,6 +97,11 @@ const UnstakeModal = ({ show, onClose }) => {
             value={amount}
             onChange={(_e) => setAmount(_e.target.value)}
           />
+        </Col>
+      </Row>
+      <Row className="mt-2">
+        <Col>
+          <ChainSelection onChange={setChainId} />
         </Col>
       </Row>
       <Row className="mt-2 mb-2">

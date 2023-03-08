@@ -4,6 +4,7 @@ import { useChainId, useSwitchNetwork, useAccount } from 'wagmi'
 import styled from 'styled-components'
 
 import { isValidError } from '../../../utils/errors'
+import { chainIdToIcon } from '../../../contants'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
@@ -36,12 +37,6 @@ const Point = styled.div`
   margin-left: 10px;
   background: ${({ theme }) => theme.green};
 `
-
-const chainIdToIcon = {
-  1: 'ethereum.svg',
-  56: 'bsc.svg',
-  137: 'polygon.svg'
-}
 
 const ChainModal = ({ show, onClose }) => {
   const activeChainId = useChainId()

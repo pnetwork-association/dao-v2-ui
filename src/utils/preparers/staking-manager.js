@@ -4,7 +4,8 @@ import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
 import StakingManagerABI from '../abis/StakingManager.json'
-import { getForwarderStakeUserData } from '../forwarder'
+import { getForwarderStakeUserData, getForwarderUnstakeUserData } from './forwarder'
+import { pNetworkChainIds } from '../../contants'
 
 const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) => {
   switch (activeChainId) {
@@ -93,7 +94,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -112,7 +113,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
         enabled,
         chainId: bsc.id
       }
@@ -132,4 +133,64 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
   }
 }
 
-export { prepareContractReadAllowanceApproveStake, prepareContractWriteApproveStake, prepareContractWriteStake }
+const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver, enabled }) => {
+  switch (activeChainId) {
+    case mainnet.id: {
+      const userData =
+        amount && chainId && receiver
+          ? getForwarderUnstakeUserData({
+              amount,
+              chainId,
+              receiverAddress: receiver
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnMainnet,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        enabled,
+        chainId: mainnet.id
+      }
+    }
+    case bsc.id: {
+      const userData =
+        amount && chainId && receiver
+          ? getForwarderUnstakeUserData({
+              amount,
+              chainId,
+              receiverAddress: receiver
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnBsc,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        enabled,
+        chainId: bsc.id
+      }
+    }
+    case polygon.id: {
+      return {
+        address: settings.contracts.stakingManager,
+        abi: StakingManagerABI,
+        functionName: 'unstake',
+        args: [amount],
+        enabled,
+        chainId: polygon.id
+      }
+    }
+    default:
+      return {}
+  }
+}
+
+export {
+  prepareContractReadAllowanceApproveStake,
+  prepareContractWriteApproveStake,
+  prepareContractWriteStake,
+  prepareContractWriteUnstake
+}

@@ -9,7 +9,6 @@ import {
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
-  useSwitchNetwork,
   useWaitForTransaction
 } from 'wagmi'
 import { polygon } from 'wagmi/chains'
@@ -21,10 +20,12 @@ import { formatAssetAmount } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
 import {
   prepareContractReadAllowanceApproveStake,
+  prepareContractWriteApproveStake,
   prepareContractWriteStake,
-  prepareContractWriteApproveStake
+  prepareContractWriteUnstake
 } from '../utils/preparers/staking-manager'
 import { getPntAddressByChainId } from '../utils/preparers/balance'
+import { pNetworkChainIds } from '../contants'
 
 const useStake = () => {
   const [approved, setApproved] = useState(false)
@@ -129,23 +130,30 @@ const useStake = () => {
 
 const useUnstake = () => {
   const [amount, setAmount] = useState('0')
-  const { availableToUnstakePntAmount } = useUserStake()
   const activeChainId = useChainId()
-  const { switchNetwork } = useSwitchNetwork({ chainId: polygon.id })
+  const [chainId, setChainId] = useState(activeChainId)
+  const { availableToUnstakePntAmount } = useUserStake()
+  const { address } = useAccount()
 
   const onChainAmount = useMemo(
     () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
     [amount]
   )
 
-  const { config: unstakeConfigs } = usePrepareContractWrite({
-    address: settings.contracts.stakingManager,
-    abi: StakingManagerABI,
-    functionName: 'unstake',
-    args: [onChainAmount],
-    enabled: BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
-    chainId: polygon.id
-  })
+  const unstakeEnabled = useMemo(
+    () => BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
+    [amount, availableToUnstakePntAmount]
+  )
+
+  const { config: unstakeConfigs } = usePrepareContractWrite(
+    prepareContractWriteUnstake({
+      activeChainId,
+      amount: onChainAmount,
+      chainId: pNetworkChainIds[chainId],
+      receiver: address,
+      enabled: unstakeEnabled
+    })
+  )
   const { write: unstake, error: unstakeError, data: unstakeData } = useContractWrite(unstakeConfigs)
 
   const { isLoading: isUnstaking } = useWaitForTransaction({
@@ -154,9 +162,11 @@ const useUnstake = () => {
 
   return {
     amount,
+    chainId,
     isUnstaking,
     setAmount,
-    unstake: activeChainId !== polygon.id && switchNetwork ? switchNetwork : unstake,
+    setChainId,
+    unstake,
     unstakeData,
     unstakeError
   }
@@ -180,7 +190,7 @@ const useUserStake = () => {
 
     const { endDate, amount } = data
 
-    return BigNumber(endDate.toNumber() >= moment().unix() ? amount.toString() : 0).dividedBy(10 ** 18)
+    return BigNumber(endDate.toNumber() <= moment().unix() ? amount.toString() : 0).dividedBy(10 ** 18)
   }, [data])
 
   return {

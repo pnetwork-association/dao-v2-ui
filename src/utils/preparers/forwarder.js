@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import BigNumber from 'bignumber.js'
 
-import settings from '../settings'
+import settings from '../../settings'
 
 const encode = (...params) => new ethers.utils.AbiCoder().encode(...params)
 
@@ -45,6 +45,20 @@ const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
         erc20Interface.encodeFunctionData('approve', [settings.contracts.stakingManager, amountWithoutFees]),
         stakingManagerInterface.encodeFunctionData('stake', [receiverAddress, amountWithoutFees, duration])
       ]
+    ]
+  )
+}
+
+const getForwarderUnstakeUserData = ({ amount, chainId, receiverAddress }) => {
+  const stakingManagerInterface = new ethers.utils.Interface([
+    'function unstake(address owner, uint256 amount, bytes4 chainId)'
+  ])
+
+  encode(
+    ['address[]', 'bytes[]'],
+    [
+      [settings.contracts.stakingManager],
+      [stakingManagerInterface.encodeFunctionData('unstake', [receiverAddress, amount, chainId])]
     ]
   )
 }
@@ -109,6 +123,7 @@ const getForwarderUpdateSentinelRegistrationByBorrowingUserData = ({ ownerAddres
 export {
   getForwarderLendUserData,
   getForwarderStakeUserData,
+  getForwarderUnstakeUserData,
   getForwarderUpdateSentinelRegistrationByBorrowingUserData,
   getForwarderUpdateSentinelRegistrationByStakingUserData,
   getForwarderVoteUserData

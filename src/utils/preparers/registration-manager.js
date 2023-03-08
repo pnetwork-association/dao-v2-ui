@@ -7,7 +7,8 @@ import StakingManagerABI from '../abis/StakingManager.json'
 import {
   getForwarderUpdateSentinelRegistrationByStakingUserData,
   getForwarderUpdateSentinelRegistrationByBorrowingUserData
-} from '../forwarder'
+} from './forwarder'
+import { pNetworkChainIds } from '../../contants'
 
 const prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking = ({ activeChainId, address }) => {
   switch (activeChainId) {
@@ -104,7 +105,7 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -124,7 +125,7 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
         enabled,
         chainId: bsc.id
       }
@@ -166,7 +167,7 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -185,7 +186,7 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
         enabled,
         chainId: bsc.id
       }

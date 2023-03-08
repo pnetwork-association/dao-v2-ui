@@ -3,7 +3,7 @@ import settings from '../../settings'
 
 import DandelionVotingABI from '../../utils/abis/DandelionVoting.json'
 import ForwarderABI from '../abis/Forwarder.json'
-import { getForwarderVoteUserData } from '../forwarder'
+import { getForwarderVoteUserData } from './forwarder'
 
 const prepareContractWriteVote = ({ activeChainId, address, id, vote, enabled }) => {
   switch (activeChainId) {

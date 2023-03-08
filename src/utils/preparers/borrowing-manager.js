@@ -4,7 +4,8 @@ import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
 import StakingManagerABI from '../abis/StakingManager.json'
-import { getForwarderLendUserData } from '../forwarder'
+import { getForwarderLendUserData } from './forwarder'
+import { pNetworkChainIds } from '../../contants'
 
 const prepareContractReadAllowanceApproveLend = ({ activeChainId, address }) => {
   switch (activeChainId) {
@@ -92,7 +93,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -111,7 +112,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
         enabled,
         chainId: bsc.id
       }
