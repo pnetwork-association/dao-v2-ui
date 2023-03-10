@@ -23,6 +23,8 @@ import Tabs from '../../base/Tabs'
 import UtilizationRatioChart from '../../complex/UtilizationRatioChart'
 import Button from '../../base/Button'
 import UnstakeModal from '../../complex/UnstakeModal'
+import LendDurationModal from '../../complex/LendDurationModal'
+import { useUserStake } from '../../../hooks/use-staking-manager'
 
 const InnerTabContainer = styled.div`
   padding: 1.5rem 1.5rem;
@@ -37,6 +39,7 @@ const InnerTabContainer = styled.div`
 const Lending = () => {
   const navigate = useNavigate()
   const [showLendModal, setShowLendModal] = useState(false)
+  const [showIncreaseDurationModal, setShowIncreaseDurationModal] = useState(false)
   const [showUnstakeModal, setShowUnstakeModal] = useState(false)
   const { formattedCurrentEpoch, formattedCurrentEpochEndIn } = useEpochs()
   const utilizationRatioCurrentEpoch = useUtilizationRatioInTheCurrentEpoch()
@@ -44,6 +47,7 @@ const Lending = () => {
   const { formattedValue: formattedValueAccountLoanStartEpoch } = useAccountLoanStartEpoch()
   const { formattedValue: formattedValueAccountLoanEndEpoch } = useAccountLoanEndEpoch()
   const { formattedValue: formattedValueApy } = useApy()
+  const { amount: stakedAmount } = useUserStake({ contractAddress: settings.contracts.stakingManagerBM })
 
   return (
     <PageTemplate bgThemeColor="transparent" removePaddingOnMobile>
@@ -115,11 +119,16 @@ const Lending = () => {
                 </Row>
                 <Line />
                 <Row className="justify-content-center mt-3">
-                  <Col xs={6}>
+                  <Col xs={4}>
                     <Button onClick={() => setShowUnstakeModal(true)}>Unstake</Button>
                   </Col>
-                  <Col xs={6}>
+                  <Col xs={4}>
                     <Button onClick={() => setShowLendModal(true)}>Lend</Button>
+                  </Col>
+                  <Col xs={4}>
+                    <Button disabled={stakedAmount.isEqualTo(0)} onClick={() => setShowIncreaseDurationModal(true)}>
+                      Increase lock time
+                    </Button>
                   </Col>
                 </Row>
               </Box>
@@ -140,6 +149,7 @@ const Lending = () => {
         contractAddress={settings.contracts.stakingManagerBM}
         onClose={() => setShowUnstakeModal(false)}
       />
+      <LendDurationModal show={showIncreaseDurationModal} onClose={() => setShowIncreaseDurationModal(false)} />
     </PageTemplate>
   )
 }

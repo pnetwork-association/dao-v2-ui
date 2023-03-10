@@ -21,6 +21,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "InvalidForwarder",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "LendPeriodTooBig",
     "type": "error"
@@ -85,6 +96,25 @@
       }
     ],
     "name": "Borrowed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "endEpoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "DurationIncreased",
     "type": "event"
   },
   {
@@ -666,6 +696,37 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint64",
+        "name": "duration",
+        "type": "uint64"
+      }
+    ],
+    "name": "increaseDuration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "duration",
+        "type": "uint64"
+      }
+    ],
+    "name": "increaseDuration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

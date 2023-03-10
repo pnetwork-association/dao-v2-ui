@@ -8,27 +8,21 @@ import { Tooltip } from 'react-tooltip'
 import { useChainId } from 'wagmi'
 
 import { useBalances } from '../../../hooks/use-balances'
-import { useEstimateApy, useLend } from '../../../hooks/use-borrowing-manager'
+import {
+  useEstimateApyIncreaseDuration,
+  useIncreaseLendDuration,
+  useAccountLoanEndEpoch
+} from '../../../hooks/use-borrowing-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
-import { range, SECONDS_IN_ONE_DAY } from '../../../utils/time'
+import { range } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { isValidError } from '../../../utils/errors'
 
-import AdvancedInput from '../../base/AdvancedInput'
 import Button from '../../base/Button'
 import Line from '../../base/Line'
-import MiniButton from '../../base/MiniButton'
 import Modal from '../../base/Modal'
 import Slider from '../../base/Slider'
 import Text from '../../base/Text'
-
-const MaxButton = styled(MiniButton)`
-  margin-left: 0.75rem;
-
-  @media (max-width: 767.98px) {
-    bottom: 157px;
-  }
-`
 
 const ChartContainer = styled.div`
   display: inline-block;
@@ -95,41 +89,24 @@ const chartOptions = {
   }
 }
 
-// const skipped = (ctx, value) => (ctx.p0.skip || ctx.p1.skip ? value : undefined)
-// const down = (ctx, value) => (ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined)
-
-const LendModal = ({ show, onClose }) => {
+const LendDurationModal = ({ show, onClose }) => {
   const theme = useContext(ThemeContext)
-  const { currentEpoch, epochDuration, formattedCurrentEpoch, formattedEpochDuration } = useEpochs()
-  const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useBalances()
-  const {
-    amount,
-    approve,
-    approveData,
-    approveEnabled,
-    approveError,
-    duration,
-    isApproving,
-    isLending,
-    lend,
-    lendData,
-    lendEnabled,
-    lendError,
-    setAmount,
-    setDuration,
-    setEpochs
-  } = useLend()
+  const activeChainId = useChainId()
+  const { currentEpoch, formattedCurrentEpoch, formattedEpochDuration } = useEpochs()
+  const { formattedDaoPntBalance, formattedPntBalance } = useBalances()
+  const { duration, increaseLendDuration, increaseLendDurationData, increaseLendDurationError, setDuration } =
+    useIncreaseLendDuration()
+  const { value: currentLoanEndEpoch, formattedValue: formattedCurrentLoanEndEpoch } = useAccountLoanEndEpoch()
+
   const {
     apy,
     endEpoch,
     formattedEndEpoch,
     formattedStartEpoch,
-    setAmount: setAmountEstimatedApy,
     setDuration: setDurationEstimateApy,
     startEpoch,
     userWeightPercentages
-  } = useEstimateApy()
-  const activeChainId = useChainId()
+  } = useEstimateApyIncreaseDuration()
 
   const chartEpochs = useMemo(() => {
     if (!(currentEpoch || currentEpoch === 0) || !(endEpoch || endEpoch === 0)) return []
@@ -172,61 +149,33 @@ const LendModal = ({ show, onClose }) => {
   }, [chartEpochs, userWeightPercentages, currentEpoch, startEpoch, apy?.value, theme])
 
   useEffect(() => {
-    if (lendError && isValidError(lendError)) {
-      toast.error(lendError.message)
+    if (increaseLendDurationError && isValidError(increaseLendDurationError)) {
+      toast.error(increaseLendDurationError.message)
     }
-
-    if (approveError && isValidError(approveError)) {
-      toast.error(approveError.message)
-    }
-  }, [approveError, lendError])
+  }, [increaseLendDurationError])
 
   useEffect(() => {
-    if (approveData) {
-      toastifyTransaction(approveData, { chainId: activeChainId })
+    if (increaseLendDurationData) {
+      toastifyTransaction(increaseLendDurationData, { chainId: activeChainId })
     }
-  }, [approveData, activeChainId])
-
-  useEffect(() => {
-    if (lendData) {
-      toastifyTransaction(lendData, { chainId: activeChainId })
-    }
-  }, [lendData, activeChainId])
+  }, [increaseLendDurationData, activeChainId])
 
   useEffect(() => {
     if (!show) {
-      setAmount('0')
-      setAmountEstimatedApy('0')
-      setDuration(7)
+      setDuration(0)
     }
-  }, [show, setAmount, setDuration, setAmountEstimatedApy])
-
-  const onMax = useCallback(() => {
-    setAmount(pntBalance)
-    setAmountEstimatedApy(pntBalance)
-  }, [pntBalance, setAmount, setAmountEstimatedApy])
+  }, [show, setDuration])
 
   const onChangeDuration = useCallback(
     (_days) => {
       setDuration(_days)
       setDurationEstimateApy(_days)
-      const newEpochs = Math.floor((_days * SECONDS_IN_ONE_DAY) / epochDuration) - 1
-      setEpochs(newEpochs < currentEpoch ? currentEpoch : newEpochs)
     },
-    [epochDuration, currentEpoch, setDuration, setEpochs, setDurationEstimateApy]
-  )
-
-  const onChangeAmount = useCallback(
-    (_e) => {
-      const newAmount = _e.target.value
-      setAmount(newAmount)
-      setAmountEstimatedApy(newAmount)
-    },
-    [setAmount, setAmountEstimatedApy]
+    [setDuration, setDurationEstimateApy]
   )
 
   return (
-    <Modal show={show} title="Lend PNT in pNetwork DAO" onClose={onClose} size="xl">
+    <Modal show={show} title="Increase lock time" onClose={onClose} size="xl">
       <Row className="mt-2">
         <Col xs={6}>
           <Text>PNT balance</Text>
@@ -251,6 +200,7 @@ const LendModal = ({ show, onClose }) => {
           <Text variant={'text2'}>{formattedCurrentEpoch}</Text>
         </Col>
       </Row>
+
       <Row>
         <Col xs={8}>
           <Text>Epoch duration</Text>
@@ -259,16 +209,17 @@ const LendModal = ({ show, onClose }) => {
           <Text variant={'text2'}>{formattedEpochDuration}</Text>
         </Col>
       </Row>
+      {currentLoanEndEpoch >= currentEpoch && (
+        <Row>
+          <Col xs={8}>
+            <Text>Your current loan ends at epoch</Text>
+          </Col>
+          <Col xs={4} className="text-end">
+            <Text variant={'text2'}>{formattedCurrentLoanEndEpoch}</Text>
+          </Col>
+        </Row>
+      )}
       <Line />
-      <Row className="mt-3">
-        <Col>
-          <AdvancedInput
-            contentLeft={<MaxButton onClick={onMax}>MAX</MaxButton>}
-            value={amount}
-            onChange={onChangeAmount}
-          />
-        </Col>
-      </Row>
       <Row className="mt-1">
         <Col xs={6}>
           <Text>Lock time</Text>
@@ -279,7 +230,7 @@ const LendModal = ({ show, onClose }) => {
       </Row>
       <Row className="mb-2">
         <Col>
-          <Slider min={7} max={730} defaultValue={duration} value={duration} onChange={onChangeDuration} />
+          <Slider min={0} max={730} defaultValue={duration} value={duration} onChange={onChangeDuration} />
         </Col>
       </Row>
       <Row className="mt-3">
@@ -325,17 +276,10 @@ const LendModal = ({ show, onClose }) => {
           <Text variant={'text2'}>{formattedEndEpoch}</Text>
         </Col>
       </Row>
-      <Row className="mt-3">
-        <Col>
-          <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>
-            Approve
-          </Button>
-        </Col>
-      </Row>
       <Row className="mt-2 mb-2">
         <Col>
-          <Button disabled={!lendEnabled} loading={isLending} onClick={() => lend?.()}>
-            Lend
+          <Button disabled={false} loading={false} onClick={() => increaseLendDuration?.()}>
+            Increase lock time
           </Button>
         </Col>
       </Row>
@@ -343,4 +287,4 @@ const LendModal = ({ show, onClose }) => {
   )
 }
 
-export default LendModal
+export default LendDurationModal

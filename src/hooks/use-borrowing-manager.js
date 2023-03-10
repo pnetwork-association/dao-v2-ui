@@ -13,6 +13,7 @@ import {
   useWaitForTransaction
 } from 'wagmi'
 import { mainnet, polygon } from 'wagmi/chains'
+import moment from 'moment'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
@@ -25,7 +26,8 @@ import { useFeesDistributionByMonthlyRevenues } from './use-fees-manager'
 import {
   prepareContractReadAllowanceApproveLend,
   prepareContractWriteApproveLend,
-  prepareContractWriteLend
+  prepareContractWriteLend,
+  prepareContractWriteIncreaseLendDuration
 } from '../utils/preparers/borrowing-manager'
 
 const useLend = () => {
@@ -479,8 +481,7 @@ const useEstimateApy = () => {
   const { address } = useAccount()
   const [duration, setDuration] = useState(0) // in days
   const [amount, setAmount] = useState(0)
-
-  const { PNT: pntUsd } = useRates(['PNT'], { apiKey: process.env.REACT_APP_CRYPTO_COMPARE_API_KEY })
+  const { PNT: pntUsd } = useRates(['PNT'])
 
   const [_startEpoch, _endEpoch] = useMemo(
     () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
@@ -515,6 +516,7 @@ const useEstimateApy = () => {
   const { startEpoch, endEpoch } = useMemo(() => {
     const lockTime = BigNumber(duration).multipliedBy(SECONDS_IN_ONE_DAY)
     const newStartEpoch = BigNumber(currentEpoch).plus(1)
+    // TODO: handle the case when an user wants to lock tokens that are unlocked
     const newEndEpoch = BigNumber(currentEpoch).plus(lockTime.dividedToIntegerBy(epochDuration)).minus(1)
 
     if (newStartEpoch.isGreaterThan(newEndEpoch)) {
@@ -590,12 +592,145 @@ const useEstimateApy = () => {
   }
 }
 
+const useEstimateApyIncreaseDuration = () => {
+  const { currentEpoch, epochDuration } = useEpochs()
+  const { address } = useAccount()
+  const [duration, setDuration] = useState(0) // in days
+  const { value: currentLoanStartEpoch } = useAccountLoanStartEpoch()
+  const { value: currentLoanEndEpoch } = useAccountLoanEndEpoch()
+  const { PNT: pntUsd } = useRates(['PNT'])
+
+  const [_startEpoch, _endEpoch] = useMemo(
+    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
+    [currentEpoch]
+  )
+
+  const { data } = useContractReads({
+    cacheTime: 1000 * 60 * 2,
+    contracts: [
+      {
+        address: settings.contracts.borrowingManager,
+        abi: BorrowingManagerABI,
+        functionName: 'totalWeightByEpochsRange',
+        args: [_startEpoch, _endEpoch],
+        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        chainId: polygon.id
+      },
+      {
+        address: settings.contracts.borrowingManager,
+        abi: BorrowingManagerABI,
+        functionName: 'weightByEpochsRangeOf',
+        args: [address, _startEpoch, _endEpoch],
+        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        chainId: polygon.id
+      },
+      {
+        address: settings.contracts.stakingManagerBM,
+        abi: StakingManagerABI,
+        functionName: 'stakeOf',
+        args: [address],
+        enabled: address,
+        chainId: polygon.id
+      }
+    ]
+  })
+
+  const totalWeights = useMemo(() => (data && data[0] ? data[0].map((_val) => BigNumber(_val.toString())) : []), [data])
+  const userWeights = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val.toString())) : []), [data])
+  const stake = useMemo(() => (data && data[2] ? data[2] : []), [data])
+
+  const { startEpoch, endEpoch } = useMemo(() => {
+    if (duration === 0) {
+      return {
+        startEpoch: currentLoanStartEpoch,
+        endEpoch: currentLoanEndEpoch
+      }
+    }
+
+    const startEpoch = currentEpoch + 1
+    const newEndDate = stake?.endDate.toNumber() + duration * SECONDS_IN_ONE_DAY
+    const numberOfEpochs = Math.round((newEndDate - moment().unix()) / epochDuration) - 1
+    const endEpoch = startEpoch + numberOfEpochs - 1
+
+    return {
+      startEpoch,
+      endEpoch
+    }
+  }, [currentLoanStartEpoch, currentLoanEndEpoch, stake, currentEpoch, duration, epochDuration])
+
+  const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
+    startEpoch,
+    endEpoch,
+    mr: 150
+  })
+
+  const { apy, userWeightPercentages } = useMemo(() => {
+    const stakedAmount = BigNumber(stake?.amount?.toString()).dividedBy(10 ** 18)
+    if (stakedAmount.isEqualTo(0)) return { apy: BigNumber(), userWeightPercentages: [] }
+    if (endEpoch - startEpoch < 0) return { apy: BigNumber(0), userWeightPercentages: [] }
+
+    const userWeightPercentages = []
+    let totalUserRevenues = new BigNumber(0)
+
+    for (let epoch = startEpoch, index = 0; epoch <= endEpoch; epoch++, index++) {
+      const poolRevenue =
+        feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[index]
+          ? feeDistributionByMonthlyRevenues[index].lendersInterestsAmount
+          : BigNumber(0)
+
+      const currentUserWeight = BigNumber(userWeights && userWeights[epoch] ? userWeights[epoch] : 0)
+      let totalWeightsInEpoch =
+        totalWeights[epoch] && !totalWeights[epoch].isNaN()
+          ? totalWeights[epoch].plus(currentUserWeight)
+          : currentUserWeight
+
+      if (!currentUserWeight.isEqualTo(0)) {
+        totalWeightsInEpoch = totalWeightsInEpoch.minus(currentUserWeight)
+      }
+
+      const newUserWeight = stakedAmount.multipliedBy(endEpoch - epoch + 1)
+      totalWeightsInEpoch = totalWeightsInEpoch.plus(newUserWeight)
+
+      const userWeightPercentage =
+        !totalWeightsInEpoch || totalWeightsInEpoch.isNaN() || totalWeightsInEpoch.isEqualTo(0)
+          ? new BigNumber(1)
+          : newUserWeight.plus(currentUserWeight).dividedBy(totalWeightsInEpoch)
+
+      userWeightPercentages[epoch] = userWeightPercentage.toNumber()
+
+      const userEpochRevenues = poolRevenue.multipliedBy(userWeightPercentage)
+      totalUserRevenues = totalUserRevenues.plus(userEpochRevenues)
+    }
+
+    const totalUserRevenuesAnnualized = totalUserRevenues.multipliedBy(24).dividedBy(endEpoch - startEpoch + 1)
+    const divAmount = stakedAmount.multipliedBy(pntUsd).isEqualTo(0) ? 1 : stakedAmount.multipliedBy(pntUsd)
+
+    return {
+      apy: BigNumber(totalUserRevenuesAnnualized).dividedBy(divAmount),
+      userWeightPercentages
+    }
+  }, [stake, pntUsd, totalWeights, startEpoch, endEpoch, userWeights, feeDistributionByMonthlyRevenues])
+
+  return {
+    apy: {
+      formattedValue: !apy.isNaN() ? `${apy.toFixed(2)}%` : '-',
+      value: apy.toFixed(2)
+    },
+    endEpoch,
+    formattedEndEpoch: endEpoch || endEpoch === 0 ? `#${endEpoch}` : '-',
+    formattedStartEpoch: startEpoch || startEpoch === 0 ? `#${startEpoch}` : '-',
+    setDuration,
+    startEpoch,
+    userWeightPercentages
+  }
+}
+
 const useApy = () => {
   const { currentEpoch } = useEpochs()
   const { address } = useAccount()
   const { value: startEpoch } = useAccountLoanStartEpoch()
   const { value: endEpoch } = useAccountLoanEndEpoch()
-  const { PNT: pntUsd } = useRates(['PNT'], { apiKey: process.env.REACT_APP_CRYPTO_COMPARE_API_KEY })
+  const { PNT: pntUsd } = useRates(['PNT'])
 
   const [_startEpoch, _endEpoch] = useMemo(
     () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
@@ -674,6 +809,28 @@ const useApy = () => {
   }, [pntUsd, totalWeights, startEpoch, endEpoch, userWeights, stake, feeDistributionByMonthlyRevenues])
 }
 
+const useIncreaseLendDuration = () => {
+  const [duration, setDuration] = useState(1) // 1 day
+  const activeChainId = useChainId()
+
+  const { config } = usePrepareContractWrite(
+    prepareContractWriteIncreaseLendDuration({
+      activeChainId,
+      duration: duration * SECONDS_IN_ONE_DAY,
+      enabled: duration > 0
+    })
+  )
+  const { write, error, data } = useContractWrite(config)
+
+  return {
+    duration,
+    setDuration,
+    increaseLendDuration: write,
+    increaseLendDurationData: data,
+    increaseLendDurationError: error
+  }
+}
+
 export {
   useAccountLoanEndEpoch,
   useAccountLoanStartEpoch,
@@ -684,6 +841,8 @@ export {
   useClaimInterestByEpoch,
   useClaimInterestByEpochsRange,
   useEstimateApy,
+  useEstimateApyIncreaseDuration,
+  useIncreaseLendDuration,
   useLend,
   useTotalBorrowedAmountByEpoch,
   useTotalLendedAmountByEpoch,

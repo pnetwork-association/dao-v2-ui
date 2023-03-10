@@ -3,8 +3,8 @@ import { erc20ABI } from 'wagmi'
 import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
-import StakingManagerABI from '../abis/StakingManager.json'
-import { getForwarderLendUserData } from './forwarder'
+import BorrowingManagerABI from '../abis/BorrowingManager.json'
+import { getForwarderLendUserData, getForwarderIncreaseDurationLendUserData } from './forwarder'
 import { pNetworkChainIds } from '../../contants'
 
 const prepareContractReadAllowanceApproveLend = ({ activeChainId, address }) => {
@@ -120,7 +120,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
     case polygon.id: {
       return {
         address: settings.contracts.borrowingManager,
-        abi: StakingManagerABI,
+        abi: BorrowingManagerABI,
         functionName: 'lend',
         args: [receiver, amount, duration],
         enabled,
@@ -132,4 +132,59 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
   }
 }
 
-export { prepareContractReadAllowanceApproveLend, prepareContractWriteApproveLend, prepareContractWriteLend }
+const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, enabled }) => {
+  switch (activeChainId) {
+    case mainnet.id: {
+      const userData =
+        duration > 0
+          ? getForwarderIncreaseDurationLendUserData({
+              duration
+            })
+          : '0x'
+      return {
+        address: settings.contracts.forwarderOnMainnet,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        enabled,
+        chainId: mainnet.id
+      }
+    }
+    case bsc.id: {
+      const userData =
+        duration > 0
+          ? getForwarderIncreaseDurationLendUserData({
+              duration
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnBsc,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        enabled,
+        chainId: bsc.id
+      }
+    }
+    case polygon.id: {
+      return {
+        address: settings.contracts.borrowingManager,
+        abi: BorrowingManagerABI,
+        functionName: 'increaseDuration',
+        args: [duration],
+        enabled,
+        chainId: polygon.id
+      }
+    }
+    default:
+      return {}
+  }
+}
+
+export {
+  prepareContractReadAllowanceApproveLend,
+  prepareContractWriteApproveLend,
+  prepareContractWriteLend,
+  prepareContractWriteIncreaseLendDuration
+}

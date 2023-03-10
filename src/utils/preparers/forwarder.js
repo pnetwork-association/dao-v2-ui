@@ -122,7 +122,20 @@ const getForwarderUpdateSentinelRegistrationByBorrowingUserData = ({ ownerAddres
   )
 }
 
+const getForwarderIncreaseDurationLendUserData = ({ duration }) => {
+  const borrowingManagerInterface = new ethers.utils.Interface(['function increaseDuration(uint64 duration)'])
+
+  encode(
+    ['address[]', 'bytes[]'],
+    [
+      [settings.contracts.borrowingManager],
+      [borrowingManagerInterface.encodeFunctionData('increaseDuration', [duration])]
+    ]
+  )
+}
+
 export {
+  getForwarderIncreaseDurationLendUserData,
   getForwarderLendUserData,
   getForwarderStakeUserData,
   getForwarderUnstakeUserData,
