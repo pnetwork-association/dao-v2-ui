@@ -606,7 +606,7 @@ const useApy = () => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.stakingManager,
+        address: settings.contracts.stakingManagerBM,
         abi: StakingManagerABI,
         functionName: 'stakeOf',
         args: [address],
@@ -664,9 +664,6 @@ const useApy = () => {
     }
 
     const totalUserRevenuesAnnualized = totalUserRevenues.multipliedBy(24).dividedBy(endEpoch - startEpoch + 1)
-
-    // NOTE: What does it happen if an user stake (without lending) and then lend another amount? The APY would be wrong
-    // since if we check the staked amount could be possibile that we show an higher apy
     const divAmount = stakedAmount.multipliedBy(pntUsd).isEqualTo(0) ? 1 : stakedAmount.multipliedBy(pntUsd)
     const apy = BigNumber(totalUserRevenuesAnnualized).dividedBy(divAmount)
 

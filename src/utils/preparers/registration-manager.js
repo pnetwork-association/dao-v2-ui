@@ -9,6 +9,7 @@ import {
   getForwarderUpdateSentinelRegistrationByBorrowingUserData
 } from './forwarder'
 import { pNetworkChainIds } from '../../contants'
+import { isValidHexString } from '../format'
 
 const prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking = ({ activeChainId, address }) => {
   switch (activeChainId) {
@@ -92,7 +93,7 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
-        amount && duration && receiver
+        amount && duration && receiver && isValidHexString(signature)
           ? getForwarderUpdateSentinelRegistrationByStakingUserData({
               amount,
               duration,
@@ -112,7 +113,7 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
     }
     case bsc.id: {
       const userData =
-        amount && duration && receiver
+        amount && duration && receiver && isValidHexString(signature)
           ? getForwarderUpdateSentinelRegistrationByStakingUserData({
               amount,
               duration,
@@ -155,7 +156,7 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
-        signature && numberOfEpochs && receiver
+        isValidHexString(signature) && numberOfEpochs && receiver
           ? getForwarderUpdateSentinelRegistrationByBorrowingUserData({
               ownerAddress: receiver,
               numberOfEpochs,
@@ -174,7 +175,7 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
     }
     case bsc.id: {
       const userData =
-        signature && numberOfEpochs && receiver
+        isValidHexString(signature) && numberOfEpochs && receiver
           ? getForwarderUpdateSentinelRegistrationByBorrowingUserData({
               ownerAddress: receiver,
               numberOfEpochs,

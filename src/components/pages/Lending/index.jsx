@@ -11,6 +11,7 @@ import {
   useUtilizationRatioInTheCurrentEpoch
 } from '../../../hooks/use-borrowing-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
+import settings from '../../../settings'
 
 import Box from '../../base/Box'
 import Line from '../../base/Line'
@@ -21,6 +22,7 @@ import PageTemplate from '../../templates/PageTemplate'
 import Tabs from '../../base/Tabs'
 import UtilizationRatioChart from '../../complex/UtilizationRatioChart'
 import Button from '../../base/Button'
+import UnstakeModal from '../../complex/UnstakeModal'
 
 const InnerTabContainer = styled.div`
   padding: 1.5rem 1.5rem;
@@ -35,6 +37,7 @@ const InnerTabContainer = styled.div`
 const Lending = () => {
   const navigate = useNavigate()
   const [showLendModal, setShowLendModal] = useState(false)
+  const [showUnstakeModal, setShowUnstakeModal] = useState(false)
   const { formattedCurrentEpoch, formattedCurrentEpochEndIn } = useEpochs()
   const utilizationRatioCurrentEpoch = useUtilizationRatioInTheCurrentEpoch()
 
@@ -112,8 +115,11 @@ const Lending = () => {
                 </Row>
                 <Line />
                 <Row className="justify-content-center mt-3">
-                  <Col xs={12} lg={4}>
-                    <Button onClick={() => setShowLendModal(true)}>LEND</Button>
+                  <Col xs={6}>
+                    <Button onClick={() => setShowUnstakeModal(true)}>Unstake</Button>
+                  </Col>
+                  <Col xs={6}>
+                    <Button onClick={() => setShowLendModal(true)}>Lend</Button>
                   </Col>
                 </Row>
               </Box>
@@ -129,6 +135,11 @@ const Lending = () => {
         </Tabs>
       </Box>
       <LendModal show={showLendModal} onClose={() => setShowLendModal(false)} />
+      <UnstakeModal
+        show={showUnstakeModal}
+        contractAddress={settings.contracts.stakingManagerBM}
+        onClose={() => setShowUnstakeModal(false)}
+      />
     </PageTemplate>
   )
 }

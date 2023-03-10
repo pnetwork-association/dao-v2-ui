@@ -26,11 +26,13 @@ const MaxButton = styled(MiniButton)`
   }
 `
 
-const UnstakeModal = ({ show, onClose }) => {
+const UnstakeModal = ({ show, contractAddress, onClose }) => {
   const activeChainId = useChainId()
   const { formattedPntBalance, formattedDaoPntBalance } = useBalances()
-  const { availableToUnstakePntAmount, fomattedAvailableToUnstakePntAmount } = useUserStake()
-  const { amount, isUnstaking, setAmount, setChainId, unstake, unstakeData, unstakeError } = useUnstake()
+  const { availableToUnstakePntAmount, fomattedAvailableToUnstakePntAmount } = useUserStake({ contractAddress })
+  const { amount, isUnstaking, setAmount, setChainId, unstake, unstakeData, unstakeError } = useUnstake({
+    contractAddress
+  })
 
   useEffect(() => {
     if (unstakeError && isValidError(unstakeError)) {

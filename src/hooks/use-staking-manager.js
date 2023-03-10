@@ -128,7 +128,9 @@ const useStake = () => {
   }
 }
 
-const useUnstake = () => {
+const useUnstake = (_opts = {}) => {
+  const { contractAddress = settings.contracts.stakingManager } = _opts
+
   const [amount, setAmount] = useState('0')
   const activeChainId = useChainId()
   const [chainId, setChainId] = useState(activeChainId)
@@ -151,7 +153,8 @@ const useUnstake = () => {
       amount: onChainAmount,
       chainId: pNetworkChainIds[chainId],
       receiver: address,
-      enabled: unstakeEnabled
+      enabled: unstakeEnabled,
+      contractAddress
     })
   )
   const { write: unstake, error: unstakeError, data: unstakeData } = useContractWrite(unstakeConfigs)
@@ -172,11 +175,12 @@ const useUnstake = () => {
   }
 }
 
-const useUserStake = () => {
+const useUserStake = (_opts = {}) => {
+  const { contractAddress = settings.contracts.stakingManager } = _opts
   const { address } = useAccount()
 
   const { data } = useContractRead({
-    address: settings.contracts.stakingManager,
+    address: contractAddress,
     abi: StakingManagerABI,
     functionName: 'stakeOf',
     args: [address],
@@ -187,9 +191,7 @@ const useUserStake = () => {
 
   const availableToUnstakePntAmount = useMemo(() => {
     if (!data) return
-
     const { endDate, amount } = data
-
     return BigNumber(endDate.toNumber() <= moment().unix() ? amount.toString() : 0).dividedBy(10 ** 18)
   }, [data])
 

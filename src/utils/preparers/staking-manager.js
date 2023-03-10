@@ -133,7 +133,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
   }
 }
 
-const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver, enabled }) => {
+const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver, enabled, contractAddress }) => {
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
@@ -141,7 +141,8 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
           ? getForwarderUnstakeUserData({
               amount,
               chainId,
-              receiverAddress: receiver
+              receiverAddress: receiver,
+              contractAddress
             })
           : '0x'
 
@@ -160,7 +161,8 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
           ? getForwarderUnstakeUserData({
               amount,
               chainId,
-              receiverAddress: receiver
+              receiverAddress: receiver,
+              contractAddress
             })
           : '0x'
 
@@ -175,7 +177,7 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
     }
     case polygon.id: {
       return {
-        address: settings.contracts.stakingManager,
+        address: contractAddress,
         abi: StakingManagerABI,
         functionName: 'unstake',
         args: [amount],

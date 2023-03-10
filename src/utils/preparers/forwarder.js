@@ -49,24 +49,26 @@ const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
   )
 }
 
-const getForwarderUnstakeUserData = ({ amount, chainId, receiverAddress }) => {
+const getForwarderUnstakeUserData = ({
+  amount,
+  chainId,
+  receiverAddress,
+  contractAddress = settings.contracts.stakingManager
+}) => {
   const stakingManagerInterface = new ethers.utils.Interface([
     'function unstake(address owner, uint256 amount, bytes4 chainId)'
   ])
 
   encode(
     ['address[]', 'bytes[]'],
-    [
-      [settings.contracts.stakingManager],
-      [stakingManagerInterface.encodeFunctionData('unstake', [receiverAddress, amount, chainId])]
-    ]
+    [[contractAddress], [stakingManagerInterface.encodeFunctionData('unstake', [receiverAddress, amount, chainId])]]
   )
 }
 
 const getForwarderUpdateSentinelRegistrationByStakingUserData = ({ amount, duration, ownerAddress, signature }) => {
   const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
   const registrationManagerInterface = new ethers.utils.Interface([
-    'function updateSentinelRegistrationByStaking(address receiver, uint256 amount, uint64 duration, bytes signature)'
+    'function updateSentinelRegistrationByStaking(address owner, uint256 amount, uint64 duration, bytes signature)'
   ])
 
   const amountWithoutFees = subtractFee(amount)
@@ -103,7 +105,7 @@ const getForwarderVoteUserData = ({ voterAddress, id, vote }) => {
 
 const getForwarderUpdateSentinelRegistrationByBorrowingUserData = ({ ownerAddress, numberOfEpochs, signature }) => {
   const registrationManagerInterface = new ethers.utils.Interface([
-    'function updateSentinelRegistrationByBorrowing(address receiver, uint16 numberOfEpochs, bytes signature)'
+    'function updateSentinelRegistrationByBorrowing(address owner, uint16 numberOfEpochs, bytes signature)'
   ])
   return encode(
     ['address[]', 'bytes[]'],
