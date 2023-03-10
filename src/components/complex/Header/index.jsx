@@ -3,7 +3,10 @@ import React, { Fragment, useState } from 'react'
 import { Container, Nav, Navbar } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { bsc } from 'wagmi/chains'
+import { bsc, polygon } from 'wagmi/chains'
+import { FaInfoCircle } from 'react-icons/fa'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Popover from 'react-bootstrap/Popover'
 
 import { useNickname } from '../../../hooks/use-nickname'
 
@@ -63,6 +66,7 @@ const ConnectedButton = styled(Button)`
 const SelectChainButton = styled(ConnectedButton)`
   display: flex;
   align-items: space-between;
+  z-index: 1;
 `
 
 const StyledAvatar = styled(Avatar)`
@@ -114,6 +118,31 @@ const ConnectButtonButtonsContainer = styled.div`
   gap: 12px;
 `
 
+const ModeContainer = styled.div`
+  height: 40px;
+  left: 30px;
+  padding-right: 40px;
+  padding-left: 20px;
+  background: ${({ theme }) => theme.bg1};
+  border: 1.5px solid ${({ theme }) => theme.secondary4};
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 20px;
+  color: ${({ theme }) => theme.text2};
+  font-size: 15px;
+  display: flex;
+`
+
+const StyledFaInfoCircle = styled(FaInfoCircle)`
+  margin-right: 5px;
+  cursor: pointer;
+`
+
+const StyledPopover = styled(Popover)`
+  border: 1px solid ${({ theme }) => theme.superLightGray};
+`
+
 const CustomConnectButton = () => {
   const [showAccountModal, setShowAccountModal] = useState(false)
   const [showChainModal, setShowChainModal] = useState(false)
@@ -145,21 +174,43 @@ const CustomConnectButton = () => {
                 return (
                   <ConnectButtonButtonsContainer>
                     {
-                      <SelectChainButton
-                        onClick={() => setShowChainModal(true)}
-                        style={{ display: 'flex', alignItems: 'center' }}
-                        type="button"
-                      >
-                        {(chain.hasIcon || chain.id === bsc.id) && (
-                          <div>
-                            {chain.id === bsc.id && (
-                              <ChainImg alt={chain.name ?? 'Chain icon'} src={'./assets/svg/bsc.svg'} />
-                            )}
-                            {chain.iconUrl && <ChainImg alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} />}
-                          </div>
-                        )}
-                        <ChainName>{chain.name}</ChainName>
-                      </SelectChainButton>
+                      <div className="d-flex">
+                        <ModeContainer>
+                          <OverlayTrigger
+                            placement="bottom"
+                            delay={{ show: 250, hide: 400 }}
+                            overlay={
+                              <StyledPopover>
+                                <Popover.Body>
+                                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+                                  exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+                                  dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                                  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+                                  mollit anim id est laborum.
+                                </Popover.Body>
+                              </StyledPopover>
+                            }
+                          >
+                            <div>
+                              <StyledFaInfoCircle />
+                            </div>
+                          </OverlayTrigger>
+                          {chain.id === polygon.id ? 'Native mode' : 'Compatibility mode'}
+                        </ModeContainer>
+
+                        <SelectChainButton onClick={() => setShowChainModal(true)}>
+                          {(chain.hasIcon || chain.id === bsc.id) && (
+                            <div>
+                              {chain.id === bsc.id && (
+                                <ChainImg alt={chain.name ?? 'Chain icon'} src={'./assets/svg/bsc.svg'} />
+                              )}
+                              {chain.iconUrl && <ChainImg alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} />}
+                            </div>
+                          )}
+                          <ChainName>{chain.name}</ChainName>
+                        </SelectChainButton>
+                      </div>
                     }
                     <ConnectedButton onClick={() => setShowAccountModal(true)}>
                       {/*account.displayBalance
