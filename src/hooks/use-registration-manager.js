@@ -26,7 +26,8 @@ import {
   prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking,
   prepareContractWriteApproveUpdateSentinelRegistrationByStaking,
   prepareContractWriteUpdateSentinelRegistrationByStaking,
-  prepareContractWriteUpdateSentinelRegistrationByBorrowing
+  prepareContractWriteUpdateSentinelRegistrationByBorrowing,
+  prepareContractWriteIncreaseStakingSentinelRegistrationDuration
 } from '../utils/preparers/registration-manager'
 
 const kind = {
@@ -325,4 +326,33 @@ const useBorrowingSentinelProspectus = () => {
   }
 }
 
-export { useBorrowingSentinelProspectus, useRegisterSentinel, useSentinel }
+const useIncreaseStakingSentinelRegistrationDuration = () => {
+  const { epochDuration } = useEpochs()
+  const [epochs, setEpochs] = useState(0)
+  const activeChainId = useChainId()
+
+  const { config } = usePrepareContractWrite(
+    prepareContractWriteIncreaseStakingSentinelRegistrationDuration({
+      activeChainId,
+      duration: epochs * epochDuration,
+      enabled: epochs > 0
+    })
+  )
+  const { write, error, data, isLoading } = useContractWrite(config)
+
+  return {
+    epochs,
+    setEpochs,
+    increaseStakingSentinelRegistrationDuration: write,
+    increaseStakingSentinelRegistrationDurationData: data,
+    increaseStakingSentinelRegistrationDurationError: error,
+    increaseStakingSentinelRegistrationDurationLoading: isLoading
+  }
+}
+
+export {
+  useBorrowingSentinelProspectus,
+  useIncreaseStakingSentinelRegistrationDuration,
+  useRegisterSentinel,
+  useSentinel
+}

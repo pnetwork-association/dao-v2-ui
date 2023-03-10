@@ -94,8 +94,14 @@ const LendDurationModal = ({ show, onClose }) => {
   const activeChainId = useChainId()
   const { currentEpoch, formattedCurrentEpoch, formattedEpochDuration } = useEpochs()
   const { formattedDaoPntBalance, formattedPntBalance } = useBalances()
-  const { duration, increaseLendDuration, increaseLendDurationData, increaseLendDurationError, setDuration } =
-    useIncreaseLendDuration()
+  const {
+    duration,
+    increaseLendDuration,
+    increaseLendDurationData,
+    increaseLendDurationError,
+    increaseLendDurationLoading,
+    setDuration
+  } = useIncreaseLendDuration()
   const { value: currentLoanEndEpoch, formattedValue: formattedCurrentLoanEndEpoch } = useAccountLoanEndEpoch()
 
   const {
@@ -278,7 +284,11 @@ const LendDurationModal = ({ show, onClose }) => {
       </Row>
       <Row className="mt-2 mb-2">
         <Col>
-          <Button disabled={false} loading={false} onClick={() => increaseLendDuration?.()}>
+          <Button
+            disabled={duration === 0}
+            loading={increaseLendDurationLoading}
+            onClick={() => increaseLendDuration?.()}
+          >
             Increase lock time
           </Button>
         </Col>

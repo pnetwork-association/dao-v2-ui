@@ -126,7 +126,10 @@ const Lending = () => {
                     <Button onClick={() => setShowLendModal(true)}>Lend</Button>
                   </Col>
                   <Col xs={4}>
-                    <Button disabled={stakedAmount.isEqualTo(0)} onClick={() => setShowIncreaseDurationModal(true)}>
+                    <Button
+                      disabled={stakedAmount ? stakedAmount.isEqualTo(0) : true}
+                      onClick={() => setShowIncreaseDurationModal(true)}
+                    >
                       Increase lock time
                     </Button>
                   </Col>

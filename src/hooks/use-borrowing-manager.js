@@ -820,14 +820,15 @@ const useIncreaseLendDuration = () => {
       enabled: duration > 0
     })
   )
-  const { write, error, data } = useContractWrite(config)
+  const { write, error, data, isLoading } = useContractWrite(config)
 
   return {
     duration,
     setDuration,
     increaseLendDuration: write,
     increaseLendDurationData: data,
-    increaseLendDurationError: error
+    increaseLendDurationError: error,
+    increaseLendDurationLoading: isLoading
   }
 }
 

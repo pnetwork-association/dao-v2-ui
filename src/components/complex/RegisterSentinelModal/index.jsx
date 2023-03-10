@@ -2,6 +2,7 @@ import React, { Fragment, useCallback, useContext, useEffect, useMemo } from 're
 import { Col, Row } from 'react-bootstrap'
 import { Chart } from 'react-chartjs-2'
 import styled, { ThemeContext } from 'styled-components'
+import { useChainId } from 'wagmi'
 
 import { useEpochs } from '../../../hooks/use-epochs'
 import { useBalances } from '../../../hooks/use-balances'
@@ -75,6 +76,7 @@ const chartOptions = {
 
 const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
   const theme = useContext(ThemeContext)
+  const activeChainId = useChainId()
   const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useBalances()
   const { currentEpoch, formattedCurrentEpoch } = useEpochs()
   const {
@@ -114,23 +116,23 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
 
   useEffect(() => {
     if (approveData) {
-      toastifyTransaction(approveData)
+      toastifyTransaction(approveData, { chainId: activeChainId })
     }
-  }, [approveData])
+  }, [approveData, activeChainId])
 
   useEffect(() => {
     if (updateSentinelRegistrationByStakingData) {
       setEpochs(1)
-      toastifyTransaction(updateSentinelRegistrationByStakingData)
+      toastifyTransaction(updateSentinelRegistrationByStakingData, { chainId: activeChainId })
     }
-  }, [updateSentinelRegistrationByStakingData, setEpochs])
+  }, [updateSentinelRegistrationByStakingData, activeChainId, setEpochs])
 
   useEffect(() => {
     if (updateSentinelRegistrationByBorrowingData) {
       setEpochs(1)
-      toastifyTransaction(updateSentinelRegistrationByBorrowingData)
+      toastifyTransaction(updateSentinelRegistrationByBorrowingData, { chainId: activeChainId })
     }
-  }, [updateSentinelRegistrationByBorrowingData, setEpochs])
+  }, [updateSentinelRegistrationByBorrowingData, activeChainId, setEpochs])
 
   const onMax = useCallback(() => {
     setAmount(pntBalance)

@@ -11,13 +11,14 @@ import Box from '../../base/Box'
 import Text from '../../base/Text'
 import Line from '../../base/Line'
 import RegisterSentinelModal from '../RegisterSentinelModal'
+import SentinelDurationModal from '../SentinelDurationModal'
 import UnstakeModal from '../../complex/UnstakeModal'
 import Button from '../../base/Button'
 
 const SentinelStats = ({ type = 'stake' }) => {
   // const { address } = useAccount()
   const [showUnstakeModal, setShowUnstakeModal] = useState(false)
-
+  const [showDurationModal, setShowDurationModal] = useState(false)
   const [showRegisterSentinelModal, setShowRegisterSentinelModal] = useState(false)
   const { formattedCurrentEpoch } = useEpochs()
   const { kind, startEpoch, endEpoch, sentinelNickname } = useSentinel()
@@ -78,14 +79,19 @@ const SentinelStats = ({ type = 'stake' }) => {
           )}
           {type === 'stake' && (
             <Fragment>
-              <Col g={6}>
+              <Col lg={4}>
                 <Button disabled={!enabled} onClick={() => setShowUnstakeModal(true)}>
                   Unstake
                 </Button>
               </Col>
-              <Col g={6}>
+              <Col lg={4}>
                 <Button disabled={!enabled} onClick={() => setShowRegisterSentinelModal(true)}>
                   Manage
+                </Button>
+              </Col>
+              <Col lg={4}>
+                <Button disabled={!kind} onClick={() => setShowDurationModal(true)}>
+                  Increase lock time
                 </Button>
               </Col>
             </Fragment>
@@ -102,6 +108,7 @@ const SentinelStats = ({ type = 'stake' }) => {
         contractAddress={settings.contracts.stakingManagerRM}
         onClose={() => setShowUnstakeModal(false)}
       />
+      <SentinelDurationModal show={showDurationModal} onClose={() => setShowDurationModal(false)} type={type} />
     </Fragment>
   )
 }

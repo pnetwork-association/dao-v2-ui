@@ -195,17 +195,17 @@ const useUserStake = (_opts = {}) => {
     return BigNumber(endDate.toNumber() <= moment().unix() ? amount.toString() : 0).dividedBy(10 ** 18)
   }, [data])
 
-  const amount = useMemo(() => {
-    if (!data) return
-    const { amount } = data
-    return BigNumber(amount.toString()).dividedBy(10 ** 18)
-  }, [data])
+  const amount = useMemo(() => (!data ? null : BigNumber(data.amount.toString()).dividedBy(10 ** 18)), [data])
+  const endDate = useMemo(() => (!data ? null : data?.endDate?.toNumber()), [data])
+  const startDate = useMemo(() => (!data ? null : data?.startDate?.toNumber()), [data])
 
   return {
     amount,
     availableToUnstakePntAmount,
+    endDate,
     fomattedAvailableToUnstakePntAmount: formatAssetAmount(availableToUnstakePntAmount, 'PNT'),
-    formattedValue: formatAssetAmount(amount, 'PNT')
+    formattedValue: formatAssetAmount(amount, 'PNT'),
+    startDate
   }
 }
 

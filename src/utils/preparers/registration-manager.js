@@ -3,10 +3,11 @@ import { erc20ABI } from 'wagmi'
 import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
-import StakingManagerABI from '../abis/StakingManager.json'
+import RegistrationManagerABI from '../abis/RegistrationManager.json'
 import {
   getForwarderUpdateSentinelRegistrationByStakingUserData,
-  getForwarderUpdateSentinelRegistrationByBorrowingUserData
+  getForwarderUpdateSentinelRegistrationByBorrowingUserData,
+  getForwarderIncreaseStakingSentinelRegistrationDurationUserData
 } from './forwarder'
 import { pNetworkChainIds } from '../../contants'
 import { isValidHexString } from '../format'
@@ -133,10 +134,10 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
     }
     case polygon.id: {
       return {
-        address: settings.contracts.stakingManager,
-        abi: StakingManagerABI,
-        functionName: 'stake',
-        args: [receiver, amount, duration],
+        address: settings.contracts.registrationManager,
+        abi: RegistrationManagerABI,
+        functionName: 'updateSentinelRegistrationByStaking',
+        args: [receiver, amount, duration, isValidHexString(signature) ? signature : '0x'],
         enabled,
         chainId: polygon.id
       }
@@ -195,9 +196,63 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
     case polygon.id: {
       return {
         address: settings.contracts.registrationManager,
-        abi: StakingManagerABI,
+        abi: RegistrationManagerABI,
         functionName: 'updateSentinelRegistrationByBorrowing',
         args: [numberOfEpochs, signature],
+        enabled,
+        chainId: polygon.id
+      }
+    }
+    default:
+      return {}
+  }
+}
+
+export const prepareContractWriteIncreaseStakingSentinelRegistrationDuration = ({
+  activeChainId,
+  duration,
+  enabled
+}) => {
+  switch (activeChainId) {
+    case mainnet.id: {
+      const userData =
+        duration > 0
+          ? getForwarderIncreaseStakingSentinelRegistrationDurationUserData({
+              duration
+            })
+          : '0x'
+      return {
+        address: settings.contracts.forwarderOnMainnet,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        enabled,
+        chainId: mainnet.id
+      }
+    }
+    case bsc.id: {
+      const userData =
+        duration > 0
+          ? getForwarderIncreaseStakingSentinelRegistrationDurationUserData({
+              duration
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnBsc,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        enabled,
+        chainId: bsc.id
+      }
+    }
+    case polygon.id: {
+      return {
+        address: settings.contracts.registrationManager,
+        abi: RegistrationManagerABI,
+        functionName: 'increaseSentinelRegistrationDuration',
+        args: [duration],
         enabled,
         chainId: polygon.id
       }
