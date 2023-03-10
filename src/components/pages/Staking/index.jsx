@@ -69,10 +69,10 @@ const Staking = () => {
         <Line />
         <Row className="mt-3">
           <Col xs={6}>
-            <Button onClick={() => setShowStakeModal(true)}>Stake</Button>
+            <Button onClick={() => setShowUnstakeModal(true)}>Unstake</Button>
           </Col>
           <Col xs={6}>
-            <Button onClick={() => setShowUnstakeModal(true)}>Unstake</Button>
+            <Button onClick={() => setShowStakeModal(true)}>Stake</Button>
           </Col>
         </Row>
       </Box>
