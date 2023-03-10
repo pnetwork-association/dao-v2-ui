@@ -55,7 +55,7 @@ const SentinelDurationModal = ({ show, onClose }) => {
   const effectiveEndEpoch = useMemo(() => currentEndEpoch + epochs, [currentEndEpoch, epochs])
 
   return (
-    <Modal show={show} title="Register Sentinel" onClose={onClose} size="xl">
+    <Modal show={show} title="Increase duration" onClose={onClose} size="lg">
       <Row className="mt-2">
         <Col xs={6}>
           <Text>PNT balance</Text>
@@ -82,7 +82,7 @@ const SentinelDurationModal = ({ show, onClose }) => {
       </Row>
       <Row>
         <Col xs={8}>
-          <Text>Your registration ends at epoch</Text>
+          <Text>Your current registration ends at epoch</Text>
         </Col>
         <Col xs={4} className="text-end">
           <Text variant={'text2'}>{currentEndEpoch ? `#${currentEndEpoch}` : '-'}</Text>
@@ -117,7 +117,7 @@ const SentinelDurationModal = ({ show, onClose }) => {
             loading={increaseStakingSentinelRegistrationDurationLoading}
             onClick={() => increaseStakingSentinelRegistrationDuration?.()}
           >
-            Increase lock time
+            Increase duration
           </Button>
         </Col>
       </Row>

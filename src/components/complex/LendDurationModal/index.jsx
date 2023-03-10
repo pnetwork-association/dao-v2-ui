@@ -181,7 +181,7 @@ const LendDurationModal = ({ show, onClose }) => {
   )
 
   return (
-    <Modal show={show} title="Increase lock time" onClose={onClose} size="xl">
+    <Modal show={show} title="Increase duration" onClose={onClose} size="xl">
       <Row className="mt-2">
         <Col xs={6}>
           <Text>PNT balance</Text>
@@ -289,7 +289,7 @@ const LendDurationModal = ({ show, onClose }) => {
             loading={increaseLendDurationLoading}
             onClick={() => increaseLendDuration?.()}
           >
-            Increase lock time
+            Increase duration
           </Button>
         </Col>
       </Row>

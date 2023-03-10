@@ -91,7 +91,7 @@ const SentinelStats = ({ type = 'stake' }) => {
               </Col>
               <Col lg={4}>
                 <Button disabled={!kind} onClick={() => setShowDurationModal(true)}>
-                  Increase lock time
+                  Increase duration
                 </Button>
               </Col>
             </Fragment>

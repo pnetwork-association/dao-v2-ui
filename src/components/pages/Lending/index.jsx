@@ -130,7 +130,7 @@ const Lending = () => {
                       disabled={stakedAmount ? stakedAmount.isEqualTo(0) : true}
                       onClick={() => setShowIncreaseDurationModal(true)}
                     >
-                      Increase lock time
+                      Increase duration
                     </Button>
                   </Col>
                 </Row>

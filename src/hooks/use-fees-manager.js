@@ -258,9 +258,10 @@ const useStakingSentinelEstimatedRevenues = () => {
         endEpoch: null
       }
     }
+
     return {
       startEpoch: sentinelRegistrationStartEpoch > currentEpoch ? sentinelRegistrationStartEpoch : currentEpoch + 1,
-      endEpoch: currentEpoch - sentinelRegistrationEndEpoch < 6 ? currentEpoch + 6 : sentinelRegistrationEndEpoch
+      endEpoch: sentinelRegistrationEndEpoch - currentEpoch < 6 ? currentEpoch + 6 : sentinelRegistrationEndEpoch
     }
   }, [kind, currentEpoch, sentinelRegistrationStartEpoch, sentinelRegistrationEndEpoch])
 
