@@ -13,6 +13,7 @@ import Button from '../../base/Button'
 import AccountModal from '../AccountModal'
 import ChainModal from '../ChainModal'
 import Tooltip from '../../base/Tooltip'
+import Text from '../../base/Text'
 
 const Logo = styled.img`
   width: 40px;
@@ -21,6 +22,7 @@ const Logo = styled.img`
   @media (max-width: 767.98px) {
     width: 30px;
     height: 30px;
+    margin-right: 0px;
   }
 `
 
@@ -60,17 +62,32 @@ const ConnectedButton = styled(Button)`
   color: ${({ theme }) => theme.text4};
   height: 40px;
   width: auto;
+  @media (max-width: 767.98px) {
+    height: 35px;
+    width: 35px;
+  }
 `
 
-const SelectChainButton = styled(ConnectedButton)`
+const SelectChainButton = styled(Button)`
   display: flex;
   align-items: space-between;
   z-index: 1;
+  color: ${({ theme }) => theme.text4};
+  height: 40px;
+  width: auto;
+  @media (max-width: 767.98px) {
+    height: 35px;
+  }
 `
 
 const StyledAvatar = styled(Avatar)`
   border-radius: 50px;
   margin-right: 10px;
+  @media (max-width: 767.98px) {
+    margin-right: 0;
+    height: 30px !important;
+    width: 30px !important;
+  }
 `
 
 const ButtonsContainer = styled.div`
@@ -115,6 +132,9 @@ const ChainImg = styled.img`
 const ConnectButtonButtonsContainer = styled.div`
   display: flex;
   gap: 12px;
+  @media (max-width: 767.98px) {
+    gap: 4px;
+  }
 `
 
 const ModeContainer = styled.div`
@@ -129,13 +149,24 @@ const ModeContainer = styled.div`
   align-items: center;
   border-radius: 20px;
   color: ${({ theme }) => theme.text2};
-  font-size: 15px;
   display: flex;
+  @media (max-width: 767.98px) {
+    left: 30px;
+    padding-right: 30px;
+    padding-left: 10px;
+    height: 35px;
+  }
 `
 
 const StyledFaInfoCircle = styled(FaInfoCircle)`
   margin-right: 5px;
   cursor: pointer;
+`
+
+const NicknameText = styled(Text)`
+  @media (max-width: 767.98px) {
+    display: none;
+  }
 `
 
 const CustomConnectButton = () => {
@@ -186,9 +217,8 @@ const CustomConnectButton = () => {
                               <StyledFaInfoCircle />
                             </div>
                           </Tooltip>
-                          {chain.id === polygon.id ? 'Native mode' : 'Compatibility mode'}
+                          <Text variant="text2">{chain.id === polygon.id ? 'Native mode' : 'Compatibility mode'}</Text>
                         </ModeContainer>
-
                         <SelectChainButton onClick={() => setShowChainModal(true)}>
                           {(chain.hasIcon || chain.id === bsc.id) && (
                             <div>
@@ -202,13 +232,15 @@ const CustomConnectButton = () => {
                         </SelectChainButton>
                       </div>
                     }
-                    <ConnectedButton onClick={() => setShowAccountModal(true)}>
-                      {/*account.displayBalance
+                    <div className="d-flex justify-content-end">
+                      <ConnectedButton onClick={() => setShowAccountModal(true)}>
+                        {/*account.displayBalance
         ? ` (${account.displayBalance})`
         : ''*/}
-                      <StyledAvatar size={6} address={account.address} />
-                      {nickname}
-                    </ConnectedButton>
+                        <StyledAvatar size={6} address={account.address} />
+                        <NicknameText variant="text4">{nickname}</NicknameText>
+                      </ConnectedButton>
+                    </div>
                   </ConnectButtonButtonsContainer>
                 )
               })()}
@@ -259,13 +291,13 @@ const Header = (_props) => {
           <StyledLinkMobile to={'/'} active={(pathname === '/').toString()}>
             Overview
           </StyledLinkMobile>
-          <StyledLinkMobile withmargin="true" to={'/staking'} active={(pathname === '/staking').toString()}>
+          <StyledLinkMobile to={'/staking'} active={(pathname === '/staking').toString()}>
             Staking
           </StyledLinkMobile>
-          <StyledLinkMobile withmargin="true" to={'/lending'} active={(pathname === '/lending').toString()}>
+          <StyledLinkMobile to={'/lending'} active={(pathname === '/lending').toString()}>
             Lending
           </StyledLinkMobile>
-          <StyledLinkMobile withmargin="true" to={'/nodes'} active={(pathname === '/nodes').toString()}>
+          <StyledLinkMobile to={'/nodes'} active={(pathname === '/nodes').toString()}>
             Nodes
           </StyledLinkMobile>
         </ContainerLinkMobile>
