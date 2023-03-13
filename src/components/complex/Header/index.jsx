@@ -5,8 +5,6 @@ import { Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import { bsc, polygon } from 'wagmi/chains'
 import { FaInfoCircle } from 'react-icons/fa'
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
-import Popover from 'react-bootstrap/Popover'
 
 import { useNickname } from '../../../hooks/use-nickname'
 
@@ -14,6 +12,7 @@ import Avatar from '../../base/Avatar'
 import Button from '../../base/Button'
 import AccountModal from '../AccountModal'
 import ChainModal from '../ChainModal'
+import Tooltip from '../../base/Tooltip'
 
 const Logo = styled.img`
   width: 40px;
@@ -139,10 +138,6 @@ const StyledFaInfoCircle = styled(FaInfoCircle)`
   cursor: pointer;
 `
 
-const StyledPopover = styled(Popover)`
-  border: 1px solid ${({ theme }) => theme.superLightGray};
-`
-
 const CustomConnectButton = () => {
   const [showAccountModal, setShowAccountModal] = useState(false)
   const [showChainModal, setShowChainModal] = useState(false)
@@ -176,26 +171,21 @@ const CustomConnectButton = () => {
                     {
                       <div className="d-flex">
                         <ModeContainer>
-                          <OverlayTrigger
+                          <Tooltip
+                            id="network-mode-tooltip"
                             placement="bottom"
-                            delay={{ show: 250, hide: 400 }}
-                            overlay={
-                              <StyledPopover>
-                                <Popover.Body>
-                                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                  exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-                                  dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-                                  mollit anim id est laborum.
-                                </Popover.Body>
-                              </StyledPopover>
-                            }
+                            overlayType="popover"
+                            text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+                            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+                            dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+                            mollit anim id est laborum."
                           >
                             <div>
                               <StyledFaInfoCircle />
                             </div>
-                          </OverlayTrigger>
+                          </Tooltip>
                           {chain.id === polygon.id ? 'Native mode' : 'Compatibility mode'}
                         </ModeContainer>
 

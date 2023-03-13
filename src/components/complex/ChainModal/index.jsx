@@ -3,8 +3,6 @@ import { Row, Col } from 'react-bootstrap'
 import { useChainId, useSwitchNetwork, useAccount } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import styled from 'styled-components'
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
-import Popover from 'react-bootstrap/Popover'
 import { FaInfoCircle } from 'react-icons/fa'
 
 import { isValidError } from '../../../utils/errors'
@@ -12,6 +10,7 @@ import { chainIdToIcon } from '../../../contants'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
+import Tooltip from '../../base/Tooltip'
 
 const NetworkIcon = styled.img`
   width: 32px;
@@ -47,10 +46,6 @@ const StyledFaInfoCircle = styled(FaInfoCircle)`
   cursor: pointer;
   height: 16px;
   width: 16px;
-`
-
-const StyledPopover = styled(Popover)`
-  border: 1px solid ${({ theme }) => theme.superLightGray};
 `
 
 const ChainModal = ({ show, onClose }) => {
@@ -120,26 +115,20 @@ const ChainModal = ({ show, onClose }) => {
                       <Text size="sm">
                         &nbsp;&nbsp;({_chain.id === polygon.id ? 'Native' : 'Compatibility'}&nbsp;mode)&nbsp;&nbsp;
                       </Text>
-                      <OverlayTrigger
+                      <Tooltip
                         placement="bottom"
-                        delay={{ show: 250, hide: 400 }}
-                        overlay={
-                          <StyledPopover>
-                            <Popover.Body>
-                              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                              ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-                              reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
-                              sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-                              est laborum.
-                            </Popover.Body>
-                          </StyledPopover>
-                        }
+                        overlayType="popover"
+                        text=" Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                        ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                        ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+                        sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+                        est laborum."
                       >
                         <div>
                           <StyledFaInfoCircle />
                         </div>
-                      </OverlayTrigger>
+                      </Tooltip>
                     </div>
                   </NetworkContainer>
                 </Col>
