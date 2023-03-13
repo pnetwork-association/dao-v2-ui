@@ -43,6 +43,7 @@ const useEpochs = () => {
     () => (startFirstEpochTimestamp ? moment().unix() - startFirstEpochTimestamp : null),
     [startFirstEpochTimestamp]
   )
+
   const secondsPassedUntilStartCurrentEpoch = useMemo(
     () =>
       (currentEpoch || currentEpoch === 0) && epochDuration && startFirstEpochTimestamp

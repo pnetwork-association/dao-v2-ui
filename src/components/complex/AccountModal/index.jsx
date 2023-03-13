@@ -2,14 +2,14 @@ import { useCallback, useState } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import { useAccount, useDisconnect } from 'wagmi'
 import styled from 'styled-components'
-import { Tooltip } from 'react-tooltip'
 
 import { useNickname } from '../../../hooks/use-nickname'
+import { slicer } from '../../../utils/address'
 
 import Modal from '../../base/Modal'
 import Avatar from '../../base/Avatar'
 import Text from '../../base/Text'
-import { slicer } from '../../../utils/address'
+import Tooltip from '../../base/Tooltip'
 
 const StyledAvatar = styled(Avatar)`
   border-radius: 50%;
@@ -65,9 +65,11 @@ const AccountModal = ({ show, onClose }) => {
       </Row>
       <Row>
         <Col className="text-center">
-          <AddressText id="address" data-tooltip-content={tooltipText} size="sm" onClick={onCopyToClipboard}>
-            ({address ? slicer(address) : '-'})
-          </AddressText>
+          <Tooltip id="address-tooltip" text={tooltipText}>
+            <AddressText id="address" size="sm" onClick={onCopyToClipboard}>
+              ({address ? slicer(address) : '-'})
+            </AddressText>
+          </Tooltip>
         </Col>
       </Row>
       <Row className="mt-4 mb-2">
@@ -77,7 +79,6 @@ const AccountModal = ({ show, onClose }) => {
           </DisconnectText>
         </Col>
       </Row>
-      <Tooltip anchorId="address" />
     </Modal>
   )
 }

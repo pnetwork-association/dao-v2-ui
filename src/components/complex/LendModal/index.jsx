@@ -4,8 +4,8 @@ import { Col, Row } from 'react-bootstrap'
 import { Chart } from 'react-chartjs-2'
 import { toast } from 'react-toastify'
 import styled, { ThemeContext } from 'styled-components'
-import { Tooltip } from 'react-tooltip'
 import { useChainId } from 'wagmi'
+import { FaInfoCircle } from 'react-icons/fa'
 
 import { useBalances } from '../../../hooks/use-balances'
 import { useEstimateApy, useLend } from '../../../hooks/use-borrowing-manager'
@@ -21,6 +21,7 @@ import MiniButton from '../../base/MiniButton'
 import Modal from '../../base/Modal'
 import Slider from '../../base/Slider'
 import Text from '../../base/Text'
+import Tooltip from '../../base/Tooltip'
 
 const MaxButton = styled(MiniButton)`
   margin-left: 0.75rem;
@@ -285,10 +286,12 @@ const LendModal = ({ show, onClose }) => {
       <Row className="mt-3">
         <Col xs={6}>
           <Text>APY</Text>
-          <Text id="apyInfo" data-tooltip-content={'TODOTODOTODOTODOTODOTODO'}>
-            &nbsp;*
-          </Text>
-          <Tooltip anchorId="apyInfo" />
+          <Tooltip id="apy-info-lend-tooltip" text={'todo'}>
+            <Text id="apyInfo">
+              &nbsp;
+              <FaInfoCircle />
+            </Text>
+          </Tooltip>
         </Col>
         <Col xs={6} className="text-end">
           <Text variant={'text2'}>{apy?.formattedValue}</Text>

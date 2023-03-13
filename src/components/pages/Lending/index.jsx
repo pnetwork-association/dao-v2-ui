@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Row, Col, Tab } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { Tooltip } from 'react-tooltip'
+import { FaInfoCircle } from 'react-icons/fa'
 
 import {
   useAccountLoanEndEpoch,
@@ -11,6 +11,8 @@ import {
   useUtilizationRatioInTheCurrentEpoch
 } from '../../../hooks/use-borrowing-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
+import { useUserStake } from '../../../hooks/use-staking-manager'
+import { useCountdown } from '../../../hooks/use-countdown'
 import settings from '../../../settings'
 
 import Box from '../../base/Box'
@@ -24,7 +26,8 @@ import UtilizationRatioChart from '../../complex/UtilizationRatioChart'
 import Button from '../../base/Button'
 import UnstakeModal from '../../complex/UnstakeModal'
 import LendDurationModal from '../../complex/LendDurationModal'
-import { useUserStake } from '../../../hooks/use-staking-manager'
+import Tooltip from '../../base/Tooltip'
+import ProgressBar from '../../base/ProgressBar'
 
 const InnerTabContainer = styled.div`
   padding: 1.5rem 1.5rem;
@@ -41,8 +44,9 @@ const Lending = () => {
   const [showLendModal, setShowLendModal] = useState(false)
   const [showIncreaseDurationModal, setShowIncreaseDurationModal] = useState(false)
   const [showUnstakeModal, setShowUnstakeModal] = useState(false)
-  const { formattedCurrentEpoch, formattedCurrentEpochEndIn } = useEpochs()
+  const { currentEpochEndsAt, formattedCurrentEpoch, formattedCurrentEpochEndAt } = useEpochs()
   const utilizationRatioCurrentEpoch = useUtilizationRatioInTheCurrentEpoch()
+  const { formattedLeft: formattedCurrentEpochEndIn, percentageLeft } = useCountdown({ eventTime: currentEpochEndsAt })
 
   const { formattedValue: formattedValueAccountLoanStartEpoch } = useAccountLoanStartEpoch()
   const { formattedValue: formattedValueAccountLoanEndEpoch } = useAccountLoanEndEpoch()
@@ -71,10 +75,17 @@ const Lending = () => {
                 <Line />
                 <Row className="mt-2">
                   <Col xs={6}>
-                    <Text>Current epochs ends at</Text>
+                    <Text>Current epochs ends in</Text>
                   </Col>
                   <Col xs={6} className="text-end">
-                    <Text variant={'text2'}>{formattedCurrentEpochEndIn}</Text>
+                    <Tooltip id="current-end-epoch-tooltip" text={formattedCurrentEpochEndAt}>
+                      <Text variant={'text2'}>{formattedCurrentEpochEndIn}</Text>
+                    </Tooltip>
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={12}>
+                    <ProgressBar now={percentageLeft} />
                   </Col>
                 </Row>
                 <Line />
@@ -90,10 +101,12 @@ const Lending = () => {
                 <Row className="mt-2">
                   <Col xs={8}>
                     <Text>Estimated APY</Text>
-                    <Text id="estimatedApyInfo" data-tooltip-content={'TODOTODOTODOTODOTODOTODO'}>
-                      &nbsp;*
-                    </Text>
-                    <Tooltip anchorId="estimatedApyInfo" />
+                    <Tooltip id="estimated-apy-lend-tooltip" text="todo">
+                      <Text>
+                        &nbsp;&nbsp;
+                        <FaInfoCircle />
+                      </Text>
+                    </Tooltip>
                   </Col>
                   <Col xs={4} className="text-end">
                     <Text variant={'text2'}>{formattedValueApy}</Text>
