@@ -1,7 +1,11 @@
 import { Fragment, useState, useEffect, useCallback } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import { useChainId, useSwitchNetwork, useAccount } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 import styled from 'styled-components'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Popover from 'react-bootstrap/Popover'
+import { FaInfoCircle } from 'react-icons/fa'
 
 import { isValidError } from '../../../utils/errors'
 import { chainIdToIcon } from '../../../contants'
@@ -36,6 +40,17 @@ const Point = styled.div`
   border-radius: 50%;
   margin-left: 10px;
   background: ${({ theme }) => theme.green};
+`
+
+const StyledFaInfoCircle = styled(FaInfoCircle)`
+  margin-right: 5px;
+  cursor: pointer;
+  height: 16px;
+  width: 16px;
+`
+
+const StyledPopover = styled(Popover)`
+  border: 1px solid ${({ theme }) => theme.superLightGray};
 `
 
 const ChainModal = ({ show, onClose }) => {
@@ -97,13 +112,38 @@ const ChainModal = ({ show, onClose }) => {
                       }
                 }
               >
-                <Col xs={8} className="pl-1">
+                <Col xs={9} className="pl-1">
                   <NetworkContainer>
                     <NetworkIcon src={`./assets/svg/${chainIdToIcon[_chain.id]}`} />
-                    <Text>{_chain.name}</Text>
+                    <div className="d-flex align-items-center">
+                      <Text>{_chain.name}</Text>
+                      <Text size="sm">
+                        &nbsp;&nbsp;({_chain.id === polygon.id ? 'Native' : 'Compatibility'}&nbsp;mode)&nbsp;&nbsp;
+                      </Text>
+                      <OverlayTrigger
+                        placement="bottom"
+                        delay={{ show: 250, hide: 400 }}
+                        overlay={
+                          <StyledPopover>
+                            <Popover.Body>
+                              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                              ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+                              reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+                              sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+                              est laborum.
+                            </Popover.Body>
+                          </StyledPopover>
+                        }
+                      >
+                        <div>
+                          <StyledFaInfoCircle />
+                        </div>
+                      </OverlayTrigger>
+                    </div>
                   </NetworkContainer>
                 </Col>
-                <Col xs={4} className="d-flex justify-content-end align-items-center text-end">
+                <Col xs={3} className="d-flex justify-content-end align-items-center text-end">
                   {isCurrentChain && (
                     <Fragment>
                       <Text size="sm">Connected</Text>
