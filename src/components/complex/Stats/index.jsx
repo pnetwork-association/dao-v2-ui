@@ -3,14 +3,17 @@ import { Col, Row } from 'react-bootstrap'
 
 import { useStats } from '../../../hooks/use-stats'
 import { useProposals } from '../../../hooks/use-proposals'
+import { useCountdown } from '../../../hooks/use-countdown'
 
 import Box from '../../base/Box'
 import Line from '../../base/Line'
 import ProgressBar from '../../base/ProgressBar'
 import Text from '../../base/Text'
+import Tooltip from '../../base/Tooltip'
 
 const Stats = () => {
   const {
+    currentEpochEndsAt,
     formattedCurrentEpoch,
     formattedCurrentEpochEndAt,
     formattedDaoPntTotalSupply,
@@ -18,6 +21,10 @@ const Stats = () => {
     percentageStakedPnt
   } = useStats()
   const proposals = useProposals()
+
+  const { formattedLeft: formattedCurrentEpochEndInLeft, percentageLeft } = useCountdown({
+    eventTime: currentEpochEndsAt
+  })
 
   return (
     <Box>
@@ -32,10 +39,17 @@ const Stats = () => {
       <Line />
       <Row className="mt-2">
         <Col xs={6}>
-          <Text>Current epoch ends at</Text>
+          <Text>Current epoch ends in</Text>
         </Col>
         <Col xs={6} className="text-end">
-          <Text variant={'text2'}>{formattedCurrentEpochEndAt}</Text>
+          <Tooltip id="current-end-epoch-tooltip" text={formattedCurrentEpochEndAt}>
+            <Text variant={'text2'}>{formattedCurrentEpochEndInLeft}</Text>
+          </Tooltip>
+        </Col>
+      </Row>
+      <Row className="mt-1 mb-2">
+        <Col>
+          <ProgressBar now={percentageLeft} />
         </Col>
       </Row>
       <Line />

@@ -2,15 +2,16 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import {
-  erc20ABI,
   useAccount,
   useBalance,
+  useChainId,
   useContractRead,
   useContractReads,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction
 } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
@@ -21,6 +22,13 @@ import { getNickname } from '../utils/nicknames'
 import { range, SECONDS_IN_ONE_HOUR } from '../utils/time'
 import { useEpochs } from './use-epochs'
 import { useFeesDistributionByMonthlyRevenues } from './use-fees-manager'
+import {
+  prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking,
+  prepareContractWriteApproveUpdateSentinelRegistrationByStaking,
+  prepareContractWriteUpdateSentinelRegistrationByStaking,
+  prepareContractWriteUpdateSentinelRegistrationByBorrowing,
+  prepareContractWriteIncreaseStakingSentinelRegistrationDuration
+} from '../utils/preparers/registration-manager'
 
 const kind = {
   1: 'Staking',
@@ -34,10 +42,12 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   const [epochs, setEpochs] = useState(0)
   const { address } = useAccount()
   const { currentEpochEndsIn, epochDuration } = useEpochs()
+  const activeChainId = useChainId()
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pnt,
-    address
+    token: settings.contracts.pntOnPolygon,
+    address,
+    chainId: polygon.id
   })
 
   const onChainAmount = useMemo(
@@ -45,24 +55,25 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     [amount]
   )
 
-  const { data: allowance } = useContractRead({
-    address: settings.contracts.pnt,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, settings.contracts.registrationManager]
-  })
+  const { data: allowance } = useContractRead(
+    prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking({
+      address,
+      activeChainId
+    })
+  )
 
   const approveEnabled = useMemo(
     () => onChainAmount.gt(0) && !approved && type === 'stake',
     [onChainAmount, approved, type]
   )
-  const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pnt,
-    abi: erc20ABI,
-    functionName: 'approve',
-    args: [settings.contracts.registrationManager, onChainAmount],
-    enabled: approveEnabled
-  })
+
+  const { config: approveConfigs } = usePrepareContractWrite(
+    prepareContractWriteApproveUpdateSentinelRegistrationByStaking({
+      activeChainId,
+      amount: onChainAmount,
+      approveEnabled
+    })
+  )
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
   const lockTime = useMemo(
@@ -87,13 +98,16 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     [onChainAmount, approved, lockTime, pntBalanceData, isSignatureValid, type]
   )
 
-  const { config: updateSentinelRegistrationByStakingConfigs } = usePrepareContractWrite({
-    address: settings.contracts.registrationManager,
-    abi: RegistrationManagerABI,
-    functionName: 'updateSentinelRegistrationByStaking',
-    args: [onChainAmount, lockTime, isSignatureValid ? signature : '0x'],
-    enabled: updateSentinelRegistrationByStakingEnabled
-  })
+  const { config: updateSentinelRegistrationByStakingConfigs } = usePrepareContractWrite(
+    prepareContractWriteUpdateSentinelRegistrationByStaking({
+      activeChainId,
+      amount: onChainAmount,
+      duration: lockTime,
+      receiver: address,
+      signature,
+      enabled: updateSentinelRegistrationByStakingEnabled
+    })
+  )
 
   const {
     write: updateSentinelRegistrationByStaking,
@@ -113,13 +127,15 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     () => epochs >= 1 && isSignatureValid && type === 'borrow',
     [epochs, isSignatureValid, type]
   )
-  const { config: updateSentinelRegistrationByBorrowingConfigs } = usePrepareContractWrite({
-    address: settings.contracts.registrationManager,
-    abi: RegistrationManagerABI,
-    functionName: 'updateSentinelRegistrationByBorrowing',
-    args: [epochs, isSignatureValid ? signature : '0x'],
-    enabled: updateSentinelRegistrationByBorrowingEnabled
-  })
+  const { config: updateSentinelRegistrationByBorrowingConfigs } = usePrepareContractWrite(
+    prepareContractWriteUpdateSentinelRegistrationByBorrowing({
+      activeChainId,
+      numberOfEpochs: epochs,
+      receiver: address,
+      signature,
+      enabled: updateSentinelRegistrationByBorrowingEnabled
+    })
+  )
   const {
     write: updateSentinelRegistrationByBorrowing,
     error: updateSentinelRegistrationByBorrowingError,
@@ -195,7 +211,8 @@ const useSentinel = () => {
     functionName: 'sentinelOf',
     args: [address],
     enabled: address,
-    watch: true
+    watch: true,
+    chainId: polygon.id
   })
 
   const sentinelAddress =
@@ -208,7 +225,8 @@ const useSentinel = () => {
     abi: RegistrationManagerABI,
     functionName: 'sentinelRegistration',
     args: [sentinelAddress],
-    enabled: sentinelAddress
+    enabled: sentinelAddress,
+    chainId: polygon.id
   })
 
   return {
@@ -240,7 +258,8 @@ const useBorrowingSentinelProspectus = () => {
         abi: BorrowingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [_startEpoch, _endEpoch],
-        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        chainId: polygon.id
       }
     ]
   })
@@ -307,4 +326,33 @@ const useBorrowingSentinelProspectus = () => {
   }
 }
 
-export { useBorrowingSentinelProspectus, useRegisterSentinel, useSentinel }
+const useIncreaseStakingSentinelRegistrationDuration = () => {
+  const { epochDuration } = useEpochs()
+  const [epochs, setEpochs] = useState(0)
+  const activeChainId = useChainId()
+
+  const { config } = usePrepareContractWrite(
+    prepareContractWriteIncreaseStakingSentinelRegistrationDuration({
+      activeChainId,
+      duration: epochs * epochDuration,
+      enabled: epochs > 0
+    })
+  )
+  const { write, error, data, isLoading } = useContractWrite(config)
+
+  return {
+    epochs,
+    setEpochs,
+    increaseStakingSentinelRegistrationDuration: write,
+    increaseStakingSentinelRegistrationDurationData: data,
+    increaseStakingSentinelRegistrationDurationError: error,
+    increaseStakingSentinelRegistrationDurationLoading: isLoading
+  }
+}
+
+export {
+  useBorrowingSentinelProspectus,
+  useIncreaseStakingSentinelRegistrationDuration,
+  useRegisterSentinel,
+  useSentinel
+}

@@ -3,20 +3,29 @@ import { ethers } from 'ethers'
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import {
-  erc20ABI,
   useAccount,
   useBalance,
+  useChainId,
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction
 } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 import axios from 'axios'
 
 import settings from '../settings'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import { formatAssetAmount } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
+import {
+  prepareContractReadAllowanceApproveStake,
+  prepareContractWriteApproveStake,
+  prepareContractWriteStake,
+  prepareContractWriteUnstake
+} from '../utils/preparers/staking-manager'
+import { getPntAddressByChainId } from '../utils/preparers/balance'
+import { pNetworkChainIds } from '../contants'
 
 const useStake = () => {
   const [approved, setApproved] = useState(false)
@@ -24,18 +33,14 @@ const useStake = () => {
   const [amount, setAmount] = useState('0')
   const [duration, setDuration] = useState(settings.stakingManager.minStakeDays)
   const { address } = useAccount()
+  const activeChainId = useChainId()
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pnt,
+    token: getPntAddressByChainId(activeChainId),
     address
   })
 
-  const { data: allowance } = useContractRead({
-    address: settings.contracts.pnt,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, settings.contracts.stakingManager]
-  })
+  const { data: allowance } = useContractRead(prepareContractReadAllowanceApproveStake({ activeChainId, address }))
 
   const onChainAmount = useMemo(
     () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
@@ -43,13 +48,9 @@ const useStake = () => {
   )
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
-  const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pnt,
-    abi: erc20ABI,
-    functionName: 'approve',
-    args: [settings.contracts.stakingManager, onChainAmount],
-    enabled: approveEnabled
-  })
+  const { config: approveConfigs } = usePrepareContractWrite(
+    prepareContractWriteApproveStake({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
+  )
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
   const stakeEnabled = useMemo(
@@ -60,13 +61,16 @@ const useStake = () => {
       duration >= settings.stakingManager.minStakeDays,
     [onChainAmount, approved, pntBalanceData, duration]
   )
-  const { config: stakeConfigs } = usePrepareContractWrite({
-    address: settings.contracts.stakingManager,
-    abi: StakingManagerABI,
-    functionName: 'stake',
-    args: [onChainAmount, duration * SECONDS_IN_ONE_DAY, receiver],
-    enabled: stakeEnabled
-  })
+
+  const { config: stakeConfigs } = usePrepareContractWrite(
+    prepareContractWriteStake({
+      activeChainId,
+      amount: onChainAmount,
+      duration: duration * SECONDS_IN_ONE_DAY,
+      receiver,
+      enabled: stakeEnabled
+    })
+  )
   const { write: stake, error: stakeError, data: stakeData } = useContractWrite(stakeConfigs)
 
   const { isLoading: isApproving } = useWaitForTransaction({
@@ -124,22 +128,35 @@ const useStake = () => {
   }
 }
 
-const useUnstake = () => {
+const useUnstake = (_opts = {}) => {
+  const { contractAddress = settings.contracts.stakingManager } = _opts
+
   const [amount, setAmount] = useState('0')
+  const activeChainId = useChainId()
+  const [chainId, setChainId] = useState(activeChainId)
   const { availableToUnstakePntAmount } = useUserStake()
+  const { address } = useAccount()
 
   const onChainAmount = useMemo(
     () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
     [amount]
   )
 
-  const { config: unstakeConfigs } = usePrepareContractWrite({
-    address: settings.contracts.stakingManager,
-    abi: StakingManagerABI,
-    functionName: 'unstake',
-    args: [onChainAmount],
-    enabled: BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount)
-  })
+  const unstakeEnabled = useMemo(
+    () => BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
+    [amount, availableToUnstakePntAmount]
+  )
+
+  const { config: unstakeConfigs } = usePrepareContractWrite(
+    prepareContractWriteUnstake({
+      activeChainId,
+      amount: onChainAmount,
+      chainId: pNetworkChainIds[chainId],
+      receiver: address,
+      enabled: unstakeEnabled,
+      contractAddress
+    })
+  )
   const { write: unstake, error: unstakeError, data: unstakeData } = useContractWrite(unstakeConfigs)
 
   const { isLoading: isUnstaking } = useWaitForTransaction({
@@ -148,37 +165,47 @@ const useUnstake = () => {
 
   return {
     amount,
+    chainId,
     isUnstaking,
     setAmount,
+    setChainId,
     unstake,
     unstakeData,
     unstakeError
   }
 }
 
-const useUserStake = () => {
+const useUserStake = (_opts = {}) => {
+  const { contractAddress = settings.contracts.stakingManager } = _opts
   const { address } = useAccount()
 
   const { data } = useContractRead({
-    address: settings.contracts.stakingManager,
+    address: contractAddress,
     abi: StakingManagerABI,
     functionName: 'stakeOf',
     args: [address],
     enabled: address,
-    watch: true
+    watch: true,
+    chainId: polygon.id
   })
 
   const availableToUnstakePntAmount = useMemo(() => {
     if (!data) return
-
     const { endDate, amount } = data
-
-    return BigNumber(endDate.toNumber() >= moment().unix() ? amount.toString() : 0).dividedBy(10 ** 18)
+    return BigNumber(endDate.toNumber() <= moment().unix() ? amount.toString() : 0).dividedBy(10 ** 18)
   }, [data])
 
+  const amount = useMemo(() => (!data ? null : BigNumber(data.amount.toString()).dividedBy(10 ** 18)), [data])
+  const endDate = useMemo(() => (!data ? null : data?.endDate?.toNumber()), [data])
+  const startDate = useMemo(() => (!data ? null : data?.startDate?.toNumber()), [data])
+
   return {
+    amount,
     availableToUnstakePntAmount,
-    fomattedAvailableToUnstakePntAmount: formatAssetAmount(availableToUnstakePntAmount, 'PNT')
+    endDate,
+    fomattedAvailableToUnstakePntAmount: formatAssetAmount(availableToUnstakePntAmount, 'PNT'),
+    formattedValue: formatAssetAmount(amount, 'PNT'),
+    startDate
   }
 }
 

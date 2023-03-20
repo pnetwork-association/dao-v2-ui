@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
+import { polygon } from 'wagmi/chains'
 
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useEpochs } from '../../../hooks/use-epochs'
@@ -26,7 +27,7 @@ const ClaimByEpochs = ({ assets, claim }) => {
     async (_address, _epoch) => {
       try {
         setLoading(`${_epoch}_${_address}`)
-        toastifyTransaction(await claim(_address, _epoch), () => {
+        toastifyTransaction(await claim(_address, _epoch), { chainId: polygon.id }, () => {
           setLoading(null)
           setClaimed(`${_epoch}_${_address}`)
         })

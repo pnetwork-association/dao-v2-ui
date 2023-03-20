@@ -3,6 +3,7 @@ import axios from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
 import { useContractReads, erc20ABI } from 'wagmi'
+import { mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
@@ -11,22 +12,25 @@ import { useEpochs } from './use-epochs'
 const useStats = () => {
   const [daoPntOnBscTotalSupply, setDaoPntOnBscTotalSupply] = useState(0)
 
-  const { currentEpoch, formattedCurrentEpoch, formattedCurrentEpochEndAt } = useEpochs()
+  const { currentEpoch, currentEpochEndsAt, currentEpochEndsIn, formattedCurrentEpoch, formattedCurrentEpochEndAt } =
+    useEpochs()
 
   const { data } = useContractReads({
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.pnt,
+        address: settings.contracts.pntOnEthereum,
         abi: erc20ABI,
         functionName: 'totalSupply',
-        args: []
+        args: [],
+        chainId: mainnet.id
       },
       {
         address: settings.contracts.daoPnt,
         abi: erc20ABI,
         functionName: 'totalSupply',
-        args: []
+        args: [],
+        chainId: polygon.id
       }
     ]
   })
@@ -66,10 +70,14 @@ const useStats = () => {
 
   return {
     currentEpoch,
+    currentEpochEndsAt,
+    currentEpochEndsIn,
     daoPntTotalSupply: daoPntTotalSupply.toFixed(),
     formattedCurrentEpoch,
     formattedCurrentEpochEndAt,
-    formattedDaoPntTotalSupply: formatAssetAmount(daoPntTotalSupply, 'daoPNT', { decimals: 0 }),
+    formattedDaoPntTotalSupply: formatAssetAmount(daoPntTotalSupply, 'daoPNT', {
+      decimals: 0
+    }),
     formattedPercentageStakedPnt: formatAssetAmount(percentageStakedPnt, '%', {
       decimals: 2
     }),

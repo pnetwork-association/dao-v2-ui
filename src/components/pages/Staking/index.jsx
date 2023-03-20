@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
-// import styled from 'styled-components'
-//import BigNumber from 'bignumber.js'
 
 import { useBalances, useVotingPower } from '../../../hooks/use-balances'
 import { useEpochs } from '../../../hooks/use-epochs'
+import settings from '../../../settings'
 
 import Box from '../../base/Box'
 import Button from '../../base/Button'
@@ -70,10 +69,10 @@ const Staking = () => {
         <Line />
         <Row className="mt-3">
           <Col xs={6}>
-            <Button onClick={() => setShowStakeModal(true)}>Stake</Button>
+            <Button onClick={() => setShowUnstakeModal(true)}>Unstake</Button>
           </Col>
           <Col xs={6}>
-            <Button onClick={() => setShowUnstakeModal(true)}>Unstake</Button>
+            <Button onClick={() => setShowStakeModal(true)}>Stake</Button>
           </Col>
         </Row>
       </Box>
@@ -81,7 +80,11 @@ const Staking = () => {
         <HistoricalDaoPntTotalSupplyChart />
       </Box>
       <StakeModal show={showStakeModal} onClose={() => setShowStakeModal(false)} />
-      <UnstakeModal show={showUnstakeModal} onClose={() => setShowUnstakeModal(false)} />
+      <UnstakeModal
+        show={showUnstakeModal}
+        contractAddress={settings.contracts.stakingManager}
+        onClose={() => setShowUnstakeModal(false)}
+      />
     </PageTemplate>
   )
 }

@@ -3,7 +3,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import settings from '../../../settings'
-import { getAddressExplorerLink } from '../../../utils/explorer'
+import { getAddressExplorerUrl } from '../../../utils/explorer'
 
 import { formatAssetAmount } from '../../../utils/amount'
 import A from '../../base/A'
@@ -32,11 +32,11 @@ const Action = ({ action }) => {
           <Text variant="text2">{amount}&nbsp;</Text>
           <AssetLogo src={asset.logo} />
           <Text>&nbsp;&nbsp;from&nbsp;</Text>
-          <A href={getAddressExplorerLink(from)} target="_blank">
+          <A href={getAddressExplorerUrl(from)} target="_blank">
             {fromNickname}
           </A>
           <Text>&nbsp;to&nbsp;</Text>
-          <A href={getAddressExplorerLink(to)} target="_blank">
+          <A href={getAddressExplorerUrl(to)} target="_blank">
             {toNickname}
           </A>
         </span>
@@ -52,7 +52,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerLink(creator)} target="_blank">
+          <A href={getAddressExplorerUrl(creator)} target="_blank">
             {creatorNickname}
           </A>
           <Text>&nbsp;opened a new proposal:&nbsp;</Text>
@@ -68,7 +68,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerLink(voter)} target="_blank">
+          <A href={getAddressExplorerUrl(voter)} target="_blank">
             {voterNickname}
           </A>
           <Text>&nbsp;voted&nbsp;</Text>
@@ -86,7 +86,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerLink(receiver)} target="_blank">
+          <A href={getAddressExplorerUrl(receiver)} target="_blank">
             {receiverNickname}
           </A>
           <Text>&nbsp;staked&nbsp;</Text>
@@ -105,7 +105,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerLink(owner)} target="_blank">
+          <A href={getAddressExplorerUrl(owner)} target="_blank">
             {ownerNickname}
           </A>
           <Text>&nbsp;unstaked&nbsp;</Text>
@@ -122,7 +122,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerLink(lender)} target="_blank">
+          <A href={getAddressExplorerUrl(lender)} target="_blank">
             {lenderNickname}
           </A>
           <Text>&nbsp;lended&nbsp;</Text>

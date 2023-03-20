@@ -21,6 +21,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "InvalidForwarder",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "LendPeriodTooBig",
     "type": "error"
@@ -85,6 +96,38 @@
       }
     ],
     "name": "Borrowed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "endEpoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "DurationIncreased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
     "type": "event"
   },
   {
@@ -320,6 +363,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "SET_FORWARDER_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -434,35 +490,6 @@
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "asset",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "epoch",
-        "type": "uint16"
-      }
-    ],
-    "name": "claimableAssetAmountByEpochOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "lender",
-        "type": "address"
-      },
-      {
         "internalType": "address[]",
         "name": "assets",
         "type": "address[]"
@@ -484,6 +511,35 @@
         "internalType": "uint256[]",
         "name": "",
         "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "epoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "claimableInterestByEpochOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -515,6 +571,19 @@
   {
     "inputs": [],
     "name": "epochsManager",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "forwarder",
     "outputs": [
       {
         "internalType": "address",
@@ -633,6 +702,37 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint64",
+        "name": "duration",
+        "type": "uint64"
+      }
+    ],
+    "name": "increaseDuration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "duration",
+        "type": "uint64"
+      }
+    ],
+    "name": "increaseDuration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_token",
         "type": "address"
       },
@@ -644,6 +744,11 @@
       {
         "internalType": "address",
         "name": "_epochsManager",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_forwarder",
         "type": "address"
       },
       {
@@ -660,19 +765,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       },
       {
         "internalType": "uint64",
-        "name": "lockTime",
+        "name": "duration",
         "type": "uint64"
-      },
-      {
-        "internalType": "address",
-        "name": "receiver",
-        "type": "address"
       }
     ],
     "name": "lend",
@@ -701,6 +806,19 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proxiableUUID",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -768,6 +886,19 @@
       }
     ],
     "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "forwarder_",
+        "type": "address"
+      }
+    ],
+    "name": "setForwarder",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

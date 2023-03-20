@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import styled from 'styled-components'
 import BigNumber from 'bignumber.js'
 import { toast } from 'react-toastify'
+import { useChainId } from 'wagmi'
 
 import { useBalances } from '../../../hooks/use-balances'
 import { useUserStake } from '../../../hooks/use-staking-manager'
@@ -13,21 +13,16 @@ import { isValidError } from '../../../utils/errors'
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
 import Button from '../../base/Button'
-import MiniButton from '../../base/MiniButton'
-import AdvancedInput from '../../base/AdvancedInput'
+import InputAmount from '../../base/InputAmount'
+import ChainSelection from '../../complex/ChainSelection'
 
-const MaxButton = styled(MiniButton)`
-  margin-left: 0.75rem;
-
-  @media (max-width: 767.98px) {
-    bottom: 157px;
-  }
-`
-
-const UnstakeModal = ({ show, onClose }) => {
+const UnstakeModal = ({ show, contractAddress, onClose }) => {
+  const activeChainId = useChainId()
   const { formattedPntBalance, formattedDaoPntBalance } = useBalances()
-  const { availableToUnstakePntAmount, fomattedAvailableToUnstakePntAmount } = useUserStake()
-  const { amount, isUnstaking, setAmount, unstake, unstakeData, unstakeError } = useUnstake()
+  const { availableToUnstakePntAmount, fomattedAvailableToUnstakePntAmount } = useUserStake({ contractAddress })
+  const { amount, isUnstaking, setAmount, setChainId, unstake, unstakeData, unstakeError } = useUnstake({
+    contractAddress
+  })
 
   useEffect(() => {
     if (unstakeError && isValidError(unstakeError)) {
@@ -37,11 +32,11 @@ const UnstakeModal = ({ show, onClose }) => {
 
   useEffect(() => {
     if (unstakeData) {
-      toastifyTransaction(unstakeData, () => {
+      toastifyTransaction(unstakeData, { chainId: activeChainId }, () => {
         setAmount('')
       })
     }
-  }, [unstakeData, setAmount])
+  }, [unstakeData, setAmount, activeChainId])
 
   useEffect(() => {
     if (!show) {
@@ -50,7 +45,7 @@ const UnstakeModal = ({ show, onClose }) => {
   }, [show, setAmount])
 
   const onMax = useCallback(() => {
-    setAmount(availableToUnstakePntAmount)
+    setAmount(availableToUnstakePntAmount.toFixed())
   }, [availableToUnstakePntAmount, setAmount])
 
   const unstakeButtonDisabled = useMemo(
@@ -89,11 +84,12 @@ const UnstakeModal = ({ show, onClose }) => {
       </Row>
       <Row className="mt-3">
         <Col>
-          <AdvancedInput
-            contentLeft={<MaxButton onClick={onMax}>MAX</MaxButton>}
-            value={amount}
-            onChange={(_e) => setAmount(_e.target.value)}
-          />
+          <InputAmount value={amount} onChange={(_e) => setAmount(_e.target.value)} onMax={onMax} />
+        </Col>
+      </Row>
+      <Row className="mt-2">
+        <Col>
+          <ChainSelection onChange={setChainId} />
         </Col>
       </Row>
       <Row className="mt-2 mb-2">

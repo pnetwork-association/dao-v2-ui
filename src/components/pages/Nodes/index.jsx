@@ -101,12 +101,12 @@ const Nodes = () => {
               </Box>
             </InnerTabContainer>
           </Tab>
-          <Tab eventKey="guardian" title="Guardian">
+          {/*<Tab eventKey="guardian" title="Guardian">
             <InnerTabContainer></InnerTabContainer>
           </Tab>
           <Tab eventKey="relayer" title="Relayer">
             <InnerTabContainer></InnerTabContainer>
-          </Tab>
+          </Tab>*/}
         </Tabs>
       </Box>
     </PageTemplate>

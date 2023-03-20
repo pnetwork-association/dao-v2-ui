@@ -1,7 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
-import { useAccount } from 'wagmi'
+import { useAccount, useChainId } from 'wagmi'
 import { toast } from 'react-toastify'
 
 import { useStake } from '../../../hooks/use-staking-manager'
@@ -40,6 +40,7 @@ const StakeModal = ({ show, onClose }) => {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
   const { pntBalance, formattedPntBalance, formattedDaoPntBalance } = useBalances()
   const { address } = useAccount()
+  const activeChainId = useChainId()
 
   const {
     amount,
@@ -74,15 +75,15 @@ const StakeModal = ({ show, onClose }) => {
 
   useEffect(() => {
     if (approveData) {
-      toastifyTransaction(approveData)
+      toastifyTransaction(approveData, { chainId: activeChainId })
     }
-  }, [approveData])
+  }, [approveData, activeChainId])
 
   useEffect(() => {
     if (stakeData) {
-      toastifyTransaction(stakeData)
+      toastifyTransaction(stakeData, { chainId: activeChainId })
     }
-  }, [stakeData])
+  }, [stakeData, activeChainId])
 
   useEffect(() => {
     setReceiver(address)
@@ -126,6 +127,7 @@ const StakeModal = ({ show, onClose }) => {
           <InputAmount onMax={onMax} value={amount} onChange={(_e) => setAmount(_e.target.value)} />
         </Col>
       </Row>
+
       <Row className="mt-2">
         <Col>
           <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>

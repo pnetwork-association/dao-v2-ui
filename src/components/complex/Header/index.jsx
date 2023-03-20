@@ -3,12 +3,17 @@ import React, { Fragment, useState } from 'react'
 import { Container, Nav, Navbar } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
+import { bsc, polygon } from 'wagmi/chains'
+import { FaInfoCircle } from 'react-icons/fa'
 
 import { useNickname } from '../../../hooks/use-nickname'
 
 import Avatar from '../../base/Avatar'
 import Button from '../../base/Button'
 import AccountModal from '../AccountModal'
+import ChainModal from '../ChainModal'
+import Tooltip from '../../base/Tooltip'
+import Text from '../../base/Text'
 
 const Logo = styled.img`
   width: 40px;
@@ -17,6 +22,7 @@ const Logo = styled.img`
   @media (max-width: 767.98px) {
     width: 30px;
     height: 30px;
+    margin-right: 0px;
   }
 `
 
@@ -55,11 +61,33 @@ const HeaderContainer = styled(Container)`
 const ConnectedButton = styled(Button)`
   color: ${({ theme }) => theme.text4};
   height: 40px;
+  width: auto;
+  @media (max-width: 767.98px) {
+    height: 35px;
+    width: 35px;
+  }
+`
+
+const SelectChainButton = styled(Button)`
+  display: flex;
+  align-items: space-between;
+  z-index: 1;
+  color: ${({ theme }) => theme.text4};
+  height: 40px;
+  width: auto;
+  @media (max-width: 767.98px) {
+    height: 35px;
+  }
 `
 
 const StyledAvatar = styled(Avatar)`
   border-radius: 50px;
   margin-right: 10px;
+  @media (max-width: 767.98px) {
+    margin-right: 0;
+    height: 30px !important;
+    width: 30px !important;
+  }
 `
 
 const ButtonsContainer = styled.div`
@@ -91,14 +119,65 @@ const StyledNavbar = styled(Navbar)`
   padding: 0;
 `
 
+const ChainName = styled.span`
+  margin-left: 10px;
+`
+
+const ChainImg = styled.img`
+  border-radius: 50px;
+  height: 24px;
+  width: 24px;
+`
+
+const ConnectButtonButtonsContainer = styled.div`
+  display: flex;
+  gap: 12px;
+  @media (max-width: 767.98px) {
+    gap: 4px;
+  }
+`
+
+const ModeContainer = styled.div`
+  height: 40px;
+  left: 30px;
+  padding-right: 40px;
+  padding-left: 20px;
+  background: ${({ theme }) => theme.bg1};
+  border: 1.5px solid ${({ theme }) => theme.secondary4};
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 20px;
+  color: ${({ theme }) => theme.text2};
+  display: flex;
+  @media (max-width: 767.98px) {
+    left: 30px;
+    padding-right: 30px;
+    padding-left: 10px;
+    height: 35px;
+  }
+`
+
+const StyledFaInfoCircle = styled(FaInfoCircle)`
+  margin-right: 5px;
+  cursor: pointer;
+`
+
+const NicknameText = styled(Text)`
+  @media (max-width: 767.98px) {
+    display: none;
+  }
+`
+
 const CustomConnectButton = () => {
   const [showAccountModal, setShowAccountModal] = useState(false)
+  const [showChainModal, setShowChainModal] = useState(false)
   const nickname = useNickname()
 
   return (
     <Fragment>
       <ConnectButton.Custom>
-        {({ account, chain, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+        {({ account, chain, openConnectModal, authenticationStatus, mounted }) => {
           const ready = mounted && authenticationStatus !== 'loading'
           const connected =
             ready && account && chain && (!authenticationStatus || authenticationStatus === 'authenticated')
@@ -112,50 +191,57 @@ const CustomConnectButton = () => {
 
                 if (chain.unsupported) {
                   return (
-                    <Button onClick={openChainModal} type="button">
+                    <Button onClick={() => setShowChainModal(true)} type="button">
                       Wrong network
                     </Button>
                   )
                 }
 
                 return (
-                  <div>
-                    {/*<button
-      onClick={openChainModal}
-      style={{ display: 'flex', alignItems: 'center' }}
-      type="button"
-    >
-      {chain.hasIcon && (
-        <div
-          style={{
-            background: chain.iconBackground,
-            width: 12,
-            height: 12,
-            borderRadius: 999,
-            overflow: 'hidden',
-            marginRight: 4,
-          }}
-        >
-          {chain.iconUrl && (
-            <img
-              alt={chain.name ?? 'Chain icon'}
-              src={chain.iconUrl}
-              style={{ width: 12, height: 12 }}
-            />
-          )}
-        </div>
-      )}
-      {chain.name}
-          </button>*/}
-
-                    <ConnectedButton onClick={() => setShowAccountModal(true)}>
-                      {/*account.displayBalance
+                  <ConnectButtonButtonsContainer>
+                    {
+                      <div className="d-flex">
+                        <ModeContainer>
+                          <Tooltip
+                            id="network-mode-tooltip"
+                            placement="bottom"
+                            overlayType="popover"
+                            text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+                            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+                            dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+                            mollit anim id est laborum."
+                          >
+                            <div>
+                              <StyledFaInfoCircle />
+                            </div>
+                          </Tooltip>
+                          <Text variant="text2">{chain.id === polygon.id ? 'Native mode' : 'Compatibility mode'}</Text>
+                        </ModeContainer>
+                        <SelectChainButton onClick={() => setShowChainModal(true)}>
+                          {(chain.hasIcon || chain.id === bsc.id) && (
+                            <div>
+                              {chain.id === bsc.id && (
+                                <ChainImg alt={chain.name ?? 'Chain icon'} src={'./assets/svg/bsc.svg'} />
+                              )}
+                              {chain.iconUrl && <ChainImg alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} />}
+                            </div>
+                          )}
+                          <ChainName>{chain.name}</ChainName>
+                        </SelectChainButton>
+                      </div>
+                    }
+                    <div className="d-flex justify-content-end">
+                      <ConnectedButton onClick={() => setShowAccountModal(true)}>
+                        {/*account.displayBalance
         ? ` (${account.displayBalance})`
         : ''*/}
-                      <StyledAvatar size={6} address={account.address} />
-                      {nickname}
-                    </ConnectedButton>
-                  </div>
+                        <StyledAvatar size={6} address={account.address} />
+                        <NicknameText variant="text4">{nickname}</NicknameText>
+                      </ConnectedButton>
+                    </div>
+                  </ConnectButtonButtonsContainer>
                 )
               })()}
             </div>
@@ -163,6 +249,7 @@ const CustomConnectButton = () => {
         }}
       </ConnectButton.Custom>
       <AccountModal show={showAccountModal} onClose={() => setShowAccountModal(false)} />
+      <ChainModal show={showChainModal} onClose={() => setShowChainModal(false)} />
     </Fragment>
   )
 }
@@ -204,13 +291,13 @@ const Header = (_props) => {
           <StyledLinkMobile to={'/'} active={(pathname === '/').toString()}>
             Overview
           </StyledLinkMobile>
-          <StyledLinkMobile withmargin="true" to={'/staking'} active={(pathname === '/staking').toString()}>
+          <StyledLinkMobile to={'/staking'} active={(pathname === '/staking').toString()}>
             Staking
           </StyledLinkMobile>
-          <StyledLinkMobile withmargin="true" to={'/lending'} active={(pathname === '/lending').toString()}>
+          <StyledLinkMobile to={'/lending'} active={(pathname === '/lending').toString()}>
             Lending
           </StyledLinkMobile>
-          <StyledLinkMobile withmargin="true" to={'/nodes'} active={(pathname === '/nodes').toString()}>
+          <StyledLinkMobile to={'/nodes'} active={(pathname === '/nodes').toString()}>
             Nodes
           </StyledLinkMobile>
         </ContainerLinkMobile>

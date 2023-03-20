@@ -75,7 +75,7 @@ const CreateProposalModal = ({ show, onClose }) => {
   }, [showScript, setShowScript])
 
   return (
-    <Modal show={show} title="Create Proposal" onClose={onClose} size="lg">
+    <Modal show={show} title="Open a new DAO proposal" onClose={onClose} size="lg">
       {hasPermissionOrEnoughBalance && (
         <Fragment>
           <Row className="mt-2">

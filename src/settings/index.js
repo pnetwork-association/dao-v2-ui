@@ -9,15 +9,24 @@ const settings = {
     github: 'https://github.com/pnetwork-association'
   },
   contracts: {
-    pnt: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
-    daoPnt: '0xe824F81cD136BB7a28480baF8d7E5f0E8E4B693E',
-    dandelionVoting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
-    acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
-    stakingManager: '0x67baFF31318638F497f4c4894Cd73918563942c8',
-    borrowingManager: '0x2b639Cc84e1Ad3aA92D4Ee7d2755A6ABEf300D72',
-    epochsManager: '0x73C68f1f41e4890D06Ba3e71b9E9DfA555f1fb46',
-    registrationManager: '0x0b27a79cb9C0B38eE06Ca3d94DAA68e0Ed17F953',
-    feesManager: '0xB468647B04bF657C9ee2de65252037d781eABafD'
+    pTokensVault: '0xe396757EC7E6aC7C8E5ABE7285dde47b98F22db8',
+    pntOnPolygon: '0xb6bcae6468760bc0cdfb9c8ef4ee75c9dd23e1ed',
+    pntOnEthereum: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
+    pntOnBsc: '0xdaacB0Ab6Fb34d24E8a67BfA14BF4D95D4C7aF92',
+    daoPnt: '0xd73EfE7D4884c124A854bFB499D48626ef062539',
+    dandelionVotingOld: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
+    dandelionVoting: '0x31dD13472b9C6753843BB099E464b60C848d8D35',
+    acl: '0xB83ebd9296bE6D86325b68f6DC6bf2f923576580',
+    stakingManager: '0x7c74254862BBEc10Ce6B28C036Fd69418034dE0E',
+    stakingManagerBM: '0xD95D72965258AB791DC38F55f017b014ec7034d7',
+    stakingManagerRM: '0x31c1d5f794111B5e4FEd8F62bfb8ed3f6Bd22b6E',
+    borrowingManager: '0x26Bb44a16cd34aa748E86034f5d305A09C96501C',
+    epochsManager: '0x3C044593de9593713394dF8Fee3A1b7fa974db6e',
+    registrationManager: '0x2171D65A315CA7B8c081f491E0d22ca60e6D40eE',
+    feesManager: '0x456F799eC7Ad4361312af70ee3a9D508aA8572cB',
+    forwarderOnPolygon: '0x76D079b79e20989C0dD022ABcf5fF7D76DD3964f',
+    forwarderOnMainnet: '0x0e9A8c66f744fE88bf37D0b6E32f55e16BA4974E',
+    forwarderOnBsc: '0x1DAa27FbB620b985ef495d28c1fD8c17Ba83D122'
   },
   stakingManager: {
     minStakeDays: 7,
@@ -28,7 +37,11 @@ const settings = {
     minStakeAmount: 200000,
     estimatedSentinelRunningCost: 150
   },
-  explorer: 'https://etherscan.io',
+  explorers: {
+    mainnet: 'https://etherscan.io',
+    bsc: 'https://bscscan.com',
+    polygon: 'https://polygonscan.com'
+  },
   assets: [
     {
       address: '0xf4ea6b892853413bd9d9f1a5d3a620a0ba39c5b2',
