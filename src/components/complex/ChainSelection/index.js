@@ -26,11 +26,27 @@ const NetworkRow = styled(Row)`
   cursor: pointer;
 `
 
+const FALLBACK_CHAINS = [
+  {
+    id: 1,
+    name: 'Ethereum'
+  },
+  {
+    id: 137,
+    name: 'Polygon'
+  },
+  {
+    id: 56,
+    name: 'BNB Smart Chain'
+  }
+]
+
 const ChainSelection = ({ onChange }) => {
   const { chains } = useSwitchNetwork()
 
   const options = useMemo(() => {
-    return chains.map((_chain) => {
+    const effectiveChains = chains.length > 0 ? chains : FALLBACK_CHAINS
+    return effectiveChains.map((_chain) => {
       return {
         option: _chain.id,
         component: (
