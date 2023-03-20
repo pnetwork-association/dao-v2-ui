@@ -1,8 +1,9 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 import { useAccount, useChainId } from 'wagmi'
 import { toast } from 'react-toastify'
+import BigNumber from 'bignumber.js'
 
 import { useStake } from '../../../hooks/use-staking-manager'
 import { useBalances } from '../../../hooks/use-balances'
@@ -96,13 +97,14 @@ const StakeModal = ({ show, onClose }) => {
     }
   }, [show, setAmount])
 
-  const onMax = useCallback(() => {
-    setAmount(pntBalance)
-  }, [pntBalance, setAmount])
-
   const onShowOrHideAdvancedOptions = useCallback(() => {
     setShowAdvancedOptions(!showAdvancedOptions)
   }, [showAdvancedOptions])
+
+  const stakeButtonText = useMemo(
+    () => (BigNumber(amount).isGreaterThan(pntBalance) && !stakeEnabled ? 'Insufficent amount' : 'Stake'),
+    [amount, pntBalance, stakeEnabled]
+  )
 
   return (
     <Modal show={show} title="Stake PNT in pNetwork DAO" onClose={onClose} size="lg">
@@ -124,10 +126,14 @@ const StakeModal = ({ show, onClose }) => {
       </Row>
       <Row className="mt-3">
         <Col>
-          <InputAmount onMax={onMax} value={amount} onChange={(_e) => setAmount(_e.target.value)} />
+          <InputAmount
+            max={pntBalance}
+            value={amount}
+            onChange={(_e) => setAmount(_e.target.value)}
+            onMax={(_max) => setAmount(_max)}
+          />
         </Col>
       </Row>
-
       <Row className="mt-2">
         <Col>
           <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>
@@ -138,7 +144,7 @@ const StakeModal = ({ show, onClose }) => {
       <Row className="mt-2">
         <Col>
           <Button disabled={!stakeEnabled} loading={isStaking} onClick={() => stake?.()}>
-            Stake
+            {stakeButtonText}
           </Button>
         </Col>
       </Row>

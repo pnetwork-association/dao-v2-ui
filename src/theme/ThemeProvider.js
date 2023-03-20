@@ -45,7 +45,7 @@ export const colors = (_darkMode) => ({
   lightBlue: '#66b8ff40',
   orange: '#FBA21D',
   lightOrange: '#FBA21D33',
-
+  danger: _darkMode ? '#E86062' : '#E86062',
   transparent: 'transparent'
 })
 

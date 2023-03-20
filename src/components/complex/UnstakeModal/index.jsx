@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import BigNumber from 'bignumber.js'
 import { toast } from 'react-toastify'
@@ -44,15 +44,16 @@ const UnstakeModal = ({ show, contractAddress, onClose }) => {
     }
   }, [show, setAmount])
 
-  const onMax = useCallback(() => {
-    setAmount(availableToUnstakePntAmount.toFixed())
-  }, [availableToUnstakePntAmount, setAmount])
-
   const unstakeButtonDisabled = useMemo(
     () =>
       BigNumber(amount).isGreaterThan(availableToUnstakePntAmount) ||
       BigNumber(amount).isLessThanOrEqualTo(0) ||
       BigNumber(amount).isNaN(),
+    [amount, availableToUnstakePntAmount]
+  )
+
+  const unstakeButtonText = useMemo(
+    () => (BigNumber(amount).isGreaterThan(availableToUnstakePntAmount) ? 'Insufficent amount' : 'Unstake'),
     [amount, availableToUnstakePntAmount]
   )
 
@@ -84,7 +85,12 @@ const UnstakeModal = ({ show, contractAddress, onClose }) => {
       </Row>
       <Row className="mt-3">
         <Col>
-          <InputAmount value={amount} onChange={(_e) => setAmount(_e.target.value)} onMax={onMax} />
+          <InputAmount
+            value={amount}
+            max={availableToUnstakePntAmount}
+            onChange={(_e) => setAmount(_e.target.value)}
+            onMax={(_max) => setAmount(_max)}
+          />
         </Col>
       </Row>
       <Row className="mt-2">
@@ -95,7 +101,7 @@ const UnstakeModal = ({ show, contractAddress, onClose }) => {
       <Row className="mt-2 mb-2">
         <Col>
           <Button disabled={unstakeButtonDisabled} loading={isUnstaking} onClick={() => unstake?.()}>
-            Unstake
+            {unstakeButtonText}
           </Button>
         </Col>
       </Row>

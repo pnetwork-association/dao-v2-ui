@@ -3,6 +3,7 @@ import { Col, Row } from 'react-bootstrap'
 import { Chart } from 'react-chartjs-2'
 import styled, { ThemeContext } from 'styled-components'
 import { useChainId } from 'wagmi'
+import BigNumber from 'bignumber.js'
 
 import { useEpochs } from '../../../hooks/use-epochs'
 import { useBalances } from '../../../hooks/use-balances'
@@ -134,10 +135,6 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
     }
   }, [updateSentinelRegistrationByBorrowingData, activeChainId, setEpochs])
 
-  const onMax = useCallback(() => {
-    setAmount(pntBalance)
-  }, [pntBalance, setAmount])
-
   useEffect(() => {
     if (!show) {
       setEpochs(1)
@@ -199,6 +196,16 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
     }
   }, [type, currentEpoch, currentEndEpoch, epochs])
 
+  const updateSentinelRegistrationByStakingButtonText = useMemo(
+    () =>
+      type === 'stake'
+        ? BigNumber(amount).isGreaterThan(pntBalance) && !updateSentinelRegistrationByStakingEnabled
+          ? 'Insufficent amount'
+          : 'Stake & Register'
+        : null,
+    [type, amount, pntBalance, updateSentinelRegistrationByStakingEnabled]
+  )
+
   return (
     <Modal show={show} title="Register Sentinel" onClose={onClose} size="xl">
       <Row className="mt-2">
@@ -246,7 +253,12 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
         <Fragment>
           <Row className="mt-3">
             <Col>
-              <InputAmount onMax={onMax} value={amount} onChange={(_e) => setAmount(_e.target.value)} />
+              <InputAmount
+                max={pntBalance}
+                value={amount}
+                onChange={(_e) => setAmount(_e.target.value)}
+                onMax={(_max) => setAmount(_max)}
+              />
             </Col>
           </Row>
           <Row className="mt-2">
@@ -330,7 +342,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
               loading={isUpdatingSentinelRegistrationByStaking}
               onClick={() => updateSentinelRegistrationByStaking?.()}
             >
-              Stake & Register
+              {updateSentinelRegistrationByStakingButtonText}
             </Button>
           )}
           {type === 'borrow' && (

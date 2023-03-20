@@ -193,10 +193,13 @@ const LendModal = ({ show, onClose }) => {
     }
   }, [show, setAmount, setDuration, setAmountEstimatedApy])
 
-  const onMax = useCallback(() => {
-    setAmount(pntBalance)
-    setAmountEstimatedApy(pntBalance)
-  }, [pntBalance, setAmount, setAmountEstimatedApy])
+  const onMax = useCallback(
+    (_max) => {
+      setAmount(_max)
+      setAmountEstimatedApy(_max)
+    },
+    [setAmount, setAmountEstimatedApy]
+  )
 
   const onChangeDuration = useCallback(
     (_days) => {
@@ -215,6 +218,11 @@ const LendModal = ({ show, onClose }) => {
       setAmountEstimatedApy(newAmount)
     },
     [setAmount, setAmountEstimatedApy]
+  )
+
+  const lendButtonText = useMemo(
+    () => (BigNumber(amount).isGreaterThan(pntBalance) && !lendEnabled ? 'Insufficent amount' : 'Lend'),
+    [amount, pntBalance, lendEnabled]
   )
 
   return (
@@ -254,7 +262,7 @@ const LendModal = ({ show, onClose }) => {
       <Line />
       <Row className="mt-3">
         <Col>
-          <InputAmount value={amount} onChange={onChangeAmount} onMax={onMax} />
+          <InputAmount max={pntBalance} value={amount} onChange={onChangeAmount} onMax={onMax} />
         </Col>
       </Row>
       <Row className="mt-1">
@@ -325,7 +333,7 @@ const LendModal = ({ show, onClose }) => {
       <Row className="mt-2 mb-2">
         <Col>
           <Button disabled={!lendEnabled} loading={isLending} onClick={() => lend?.()}>
-            Lend
+            {lendButtonText}
           </Button>
         </Col>
       </Row>
