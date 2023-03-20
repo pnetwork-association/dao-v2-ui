@@ -14,22 +14,13 @@ import { range, SECONDS_IN_ONE_DAY } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { isValidError } from '../../../utils/errors'
 
-import AdvancedInput from '../../base/AdvancedInput'
+import InputAmount from '../../base/InputAmount'
 import Button from '../../base/Button'
 import Line from '../../base/Line'
-import MiniButton from '../../base/MiniButton'
 import Modal from '../../base/Modal'
 import Slider from '../../base/Slider'
 import Text from '../../base/Text'
 import Tooltip from '../../base/Tooltip'
-
-const MaxButton = styled(MiniButton)`
-  margin-left: 0.75rem;
-
-  @media (max-width: 767.98px) {
-    bottom: 157px;
-  }
-`
 
 const ChartContainer = styled.div`
   display: inline-block;
@@ -263,11 +254,7 @@ const LendModal = ({ show, onClose }) => {
       <Line />
       <Row className="mt-3">
         <Col>
-          <AdvancedInput
-            contentLeft={<MaxButton onClick={onMax}>MAX</MaxButton>}
-            value={amount}
-            onChange={onChangeAmount}
-          />
+          <InputAmount value={amount} onChange={onChangeAmount} onMax={onMax} />
         </Col>
       </Row>
       <Row className="mt-1">
