@@ -17,6 +17,7 @@ const StyledFormCheck = styled(FormCheck)`
     appearance: none;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    cursor: pointer;
   }
 
   .form-check-input:checked {
@@ -25,8 +26,8 @@ const StyledFormCheck = styled(FormCheck)`
   }
 `
 
-const Radio = ({ label, ..._props }) => {
-  return <StyledFormCheck type={'radio'} label={<Text variant="text2">{label}</Text>} {..._props} />
+const Radio = ({ label, labelVariant = 'text2', ..._props }) => {
+  return <StyledFormCheck type={'radio'} label={<Text variant={labelVariant}>{label}</Text>} {..._props} />
 }
 
 export default Radio

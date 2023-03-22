@@ -11,7 +11,6 @@ const Input = styled.input`
   align-items: center;
   font-size: 27px;
   color: ${({ theme }) => theme.text2};
-  margin-right: 0.5rem;
   background: ${({ theme }) => theme.white} !important;
 
   ::placeholder {
@@ -32,6 +31,7 @@ const Input = styled.input`
 
   @media (max-width: 767.98px) {
     font-size: 20px;
+    height: 50px;
   }
 `
 

@@ -1,18 +1,19 @@
 import { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import Dropdown from 'react-bootstrap/Dropdown'
+import { FaArrowUp, FaArrowDown } from 'react-icons/fa'
 
 const StyledDropdownToogle = styled(Dropdown.Toggle)`
   border: 1px solid ${({ theme }) => theme.superLightGray};
   padding: 0px 15px;
   background: ${({ theme }) => theme.bg3};
-  height: 50px;
+  height: 60px;
   display: inline-flex;
   align-items: center;
   color: ${({ theme }) => theme.text2};
   width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   letter-spacing: 0px;
   font-weight: 400;
   font-size: 15px;
@@ -28,7 +29,7 @@ const StyledDropdownToogle = styled(Dropdown.Toggle)`
   }
 
   @media (max-width: 767.98px) {
-    height: 35px;
+    height: 50px;
     font-size: 13px;
   }
 `
@@ -76,12 +77,16 @@ const StyledDropdownItem = styled(Dropdown.Item)`
   }
 `
 
-const Select = ({ options, onSelect: _onSelect, ..._props }) => {
+const Select = ({ options, onSelect: _onSelect, dropdownToogleStyle, withArrow = false, ..._props }) => {
   const [selected, setSelected] = useState(options[0].option)
+  const [show, setShow] = useState(false)
 
   const onSelect = useCallback(
-    (_option) => {
-      setSelected(_option)
+    (_option, _avoidSelectionOnClick) => {
+      if (!_avoidSelectionOnClick) {
+        setSelected(_option)
+      }
+
       _onSelect?.(_option)
     },
     [_onSelect]
@@ -91,12 +96,12 @@ const Select = ({ options, onSelect: _onSelect, ..._props }) => {
     () =>
       options
         .filter(({ option }, _index) => option !== selected)
-        .map(({ component, option }, _index) => (
+        .map(({ component, option, avoidSelectionOnClick = false }, _index) => (
           <StyledDropdownItem
             key={`select${_index}`}
             first={_index === 0 ? 'true' : 'false'}
             last={_index === options.length - 2 ? 'true' : 'false'}
-            onClick={() => onSelect(option)}
+            onClick={() => onSelect(option, avoidSelectionOnClick)}
           >
             {component}
           </StyledDropdownItem>
@@ -110,8 +115,11 @@ const Select = ({ options, onSelect: _onSelect, ..._props }) => {
   }, [options, selected])
 
   return (
-    <StyledDropdown>
-      <StyledDropdownToogle>{selectedComponent}</StyledDropdownToogle>
+    <StyledDropdown onToggle={(_show) => setShow(_show)}>
+      <StyledDropdownToogle style={dropdownToogleStyle}>
+        {selectedComponent}
+        {show ? <FaArrowUp /> : <FaArrowDown />}
+      </StyledDropdownToogle>
       <StyledDropdownMenu>{filteredOptions}</StyledDropdownMenu>
     </StyledDropdown>
   )

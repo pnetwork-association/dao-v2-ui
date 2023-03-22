@@ -94,6 +94,11 @@ const UnstakeModal = ({ show, contractAddress, onClose }) => {
         </Col>
       </Row>
       <Row className="mt-2">
+        <Col xs={6}>
+          <Text>Destination chain</Text>
+        </Col>
+      </Row>
+      <Row className="mt-1">
         <Col>
           <ChainSelection onChange={setChainId} />
         </Col>

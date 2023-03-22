@@ -19,6 +19,10 @@ const ClaimButton = styled(Button)`
   width: 80px;
 `
 
+const Symbol = styled(Text)`
+  text-align: left;
+`
+
 const Asset = ({
   buttonText,
   formattedAmount,
@@ -38,7 +42,7 @@ const Asset = ({
           <AssetLogo src={logo} />
           <div className="d-flex flex-column">
             <Text variant="text2">&nbsp;&nbsp;{name}</Text>
-            <Text variant="text3">&nbsp;&nbsp;{symbol}</Text>
+            <Symbol variant="text3">&nbsp;&nbsp;{symbol}</Symbol>
           </div>
         </div>
       </Col>

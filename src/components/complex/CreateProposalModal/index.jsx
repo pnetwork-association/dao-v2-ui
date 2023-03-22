@@ -1,13 +1,16 @@
-import React, { useEffect, useCallback, Fragment } from 'react'
+import React, { useEffect, useCallback, Fragment, useState, useMemo } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
+import { mainnet, useProvider } from 'wagmi'
 
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useCreateProposal } from '../../../hooks/use-proposals'
 import { formatAssetAmount } from '../../../utils/amount'
 import { isValidError } from '../../../utils/errors'
+import { encodeCallScript } from '../../../utils/voting-scripts'
+import { getVotePresets } from '../../../utils/vote-presets'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
@@ -15,6 +18,8 @@ import TextArea from '../../base/TextArea'
 import Button from '../../base/Button'
 import InfoBox from '../../base/InfoBox'
 import Input from '../../base/Input'
+import Select from '../../base/Select'
+import AssetSelection from '../AssetSelection'
 
 const UseScriptText = styled(Text)`
   font-size: 13px;
@@ -30,6 +35,10 @@ const IPFSAttachmentInput = styled(Input)`
 `
 
 const CreateProposalModal = ({ show, onClose }) => {
+  const [selectedPreset, setSelectedPreset] = useState('paymentFromTreasury')
+  const [presetParams, setPresetParams] = useState({})
+  const provider = useProvider({ chainId: mainnet.id })
+
   const {
     canCreateProposal,
     createProposal,
@@ -67,12 +76,55 @@ const CreateProposalModal = ({ show, onClose }) => {
       setMetadata('')
       setScript('')
       setShowScript(false)
+      setPresetParams({})
+      setSelectedPreset('paymentFromTreasury')
     }
   }, [show, setMetadata, setScript, setShowScript])
 
   const onShowOrHideUseScript = useCallback(() => {
     setShowScript(!showScript)
-  }, [showScript, setShowScript])
+    setScript('')
+    setPresetParams({})
+  }, [showScript, setShowScript, setScript])
+
+  const presets = useMemo(() => getVotePresets({ presetParams, setPresetParams, provider }), [presetParams, provider])
+
+  const renderPresetArg = useCallback(({ id, component, props }) => {
+    switch (component) {
+      case 'AssetSelection':
+        return <AssetSelection key={id} {...props} />
+      case 'Input':
+        return <Input key={id} {...props} />
+      default:
+        return null
+    }
+  }, [])
+
+  const onSelectPreset = useCallback(
+    (_preset) => {
+      setSelectedPreset(_preset)
+      setPresetParams({})
+      setScript('')
+    },
+    [setScript]
+  )
+
+  useEffect(() => {
+    const prepare = async () => {
+      try {
+        const preset = presets[selectedPreset]
+        const action = await preset.prepare()
+        if (action) {
+          setScript(encodeCallScript([action]))
+        }
+      } catch (_err) {
+        setScript('')
+        // console.error(_err)
+      }
+    }
+
+    prepare()
+  }, [presetParams, presets, selectedPreset, setScript])
 
   return (
     <Modal show={show} title="Open a new DAO proposal" onClose={onClose} size="lg">
@@ -98,29 +150,62 @@ const CreateProposalModal = ({ show, onClose }) => {
               <IPFSAttachmentInput value={ipfsMultihash} onChange={(_e) => setIpfsMultihash(_e.target.value)} />
             </Col>
           </Row>
-
           <Row>
             <Col className="text-center mt-2">
               <UseScriptText onClick={onShowOrHideUseScript} variant="text4">
-                {showScript ? 'Remove' : 'Add'} script (optional)
+                {showScript ? 'Remove script' : 'Add script (optional)'}
               </UseScriptText>
             </Col>
           </Row>
           {showScript && (
             <Fragment>
-              <Row>
+              <Row className="mt-2">
                 <Col>
-                  <Text>Script</Text>
+                  <Text>Choose a preset</Text>
                 </Col>
               </Row>
               <Row className="mt-1">
-                <Col xs={12}>
-                  <TextArea rows="3" value={script} onChange={(_e) => setScript(_e.target.value)} />
+                <Col xs={12} lg={12}>
+                  <Select
+                    options={Object.values(presets).map((_preset) => ({
+                      option: _preset.id,
+                      component: <Text variant="text2">{_preset.name}</Text>
+                    }))}
+                    onSelect={onSelectPreset}
+                  />
                 </Col>
               </Row>
             </Fragment>
           )}
-          <Row className="mt-2 mb-2">
+          {selectedPreset === 'custom' && showScript && (
+            <Row className="mt-3">
+              <Col xs={12}>
+                <TextArea rows="3" value={script} onChange={(_e) => setScript(_e.target.value)} />
+              </Col>
+            </Row>
+          )}
+          {selectedPreset !== 'custom' && showScript && (
+            <Fragment>
+              <Row className="mt-3">
+                <Col>
+                  <Text>Insert parameters</Text>
+                </Col>
+              </Row>
+              <Row className="mt-1">
+                <Col xs={12} className="d-grid gap-2">
+                  {presets[selectedPreset]?.args.map(renderPresetArg)}
+                </Col>
+              </Row>
+            </Fragment>
+          )}
+          {selectedPreset && showScript && (
+            <Row>
+              <Col xs={12}>
+                <Text size={'sm'}>{presets[selectedPreset]?.description}</Text>
+              </Col>
+            </Row>
+          )}
+          <Row className="mt-3 mb-2">
             <Col>
               <Button disabled={!canCreateProposal} loading={isLoading} onClick={() => createProposal?.()}>
                 Create proposal

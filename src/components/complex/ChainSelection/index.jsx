@@ -54,7 +54,7 @@ const ChainSelection = ({ onChange }) => {
             <Col xs={8} className="pl-1">
               <NetworkContainer>
                 <NetworkIcon src={`./assets/svg/${chainIdToIcon[_chain.id]}`} />
-                <Text>{_chain.name}</Text>
+                <Text variant="text2">{_chain.name}</Text>
               </NetworkContainer>
             </Col>
             <Col xs={4} className="d-flex justify-content-end align-items-center text-end"></Col>

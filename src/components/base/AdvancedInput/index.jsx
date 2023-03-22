@@ -9,6 +9,10 @@ const InputContainer = styled.div`
   display: flex;
   align-items: center;
   background: ${({ theme }) => theme.white};
+
+  @media (max-width: 767.98px) {
+    height: 50px;
+  }
 `
 
 const Input = styled.input`
@@ -41,11 +45,12 @@ const Input = styled.input`
   }
 `
 
-const CustomInput = ({ contentLeft, outerContainerStyle, ..._props }) => {
+const CustomInput = ({ contentLeft, outerContainerStyle, contentRight, ..._props }) => {
   return (
     <InputContainer style={outerContainerStyle}>
       {contentLeft}
       <Input {..._props} />
+      {contentRight}
     </InputContainer>
   )
 }

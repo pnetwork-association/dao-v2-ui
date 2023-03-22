@@ -16,6 +16,7 @@
     "buffer": "^6.0.3",
     "chart.js": "^4.1.1",
     "currency-formatter": "^1.5.9",
+    "ethereumjs-abi": "^0.6.8",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
