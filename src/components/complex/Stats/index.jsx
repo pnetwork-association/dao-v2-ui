@@ -28,8 +28,6 @@ const Stats = () => {
     eventStart: currentEpochStartedAt
   })
 
-  console.log(percentageLeft)
-
   return (
     <Box>
       <Row>
