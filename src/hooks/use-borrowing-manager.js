@@ -343,7 +343,7 @@ const useClaimableInterestsAssetsByEpochs = () => {
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
-    args: [address, assets.map(({ address }) => address), 0, currentEpoch - 1],
+    args: [address, assets.map(({ address }) => address), 0, currentEpoch],
     enabled: address && (currentEpoch || currentEpoch === 0),
     watch: true
   })
