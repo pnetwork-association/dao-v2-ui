@@ -12,8 +12,15 @@ import { useEpochs } from './use-epochs'
 const useStats = () => {
   const [daoPntOnBscTotalSupply, setDaoPntOnBscTotalSupply] = useState(0)
 
-  const { currentEpoch, currentEpochEndsAt, currentEpochEndsIn, formattedCurrentEpoch, formattedCurrentEpochEndAt } =
-    useEpochs()
+  const {
+    currentEpoch,
+    currentEpochEndsAt,
+    currentEpochEndsIn,
+    currentEpochStartedAt,
+    formattedCurrentEpoch,
+    formattedCurrentEpochEndAt,
+    formattedCurrentEpochStartedAt
+  } = useEpochs()
 
   const { data } = useContractReads({
     cacheTime: 1000 * 60 * 2,
@@ -72,9 +79,11 @@ const useStats = () => {
     currentEpoch,
     currentEpochEndsAt,
     currentEpochEndsIn,
+    currentEpochStartedAt,
     daoPntTotalSupply: daoPntTotalSupply.toFixed(),
     formattedCurrentEpoch,
     formattedCurrentEpochEndAt,
+    formattedCurrentEpochStartedAt,
     formattedDaoPntTotalSupply: formatAssetAmount(daoPntTotalSupply, 'daoPNT', {
       decimals: 0
     }),

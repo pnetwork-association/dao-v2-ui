@@ -44,9 +44,12 @@ const Lending = () => {
   const [showLendModal, setShowLendModal] = useState(false)
   const [showIncreaseDurationModal, setShowIncreaseDurationModal] = useState(false)
   const [showUnstakeModal, setShowUnstakeModal] = useState(false)
-  const { currentEpochEndsAt, formattedCurrentEpoch, formattedCurrentEpochEndAt } = useEpochs()
+  const { currentEpochEndsAt, currentEpochStartedAt, formattedCurrentEpoch, formattedCurrentEpochEndAt } = useEpochs()
   const utilizationRatioCurrentEpoch = useUtilizationRatioInTheCurrentEpoch()
-  const { formattedLeft: formattedCurrentEpochEndIn, percentageLeft } = useCountdown({ eventTime: currentEpochEndsAt })
+  const { formattedLeft: formattedCurrentEpochEndIn, percentageLeft } = useCountdown({
+    eventTime: currentEpochEndsAt,
+    eventStart: currentEpochStartedAt
+  })
 
   const { formattedValue: formattedValueAccountLoanStartEpoch } = useAccountLoanStartEpoch()
   const { formattedValue: formattedValueAccountLoanEndEpoch } = useAccountLoanEndEpoch()

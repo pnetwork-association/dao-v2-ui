@@ -14,6 +14,7 @@ import Tooltip from '../../base/Tooltip'
 const Stats = () => {
   const {
     currentEpochEndsAt,
+    currentEpochStartedAt,
     formattedCurrentEpoch,
     formattedCurrentEpochEndAt,
     formattedDaoPntTotalSupply,
@@ -23,8 +24,11 @@ const Stats = () => {
   const proposals = useProposals()
 
   const { formattedLeft: formattedCurrentEpochEndInLeft, percentageLeft } = useCountdown({
-    eventTime: currentEpochEndsAt
+    eventTime: currentEpochEndsAt,
+    eventStart: currentEpochStartedAt
   })
+
+  console.log(percentageLeft)
 
   return (
     <Box>

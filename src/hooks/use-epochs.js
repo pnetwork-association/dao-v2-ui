@@ -72,14 +72,23 @@ const useEpochs = () => {
     [currentEpochEndsIn]
   )
 
+  const currentEpochStartedAt = useMemo(
+    () => startFirstEpochTimestamp + currentEpoch * epochDuration,
+    [startFirstEpochTimestamp, currentEpoch, epochDuration]
+  )
+
   return {
     currentEpoch,
     currentEpochEndsAt,
     currentEpochEndsIn,
+    currentEpochStartedAt,
     epochDuration,
     formattedCurrentEpoch: currentEpoch || currentEpoch === 0 ? `#${currentEpoch}` : '-',
     formattedCurrentEpochEndAt: currentEpochEndsAt
       ? moment.unix(currentEpochEndsAt).format('MMM DD YYYY - HH:mm:ss')
+      : '-',
+    formattedCurrentEpochStartedAt: currentEpochStartedAt
+      ? moment.unix(currentEpochStartedAt).format('MMM DD YYYY - HH:mm:ss')
       : '-',
     formattedCurrentEpochEndIn: currentEpochEndsIn ? parseSeconds(currentEpochEndsIn) : '-',
     formattedEpochDuration: epochDuration ? parseSeconds(epochDuration) : '-',

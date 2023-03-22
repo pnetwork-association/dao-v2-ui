@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import moment from 'moment'
 
 const calculateDuration = (_eventTime) =>
@@ -31,7 +31,7 @@ const formatDuration = (_duration) => {
   return parts.join(' and ')
 }
 
-const useCountdown = ({ eventTime, interval = 1000 }) => {
+const useCountdown = ({ eventStart, eventTime, interval = 1000 }) => {
   const [duration, setDuration] = useState(calculateDuration(eventTime))
   const timerRef = useRef(0)
   const timerCallback = useCallback(() => {
@@ -47,10 +47,18 @@ const useCountdown = ({ eventTime, interval = 1000 }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const percentageLeft = useMemo(() => {
+    if (eventStart) {
+      return ((Math.floor(Date.now() / 1000) - eventStart) / (eventTime - eventStart)) * 100
+    }
+
+    return ((duration.asSeconds() * 100) / eventTime) * 100
+  }, [eventTime, duration, eventStart])
+
   return {
     formattedLeft: formatDuration(duration),
     left: duration.asSeconds(),
-    percentageLeft: ((duration.asSeconds() * 100) / eventTime) * 100
+    percentageLeft
   }
 }
 
