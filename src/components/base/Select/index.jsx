@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import Dropdown from 'react-bootstrap/Dropdown'
-import { FaArrowUp, FaArrowDown } from 'react-icons/fa'
+import { FaArrowDown } from 'react-icons/fa'
 
 const StyledDropdownToogle = styled(Dropdown.Toggle)`
   border: 1px solid ${({ theme }) => theme.superLightGray};
@@ -77,6 +77,13 @@ const StyledDropdownItem = styled(Dropdown.Item)`
   }
 `
 
+const Arrow = styled(FaArrowDown)`
+  transition: transform 0.3s ease-in-out;
+  &.rotate {
+    transform: ${({ direction }) => `rotate(${direction === 'forward' ? 180 : -180}deg)`};
+  }
+`
+
 const Select = ({ options, onSelect: _onSelect, dropdownToogleStyle, withArrow = false, ..._props }) => {
   const [selected, setSelected] = useState(options[0].option)
   const [show, setShow] = useState(false)
@@ -118,7 +125,7 @@ const Select = ({ options, onSelect: _onSelect, dropdownToogleStyle, withArrow =
     <StyledDropdown onToggle={(_show) => setShow(_show)}>
       <StyledDropdownToogle style={dropdownToogleStyle}>
         {selectedComponent}
-        {show ? <FaArrowUp /> : <FaArrowDown />}
+        <Arrow className={`${show ? 'rotate' : ''}`} direction={show ? 'forward' : 'backward'} />
       </StyledDropdownToogle>
       <StyledDropdownMenu>{filteredOptions}</StyledDropdownMenu>
     </StyledDropdown>
