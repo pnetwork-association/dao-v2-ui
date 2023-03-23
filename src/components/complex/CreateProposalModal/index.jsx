@@ -20,6 +20,7 @@ import InfoBox from '../../base/InfoBox'
 import Input from '../../base/Input'
 import Select from '../../base/Select'
 import AssetSelection from '../AssetSelection'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 const UseScriptText = styled(Text)`
   font-size: 13px;
@@ -37,6 +38,7 @@ const IPFSAttachmentInput = styled(Input)`
 const CreateProposalModal = ({ show, onClose }) => {
   const [selectedPreset, setSelectedPreset] = useState('paymentFromTreasury')
   const [presetParams, setPresetParams] = useState({})
+  const [showEncodedScript, setShowEncodedScript] = useState(false)
   const provider = useProvider({ chainId: mainnet.id })
 
   const {
@@ -177,6 +179,13 @@ const CreateProposalModal = ({ show, onClose }) => {
               </Row>
             </Fragment>
           )}
+          {selectedPreset && showScript && (
+            <Row>
+              <Col xs={12}>
+                <Text size={'sm'}>{presets[selectedPreset]?.description}</Text>
+              </Col>
+            </Row>
+          )}
           {selectedPreset === 'custom' && showScript && (
             <Row className="mt-3">
               <Col xs={12}>
@@ -198,14 +207,20 @@ const CreateProposalModal = ({ show, onClose }) => {
               </Row>
             </Fragment>
           )}
-          {selectedPreset && showScript && (
-            <Row>
-              <Col xs={12}>
-                <Text size={'sm'}>{presets[selectedPreset]?.description}</Text>
-              </Col>
-            </Row>
+          {selectedPreset !== 'custom' && showScript && (
+            <Fragment>
+              <Row className="mt-1">
+                <Col lg={2}>
+                  <div role="button" onClick={() => setShowEncodedScript((_showEncodedScript) => !_showEncodedScript)}>
+                    {!showEncodedScript ? <FaEye /> : <FaEyeSlash />}{' '}
+                    <Text size={'sm'}>{!showEncodedScript ? 'Show' : 'Hide'} script</Text>
+                  </div>
+                </Col>
+              </Row>
+              {showEncodedScript && <TextArea disabled value={script} rows={3} />}
+            </Fragment>
           )}
-          <Row className="mt-3 mb-2">
+          <Row className="mt-4 mb-2">
             <Col>
               <Button disabled={!canCreateProposal} loading={isLoading} onClick={() => createProposal?.()}>
                 Create proposal

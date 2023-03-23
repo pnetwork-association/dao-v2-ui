@@ -75,16 +75,6 @@ const settings = {
       symbolPrice: 'BTC'
     },
     {
-      address: '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da',
-      name: 'GALA',
-      decimals: 18,
-      symbol: 'pGALA',
-      logo: './assets/svg/GALA.svg',
-      borrowingManagerClaimEnabled: true,
-      feesManagerClaimEnabled: true,
-      symbolPrice: 'GALA'
-    },
-    {
       address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
       name: 'USD Coin',
       decimals: 6,
