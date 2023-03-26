@@ -34,8 +34,8 @@ const now = moment().unix()
 const useFetchProposals = ({ setProposals }) => {
   const [etherscanProposals, setEtherscanProposals] = useState([])
   const [polygonscanProposals, setPolygonscanProposals] = useState([])
-  const [oldExecutionBlockNumberTimestamps, setOldExecutionBlockNumberTimestamps] = useState([])
-  const [newExecutionBlockNumberTimestamps, setNewExecutionBlockNumberTimestamps] = useState([])
+  const [oldEndlockNumberTimestamps, setOldEndBlockNumberTimestamps] = useState([])
+  const [newEndBlockNumberTimestamps, setNewEndBlockNumberTimestamps] = useState([])
   const [oldVotesActions, setOldVoteActions] = useState({})
   const [newVotesActions, setNewVoteActions] = useState({})
   const mainnetProvider = useProvider({ chainId: mainnet.id })
@@ -123,6 +123,22 @@ const useFetchProposals = ({ setProposals }) => {
     }))
   })
 
+  const { data: oldDurationBlocks } = useContractRead({
+    address: settings.contracts.dandelionVotingOld,
+    abi: DandelionVotingABI,
+    functionName: 'durationBlocks',
+    args: [],
+    chainId: mainnet.id
+  })
+
+  const { data: newDurationBlocks } = useContractRead({
+    address: settings.contracts.dandelionVoting,
+    abi: DandelionVotingABI,
+    functionName: 'durationBlocks',
+    args: [],
+    chainId: polygon.id
+  })
+
   useEffect(() => {
     const fetchExecutionBlockNumberTimestamps = async () => {
       try {
@@ -130,23 +146,23 @@ const useFetchProposals = ({ setProposals }) => {
           Promise.all(
             oldVotesData
               .filter((_voteData) => _voteData)
-              .map(({ executionBlock }) => mainnetProvider.getBlock(executionBlock.toNumber()))
+              .map(({ startBlock }) => mainnetProvider.getBlock(startBlock.add(oldDurationBlocks).toNumber()))
           ),
           Promise.all(
             newVotesData
               .filter((_voteData) => _voteData)
-              .map(({ executionBlock }) => polygonProvider.getBlock(executionBlock.toNumber()))
+              .map(({ startBlock }) => polygonProvider.getBlock(startBlock.add(newDurationBlocks).toNumber()))
           )
         ])
 
-        setOldExecutionBlockNumberTimestamps(
+        setOldEndBlockNumberTimestamps(
           oldDataRes
             .map((_block) => _block?.timestamp)
             .sort((_b, _a) => _a - _b)
             .reverse()
         )
 
-        setNewExecutionBlockNumberTimestamps(
+        setNewEndBlockNumberTimestamps(
           newDataRes
             .map((_block) => _block?.timestamp)
             .sort((_b, _a) => _a - _b)
@@ -157,10 +173,10 @@ const useFetchProposals = ({ setProposals }) => {
       }
     }
 
-    if (oldVotesData && newVotesData) {
+    if (oldVotesData && newVotesData && newDurationBlocks && oldDurationBlocks) {
       fetchExecutionBlockNumberTimestamps()
     }
-  }, [oldVotesData, newVotesData, mainnetProvider, polygonProvider])
+  }, [oldVotesData, newVotesData, mainnetProvider, polygonProvider, newDurationBlocks, oldDurationBlocks])
 
   useEffect(() => {
     const fetchExecutionBlockLogs = async () => {
@@ -217,7 +233,8 @@ const useFetchProposals = ({ setProposals }) => {
       _voteActions,
       _executionBlockNumberTimestamp,
       _chainId,
-      _idStart = 0
+      _idStart = 0,
+      _durationBlocks
     ) => {
       const { executed, executionBlock, open, script, snapshotBlock, startBlock } = _voteData
 
@@ -235,12 +252,14 @@ const useFetchProposals = ({ setProposals }) => {
       const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
       const passed = percentageYea.isGreaterThan(51) && quorumReached
 
+      const endBlock = startBlock.add(_durationBlocks)
+
       // No need to calculate the countdown on old votes on eth since are all closed and the new ones will be only on Polygon
       const countdown =
         _chainId === mainnet.id
           ? -1
-          : currentBlockNumber < executionBlock.toNumber()
-          ? (executionBlock.toNumber() - currentBlockNumber) * 2
+          : currentBlockNumber < endBlock.toNumber()
+          ? (endBlock.toNumber() - currentBlockNumber) * 2
           : -1 // * 2 = polygon block time
 
       const formattedCloseDate =
@@ -255,6 +274,7 @@ const useFetchProposals = ({ setProposals }) => {
         actions: _voteActions,
         chainId: _chainId,
         effectiveId: _proposal.id,
+        endBlock: endBlock.toNumber(),
         executed,
         executionBlock: executionBlock.toNumber(),
         formattedCloseDate,
@@ -282,28 +302,37 @@ const useFetchProposals = ({ setProposals }) => {
     }
 
     const oldProposals =
-      oldVotesData?.length > 0 && etherscanProposals.length === oldVotesData.length && oldVotesData[0]
+      oldVotesData?.length > 0 &&
+      etherscanProposals.length === oldVotesData.length &&
+      oldVotesData[0] &&
+      oldDurationBlocks
         ? etherscanProposals.map((_proposal, _index) =>
             prepareVote(
               _proposal,
               oldVotesData[_index],
               oldVotesActions && oldVotesActions[_index + 1] ? oldVotesActions[_index + 1] : [],
-              oldExecutionBlockNumberTimestamps[_index],
-              1
+              oldEndlockNumberTimestamps[_index],
+              mainnet.id,
+              0,
+              oldDurationBlocks
             )
           )
         : []
 
     const newProposals =
-      newVotesData?.length > 0 && polygonscanProposals.length === newVotesData.length && newVotesData[0]
+      newVotesData?.length > 0 &&
+      polygonscanProposals.length === newVotesData.length &&
+      newVotesData[0] &&
+      newDurationBlocks
         ? polygonscanProposals.map((_proposal, _index) =>
             prepareVote(
               _proposal,
               newVotesData[_index],
               newVotesActions && newVotesActions[_index + 1] ? newVotesActions[_index + 1] : [],
-              newExecutionBlockNumberTimestamps[_index],
+              newEndBlockNumberTimestamps[_index],
               137,
-              etherscanProposals.length
+              etherscanProposals.length,
+              newDurationBlocks
             )
           )
         : []
@@ -315,11 +344,13 @@ const useFetchProposals = ({ setProposals }) => {
     newVotesData,
     daoPntTotalSupply,
     currentBlockNumber,
-    oldExecutionBlockNumberTimestamps,
-    newExecutionBlockNumberTimestamps,
+    oldEndlockNumberTimestamps,
+    newEndBlockNumberTimestamps,
     oldVotesActions,
     newVotesActions,
-    setProposals
+    setProposals,
+    oldDurationBlocks,
+    newDurationBlocks
   ])
 }
 
