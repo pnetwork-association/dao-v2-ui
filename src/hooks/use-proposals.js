@@ -179,11 +179,6 @@ const useFetchProposals = ({ setProposals }) => {
                 ? moment.unix(endBlockNumberTimestamps[_index]).format('MMM DD YYYY - HH:mm:ss')
                 : null
 
-            if (_index === 23) {
-              // console.log(voteData)
-              // console.log(countdown)
-            }
-
             return {
               actions: votesActions && votesActions[_index + 1] ? votesActions[_index + 1] : [],
               endBlock: endBlock.toNumber(),
