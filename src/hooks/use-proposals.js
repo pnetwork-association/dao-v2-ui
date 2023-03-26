@@ -30,7 +30,7 @@ import { ProposalsContext } from '../components/context/Proposals'
 // hook used only by ProposalsProvider in order to store immediately the votes
 const useFetchProposals = ({ setProposals }) => {
   const [etherscanProposals, setEtherscanProposals] = useState([])
-  const [executionBlockNumberTimestamps, setExecutionBlockNumberTimestamps] = useState([])
+  const [endBlockNumberTimestamps, setEndBlockNumberTimestamps] = useState([])
   const [votesActions, setVoteActions] = useState({})
   const provider = useProvider()
   const fetched = useRef(false)
@@ -83,26 +83,33 @@ const useFetchProposals = ({ setProposals }) => {
     }))
   })
 
+  const { data: durationBlocks } = useContractRead({
+    address: settings.contracts.dandelionVoting,
+    abi: DandelionVotingABI,
+    functionName: 'durationBlocks',
+    args: []
+  })
+
   useEffect(() => {
     const fetchExecutionBlockNumberTimestamps = async () => {
       try {
         const res = await Promise.all(
-          votesData.map(({ executionBlock }) => provider.getBlock(executionBlock.toNumber()))
+          votesData.map(({ startBlock }) => provider.getBlock(startBlock.add(durationBlocks).toNumber()))
         )
         const timestamps = res
           .map((_block) => _block?.timestamp)
           .sort((_b, _a) => _a - _b)
           .reverse()
-        setExecutionBlockNumberTimestamps(timestamps)
+        setEndBlockNumberTimestamps(timestamps)
       } catch (_err) {
         console.error(_err)
       }
     }
 
-    if (votesData) {
+    if (votesData && durationBlocks) {
       fetchExecutionBlockNumberTimestamps()
     }
-  }, [votesData, provider])
+  }, [votesData, provider, durationBlocks])
 
   useEffect(() => {
     const fetchExecutionBlockLogs = async () => {
@@ -141,7 +148,7 @@ const useFetchProposals = ({ setProposals }) => {
 
   useEffect(() => {
     setProposals(
-      votesData?.length > 0 && etherscanProposals.length === votesData.length
+      votesData?.length > 0 && etherscanProposals.length === votesData.length && durationBlocks
         ? etherscanProposals.map((_proposal, _index) => {
             const voteData = votesData[_index]
             const { executed, executionBlock, open, script, snapshotBlock, startBlock } = voteData
@@ -160,20 +167,26 @@ const useFetchProposals = ({ setProposals }) => {
             const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
             const passed = percentageYea.isGreaterThan(51) && quorumReached
 
+            const endBlock = startBlock.add(durationBlocks)
+
             const countdown =
-              currentBlockNumber < executionBlock.toNumber()
-                ? (executionBlock.toNumber() - currentBlockNumber) * 13
-                : -1
+              currentBlockNumber < endBlock.toNumber() ? (endBlock.toNumber() - currentBlockNumber) * 13 : -1
 
             const formattedCloseDate =
               countdown > 0
                 ? `~${moment.unix(moment().unix() + countdown).format('MMM DD YYYY - HH:mm:ss')}`
-                : executionBlockNumberTimestamps[_index]
-                ? moment.unix(executionBlockNumberTimestamps[_index]).format('MMM DD YYYY - HH:mm:ss')
+                : endBlockNumberTimestamps[_index]
+                ? moment.unix(endBlockNumberTimestamps[_index]).format('MMM DD YYYY - HH:mm:ss')
                 : null
+
+            if (_index === 23) {
+              // console.log(voteData)
+              // console.log(countdown)
+            }
 
             return {
               actions: votesActions && votesActions[_index + 1] ? votesActions[_index + 1] : [],
+              endBlock: endBlock.toNumber(),
               executed,
               executionBlock: executionBlock.toNumber(),
               formattedCloseDate,
@@ -206,9 +219,10 @@ const useFetchProposals = ({ setProposals }) => {
     votesData,
     daoPntTotalSupply,
     currentBlockNumber,
-    executionBlockNumberTimestamps,
+    endBlockNumberTimestamps,
     votesActions,
-    setProposals
+    setProposals,
+    durationBlocks
   ])
 }
 
