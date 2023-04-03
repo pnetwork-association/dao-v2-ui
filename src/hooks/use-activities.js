@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useContext, useRef } from 'react'
 import { useBlockNumber, useContract, useProvider } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import BorrowingManagerABI from '../utils/abis/LendingManager.json'
@@ -28,9 +29,10 @@ const useActivities = () => {
   const [borrowingManagerActivities, setBorrowingManagerActivities] = useState(null)
   const [votingActivities, setVotingActivities] = useState(null)
   const { data: blockNumber } = useBlockNumber({
-    watch: true
+    watch: true,
+    chainId: polygon.id
   })
-  const provider = useProvider()
+  const provider = useProvider({ chainId: polygon.id })
 
   const stakingManager = useContract({
     address: settings.contracts.stakingManager,
