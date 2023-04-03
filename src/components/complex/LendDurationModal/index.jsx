@@ -11,7 +11,7 @@ import {
   useEstimateApyIncreaseDuration,
   useIncreaseLendDuration,
   useAccountLoanEndEpoch
-} from '../../../hooks/use-borrowing-manager'
+} from '../../../hooks/use-lending-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
 import { range } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'

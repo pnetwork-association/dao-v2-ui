@@ -14,7 +14,7 @@ import {
 import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
-import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
+import BorrowingManagerABI from '../utils/abis/LendingManager.json'
 import RegistrationManagerABI from '../utils/abis/RegistrationManager.json'
 import { slicer } from '../utils/address'
 import { isValidHexString } from '../utils/format'

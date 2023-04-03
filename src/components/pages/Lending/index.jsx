@@ -9,7 +9,7 @@ import {
   useAccountLoanStartEpoch,
   useApy,
   useUtilizationRatioInTheCurrentEpoch
-} from '../../../hooks/use-borrowing-manager'
+} from '../../../hooks/use-lending-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
 import { useUserStake } from '../../../hooks/use-staking-manager'
 import { useCountdown } from '../../../hooks/use-countdown'
@@ -18,7 +18,7 @@ import settings from '../../../settings'
 import Box from '../../base/Box'
 import Line from '../../base/Line'
 import Text from '../../base/Text'
-import ClaimInterests from '../../complex/ClaimInterests'
+import ClaimRewards from '../../complex/ClaimRewards'
 import LendModal from '../../complex/LendModal'
 import PageTemplate from '../../templates/PageTemplate'
 import Tabs from '../../base/Tabs'
@@ -54,7 +54,7 @@ const Lending = () => {
   const { formattedValue: formattedValueAccountLoanStartEpoch } = useAccountLoanStartEpoch()
   const { formattedValue: formattedValueAccountLoanEndEpoch } = useAccountLoanEndEpoch()
   const { formattedValue: formattedValueApy } = useApy()
-  const { amount: stakedAmount } = useUserStake({ contractAddress: settings.contracts.stakingManagerBM })
+  const { amount: stakedAmount } = useUserStake({ contractAddress: settings.contracts.stakingManagerLM })
 
   return (
     <PageTemplate bgThemeColor="transparent" removePaddingOnMobile>
@@ -155,7 +155,7 @@ const Lending = () => {
                 <UtilizationRatioChart />
               </Box>
               <Box className="mt-4" bodyStyle={{ padding: 0 }}>
-                <ClaimInterests />
+                <ClaimRewards />
               </Box>
             </InnerTabContainer>
           </Tab>
@@ -165,7 +165,7 @@ const Lending = () => {
       <LendModal show={showLendModal} onClose={() => setShowLendModal(false)} />
       <UnstakeModal
         show={showUnstakeModal}
-        contractAddress={settings.contracts.stakingManagerBM}
+        contractAddress={settings.contracts.stakingManagerLM}
         onClose={() => setShowUnstakeModal(false)}
       />
       <LendDurationModal show={showIncreaseDurationModal} onClose={() => setShowIncreaseDurationModal(false)} />

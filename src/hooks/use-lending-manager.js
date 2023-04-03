@@ -16,7 +16,7 @@ import { mainnet, polygon } from 'wagmi/chains'
 import moment from 'moment'
 
 import settings from '../settings'
-import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
+import BorrowingManagerABI from '../utils/abis/LendingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import { formatAssetAmount, formatCurrency } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
@@ -326,7 +326,7 @@ const useAccountUtilizationRatio = () => {
   }, {})
 }
 
-const useClaimableInterestsAssetsByEpochs = () => {
+const useClaimableRewardsAssetsByEpochs = () => {
   const assets = settings.assets
     .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
     .sort((_a, _b) => _a.name.localeCompare(_b.name))
@@ -379,14 +379,14 @@ const useClaimableInterestsAssetsByEpochs = () => {
   }, [rates, assets, currentEpoch, data])
 }
 
-const useClaimableInterestsAssetsByAssets = () => {
+const useClaimableRewardsAssetsByAssets = () => {
   const rates = useRates(
     settings.assets
       .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
       .map(({ symbolPrice }) => symbolPrice)
   )
 
-  const assets = useClaimableInterestsAssetsByEpochs()
+  const assets = useClaimableRewardsAssetsByEpochs()
   const flatAssets = assets ? Object.values(assets).flat() : []
   const assetsByAddress = groupBy(flatAssets, 'address')
 
@@ -427,11 +427,11 @@ const useClaimableInterestsAssetsByAssets = () => {
   )
 }
 
-const useClaimInterestByEpoch = () => {
+const useClaimRewardByEpoch = () => {
   const { error, data, writeAsync } = useContractWrite({
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
-    functionName: 'claimInterestByEpoch',
+    functionName: 'claimRewardByEpoch',
     mode: 'recklesslyUnprepared'
   })
 
@@ -450,12 +450,12 @@ const useClaimInterestByEpoch = () => {
   }
 }
 
-const useClaimInterestByEpochsRange = () => {
+const useClaimRewardByEpochsRange = () => {
   const { currentEpoch } = useEpochs()
   const { error, data, writeAsync } = useContractWrite({
     address: settings.contracts.borrowingManager,
     abi: BorrowingManagerABI,
-    functionName: 'claimInterestByEpochsRange',
+    functionName: 'claimRewardByEpochsRange',
     mode: 'recklesslyUnprepared'
   })
 
@@ -548,7 +548,7 @@ const useEstimateApy = () => {
     for (let epoch = startEpoch, index = 0; epoch <= endEpoch; epoch++, index++) {
       const poolRevenue =
         feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[index]
-          ? feeDistributionByMonthlyRevenues[index].lendersInterestsAmount
+          ? feeDistributionByMonthlyRevenues[index].lendersRewardsAmount
           : BigNumber(0)
 
       const currentUserWeight = BigNumber(userWeights && userWeights[epoch] ? userWeights[epoch] : 0)
@@ -625,7 +625,7 @@ const useEstimateApyIncreaseDuration = () => {
         chainId: polygon.id
       },
       {
-        address: settings.contracts.stakingManagerBM,
+        address: settings.contracts.stakingManagerLM,
         abi: StakingManagerABI,
         functionName: 'stakeOf',
         args: [address],
@@ -675,7 +675,7 @@ const useEstimateApyIncreaseDuration = () => {
     for (let epoch = startEpoch, index = 0; epoch <= endEpoch; epoch++, index++) {
       const poolRevenue =
         feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[index]
-          ? feeDistributionByMonthlyRevenues[index].lendersInterestsAmount
+          ? feeDistributionByMonthlyRevenues[index].lendersRewardsAmount
           : BigNumber(0)
 
       const currentUserWeight = BigNumber(userWeights && userWeights[epoch] ? userWeights[epoch] : 0)
@@ -741,7 +741,7 @@ const useApy = () => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.stakingManagerBM,
+        address: settings.contracts.stakingManagerLM,
         abi: StakingManagerABI,
         functionName: 'stakeOf',
         args: [address],
@@ -784,7 +784,7 @@ const useApy = () => {
     for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
       const poolRevenue =
         feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[epoch]
-          ? feeDistributionByMonthlyRevenues[epoch].lendersInterestsAmount
+          ? feeDistributionByMonthlyRevenues[epoch].lendersRewardsAmount
           : BigNumber(0)
 
       const totalWeight = totalWeights[epoch]
@@ -837,10 +837,10 @@ export {
   useAccountLoanStartEpoch,
   useAccountUtilizationRatio,
   useApy,
-  useClaimableInterestsAssetsByAssets,
-  useClaimableInterestsAssetsByEpochs,
-  useClaimInterestByEpoch,
-  useClaimInterestByEpochsRange,
+  useClaimableRewardsAssetsByAssets,
+  useClaimableRewardsAssetsByEpochs,
+  useClaimRewardByEpoch,
+  useClaimRewardByEpochsRange,
   useEstimateApy,
   useEstimateApyIncreaseDuration,
   useIncreaseLendDuration,

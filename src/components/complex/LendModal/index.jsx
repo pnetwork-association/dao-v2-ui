@@ -8,7 +8,7 @@ import { useChainId } from 'wagmi'
 import { FaInfoCircle } from 'react-icons/fa'
 
 import { useBalances } from '../../../hooks/use-balances'
-import { useEstimateApy, useLend } from '../../../hooks/use-borrowing-manager'
+import { useEstimateApy, useLend } from '../../../hooks/use-lending-manager'
 import { useEpochs } from '../../../hooks/use-epochs'
 import { range, SECONDS_IN_ONE_DAY } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'

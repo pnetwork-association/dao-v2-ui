@@ -6,7 +6,7 @@ import { polygon } from 'wagmi/chains'
 import { groupBy } from 'lodash'
 
 import settings from '../settings'
-import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
+import BorrowingManagerABI from '../utils/abis/LendingManager.json'
 import FeesManagerABI from '../utils/abis/FeesManager.json'
 import RegistrationManagerABI from '../utils/abis/RegistrationManager.json'
 import { range } from '../utils/time'
@@ -68,13 +68,12 @@ const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
           ? BigNumber(0)
           : totalSentinelStakedAmount.dividedBy(totalAmount)
         const stakingSentinelsFeesAmount = BigNumber(mr).multipliedBy(sentinelsStakingFeesPercentage)
-        const sentinelsBorrowingFeesAndLendersInterestsAmount = BigNumber(mr).minus(stakingSentinelsFeesAmount)
-        const lendersInterestsAmount = sentinelsBorrowingFeesAndLendersInterestsAmount.multipliedBy(k)
-        const borrowingSentinelsFeesAmount =
-          sentinelsBorrowingFeesAndLendersInterestsAmount.minus(lendersInterestsAmount)
+        const sentinelsBorrowingFeesAndLendersRewardsAmount = BigNumber(mr).minus(stakingSentinelsFeesAmount)
+        const lendersRewardsAmount = sentinelsBorrowingFeesAndLendersRewardsAmount.multipliedBy(k)
+        const borrowingSentinelsFeesAmount = sentinelsBorrowingFeesAndLendersRewardsAmount.minus(lendersRewardsAmount)
 
         return {
-          lendersInterestsAmount,
+          lendersRewardsAmount,
           stakingSentinelsFeesAmount,
           borrowingSentinelsFeesAmount
         }

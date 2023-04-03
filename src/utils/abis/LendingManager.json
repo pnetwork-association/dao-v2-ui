@@ -37,6 +37,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "epoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "NotPartecipatedInGovernanceAtEpoch",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "NothingToClaim",
     "type": "error"
@@ -141,62 +152,6 @@
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "asset",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "epoch",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "InterestClaimed",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "asset",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "epoch",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "InterestDeposited",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "lender",
-        "type": "address"
-      },
-      {
-        "indexed": true,
         "internalType": "uint256",
         "name": "startEpoch",
         "type": "uint256"
@@ -223,25 +178,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "borrower",
         "type": "address"
       },
@@ -259,6 +195,62 @@
       }
     ],
     "name": "Released",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "epoch",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "RewardClaimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "epoch",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "RewardDeposited",
     "type": "event"
   },
   {
@@ -454,7 +446,7 @@
         "type": "uint16"
       }
     ],
-    "name": "claimInterestByEpoch",
+    "name": "claimRewardByEpoch",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -477,7 +469,7 @@
         "type": "uint16"
       }
     ],
-    "name": "claimInterestByEpochsRange",
+    "name": "claimRewardByEpochsRange",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -534,12 +526,25 @@
         "type": "uint16"
       }
     ],
-    "name": "claimableInterestByEpochOf",
+    "name": "claimableRewardsByEpochOf",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "dandelionVoting",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -563,7 +568,7 @@
         "type": "uint256"
       }
     ],
-    "name": "depositInterest",
+    "name": "depositReward",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -592,6 +597,35 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "epoch",
+        "type": "uint16"
+      }
+    ],
+    "name": "getLenderVotingStateByEpoch",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -752,6 +786,11 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "_dandelionVoting",
+        "type": "address"
+      },
+      {
         "internalType": "uint16",
         "name": "_lendMaxEpochs",
         "type": "uint16"
@@ -800,19 +839,6 @@
   },
   {
     "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "proxiableUUID",
     "outputs": [
       {
@@ -843,13 +869,6 @@
       }
     ],
     "name": "release",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -961,7 +980,7 @@
         "type": "uint16"
       }
     ],
-    "name": "totalAssetInterestAmountByEpoch",
+    "name": "totalAssetRewardAmountByEpoch",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1099,19 +1118,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

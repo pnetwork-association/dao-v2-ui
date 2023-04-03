@@ -3,7 +3,7 @@ import { erc20ABI } from 'wagmi'
 import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
-import BorrowingManagerABI from '../abis/BorrowingManager.json'
+import BorrowingManagerABI from '../abis/LendingManager.json'
 import { getForwarderLendUserData, getForwarderIncreaseDurationLendUserData } from './forwarder'
 import { pNetworkChainIds } from '../../contants'
 

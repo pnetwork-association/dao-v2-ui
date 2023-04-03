@@ -4,7 +4,7 @@ import { useContext, useMemo } from 'react'
 import { ThemeContext } from 'styled-components'
 import { Chart } from 'react-chartjs-2'
 
-import { useApy, useUtilizationRatio } from '../../../hooks/use-borrowing-manager'
+import { useApy, useUtilizationRatio } from '../../../hooks/use-lending-manager'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 

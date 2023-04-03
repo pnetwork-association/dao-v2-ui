@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useContext, useRef } from 'react'
 import { useBlockNumber, useContract, useProvider } from 'wagmi'
 
 import settings from '../settings'
-import BorrowingManagerABI from '../utils/abis/BorrowingManager.json'
+import BorrowingManagerABI from '../utils/abis/LendingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import DandelionVotingABI from '../utils/abis/DandelionVoting.json'
 import { extractActivityFromEvents } from '../utils/logs'
@@ -18,7 +18,7 @@ const useActivities = () => {
   } = useContext(ActivitiesContext)
 
   const checkpoints = useRef({
-    BorrowingManager: 0,
+    LendingManager: 0,
     StakingManager: 0,
     DandelionVoting: 0
   })
@@ -99,7 +99,7 @@ const useActivities = () => {
       fromBlock &&
       toBlock &&
       toBlock > cachedLastBlock &&
-      checkpoints.current['BorrowingManager'] < toBlock
+      checkpoints.current['LendingManager'] < toBlock
     ) {
       fetchBorrowingManagerData()
     }
