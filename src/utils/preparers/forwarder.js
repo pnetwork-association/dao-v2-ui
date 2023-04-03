@@ -20,9 +20,9 @@ const getForwarderLendUserData = ({ amount, duration, receiverAddress }) => {
   return encode(
     ['address[]', 'bytes[]'],
     [
-      [settings.contracts.pntOnPolygon, settings.contracts.borrowingManager],
+      [settings.contracts.pntOnPolygon, settings.contracts.lendingManager],
       [
-        erc20Interface.encodeFunctionData('approve', [settings.contracts.borrowingManager, amountWithoutFees]),
+        erc20Interface.encodeFunctionData('approve', [settings.contracts.lendingManager, amountWithoutFees]),
         stakingManagerInterface.encodeFunctionData('lend', [receiverAddress, amountWithoutFees, duration])
       ]
     ]
@@ -128,7 +128,7 @@ const getForwarderIncreaseDurationLendUserData = ({ duration }) => {
   encode(
     ['address[]', 'bytes[]'],
     [
-      [settings.contracts.borrowingManager],
+      [settings.contracts.lendingManager],
       [borrowingManagerInterface.encodeFunctionData('increaseDuration', [duration])]
     ]
   )
@@ -142,7 +142,7 @@ const getForwarderIncreaseStakingSentinelRegistrationDurationUserData = ({ durat
   encode(
     ['address[]', 'bytes[]'],
     [
-      [settings.contracts.borrowingManager],
+      [settings.contracts.lendingManager],
       [registrationManagerInterface.encodeFunctionData('increaseSentinelRegistrationDuration', [duration])]
     ]
   )

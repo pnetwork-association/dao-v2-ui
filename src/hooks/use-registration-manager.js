@@ -254,7 +254,7 @@ const useBorrowingSentinelProspectus = () => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [_startEpoch, _endEpoch],

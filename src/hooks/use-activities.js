@@ -38,8 +38,8 @@ const useActivities = () => {
     signerOrProvider: provider
   })
 
-  const borrowingManager = useContract({
-    address: settings.contracts.borrowingManager,
+  const lendingManager = useContract({
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     signerOrProvider: provider
   })
@@ -87,7 +87,7 @@ const useActivities = () => {
   useEffect(() => {
     const fetchBorrowingManagerData = async () => {
       try {
-        const [lendEvents] = await Promise.all([borrowingManager.queryFilter('Lended', fromBlock, toBlock)])
+        const [lendEvents] = await Promise.all([lendingManager.queryFilter('Lended', fromBlock, toBlock)])
         setBorrowingManagerActivities(await extractActivityFromEvents(lendEvents))
       } catch (_err) {
         console.error(_err)
@@ -95,7 +95,7 @@ const useActivities = () => {
     }
 
     if (
-      borrowingManager?.queryFilter &&
+      lendingManager?.queryFilter &&
       fromBlock &&
       toBlock &&
       toBlock > cachedLastBlock &&
@@ -103,7 +103,7 @@ const useActivities = () => {
     ) {
       fetchBorrowingManagerData()
     }
-  }, [borrowingManager, fromBlock, toBlock, cachedLastBlock])
+  }, [lendingManager, fromBlock, toBlock, cachedLastBlock])
 
   useEffect(() => {
     const fetchVotingData = async () => {

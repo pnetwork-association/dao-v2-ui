@@ -28,7 +28,7 @@ import {
   prepareContractWriteApproveLend,
   prepareContractWriteLend,
   prepareContractWriteIncreaseLendDuration
-} from '../utils/preparers/borrowing-manager'
+} from '../utils/preparers/lending-manager'
 
 const useLend = () => {
   const [amount, setAmount] = useState('0')
@@ -50,17 +50,25 @@ const useLend = () => {
     [amount]
   )
 
-  const { data: allowance } = useContractRead(prepareContractReadAllowanceApproveLend({ activeChainId, address }))
+  const { data: allowance } = useContractRead(
+    prepareContractReadAllowanceApproveLend({ activeChainId, address, enabled: address })
+  )
 
-  const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
+  const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved && address, [onChainAmount, approved, address])
   const { config: approveConfigs } = usePrepareContractWrite(
     prepareContractWriteApproveLend({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
   )
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
   const lendEnabled = useMemo(
-    () => onChainAmount.gt(0) && approved && pntBalanceData && onChainAmount.lte(pntBalanceData.value) && epochs > 0,
-    [onChainAmount, approved, pntBalanceData, epochs]
+    () =>
+      onChainAmount.gt(0) &&
+      approved &&
+      pntBalanceData &&
+      onChainAmount.lte(pntBalanceData.value) &&
+      epochs > 0 &&
+      address,
+    [onChainAmount, approved, pntBalanceData, epochs, address]
   )
 
   const { config: lendConfigs } = usePrepareContractWrite(
@@ -136,7 +144,7 @@ const useAccountLoanEndEpoch = () => {
   const { currentEpoch } = useEpochs()
 
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 23],
@@ -160,7 +168,7 @@ const useAccountLoanStartEpoch = () => {
   const { currentEpoch } = useEpochs()
 
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 23],
@@ -193,7 +201,7 @@ const useAccountLoanStartEpoch = () => {
 
 const useTotalLendedAmountByEpoch = (_epoch) => {
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'totalLendedAmountByEpoch',
     args: [_epoch],
@@ -210,7 +218,7 @@ const useTotalLendedAmountByEpoch = (_epoch) => {
 
 const useTotalBorrowedAmountByEpoch = (_epoch) => {
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'totaBorrowedAmountByEpoch',
     args: [_epoch],
@@ -230,7 +238,7 @@ const useTotalLendedAmountByStartAndEndEpochs = () => {
   const { value: endEpoch } = useAccountLoanEndEpoch()
 
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'totalLendedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
@@ -260,7 +268,7 @@ const useUtilizationRatio = () => {
   const { currentEpoch } = useEpochs()
 
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'utilizationRatioByEpochsRange',
     args: [currentEpoch, currentEpoch + 12],
@@ -284,7 +292,7 @@ const useUtilizationRatioInTheCurrentEpoch = () => {
   const { currentEpoch } = useEpochs()
 
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'utilizationRatioByEpoch',
     args: [currentEpoch],
@@ -306,7 +314,7 @@ const useAccountUtilizationRatio = () => {
   const { value: endEpoch } = useAccountLoanEndEpoch()
 
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'utilizationRatioOf',
     args: [address, startEpoch, endEpoch],
@@ -340,7 +348,7 @@ const useClaimableRewardsAssetsByEpochs = () => {
   )
 
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
     args: [address, assets.map(({ address }) => address), 0, currentEpoch],
@@ -429,7 +437,7 @@ const useClaimableRewardsAssetsByAssets = () => {
 
 const useClaimRewardByEpoch = () => {
   const { error, data, writeAsync } = useContractWrite({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'claimRewardByEpoch',
     mode: 'recklesslyUnprepared'
@@ -453,7 +461,7 @@ const useClaimRewardByEpoch = () => {
 const useClaimRewardByEpochsRange = () => {
   const { currentEpoch } = useEpochs()
   const { error, data, writeAsync } = useContractWrite({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'claimRewardByEpochsRange',
     mode: 'recklesslyUnprepared'
@@ -492,7 +500,7 @@ const useEstimateApy = () => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
@@ -500,7 +508,7 @@ const useEstimateApy = () => {
         chainId: polygon.id
       },
       {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
@@ -609,7 +617,7 @@ const useEstimateApyIncreaseDuration = () => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
@@ -617,7 +625,7 @@ const useEstimateApyIncreaseDuration = () => {
         chainId: polygon.id
       },
       {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
@@ -749,7 +757,7 @@ const useApy = () => {
         chainId: polygon.id
       },
       {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
@@ -757,7 +765,7 @@ const useApy = () => {
         chainId: polygon.id
       },
       {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],

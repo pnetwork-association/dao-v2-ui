@@ -21,7 +21,7 @@ const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [startEpoch, endEpoch],
@@ -319,7 +319,7 @@ const useBorrowingSentinelEstimatedRevenues = () => {
   }, [kind, currentEpoch, sentinelRegistrationEndEpoch, sentinelRegistrationStartEpoch])
 
   const { data } = useContractRead({
-    address: settings.contracts.borrowingManager,
+    address: settings.contracts.lendingManager,
     abi: BorrowingManagerABI,
     functionName: 'totalBorrowedAmountByEpochsRange',
     args: [startEpoch, endEpoch],

@@ -292,7 +292,7 @@
   },
   {
     "inputs": [],
-    "name": "borrowingManager",
+    "name": "lendingManager",
     "outputs": [
       {
         "internalType": "address",

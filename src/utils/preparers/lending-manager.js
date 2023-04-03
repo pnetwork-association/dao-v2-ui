@@ -7,7 +7,7 @@ import BorrowingManagerABI from '../abis/LendingManager.json'
 import { getForwarderLendUserData, getForwarderIncreaseDurationLendUserData } from './forwarder'
 import { pNetworkChainIds } from '../../contants'
 
-const prepareContractReadAllowanceApproveLend = ({ activeChainId, address }) => {
+const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       return {
@@ -15,7 +15,8 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address }) => 
         abi: erc20ABI,
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnMainnet],
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        enabled
       }
     }
     case polygon.id: {
@@ -23,8 +24,9 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address }) => 
         address: settings.contracts.pntOnPolygon,
         abi: erc20ABI,
         functionName: 'allowance',
-        args: [address, settings.contracts.borrowingManager],
-        chainId: polygon.id
+        args: [address, settings.contracts.lendingManager],
+        chainId: polygon.id,
+        enabled
       }
     }
     case bsc.id: {
@@ -33,7 +35,8 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address }) => 
         abi: erc20ABI,
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnBsc],
-        chainId: bsc.id
+        chainId: bsc.id,
+        enabled
       }
     }
     default:
@@ -58,7 +61,7 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
         address: settings.contracts.pntOnPolygon,
         abi: erc20ABI,
         functionName: 'approve',
-        args: [settings.contracts.borrowingManager, amount],
+        args: [settings.contracts.lendingManager, amount],
         enabled,
         chainId: polygon.id
       }
@@ -119,7 +122,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
     }
     case polygon.id: {
       return {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'lend',
         args: [receiver, amount, duration],
@@ -169,7 +172,7 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
     }
     case polygon.id: {
       return {
-        address: settings.contracts.borrowingManager,
+        address: settings.contracts.lendingManager,
         abi: BorrowingManagerABI,
         functionName: 'increaseDuration',
         args: [duration],
