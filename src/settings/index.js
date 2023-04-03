@@ -24,7 +24,10 @@ const settings = {
     epochsManager: '0x4ca9C6f9E1c6615f70A7c8866392cB7Bc1e7b529',
     registrationManager: '0x12C6852a7F110ED81e04718f9e8DA63A96c1Bfb7',
     feesManager: '0x262193814f7EDF46a895c418EDEF6e1222fE80Dd',
-    financeVault: '0xB5c7E6f671C1F0d618d524cA9f2386f525851Fe6'
+    financeVault: '0xB5c7E6f671C1F0d618d524cA9f2386f525851Fe6',
+    forwarderOnMainnet: '0x6A66e7F080D7b6769b36148d3E085444D51fB1D4',
+    forwarderOnPolygon: '0xcb563Ef15563260c53Cdda28cc9093994A6111F4',
+    forwarderOnBsc: '0x6A66e7F080D7b6769b36148d3E085444D51fB1D4'
   },
   stakingManager: {
     minStakeDays: 7,
