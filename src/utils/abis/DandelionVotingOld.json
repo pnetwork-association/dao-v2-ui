@@ -16,20 +16,6 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "duration",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint64"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
     "name": "MODIFY_MIN_OPEN_VOTE_AMOUNT_ROLE",
     "outputs": [
       {
@@ -161,20 +147,6 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_forwarder",
-        "type": "address"
-      }
-    ],
-    "name": "changeForwarder",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [
       {
@@ -284,28 +256,6 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_voter",
-        "type": "address"
-      },
-      {
-        "name": "_voteId",
-        "type": "uint256"
-      },
-      {
-        "name": "_supports",
-        "type": "bool"
-      }
-    ],
-    "name": "delegateVote",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [
       {
@@ -324,11 +274,11 @@
         "type": "bool"
       },
       {
-        "name": "startDate",
+        "name": "startBlock",
         "type": "uint64"
       },
       {
-        "name": "executionDate",
+        "name": "executionBlock",
         "type": "uint64"
       },
       {
@@ -407,17 +357,31 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "durationBlocks",
+    "outputs": [
       {
-        "name": "_executionDelay",
+        "name": "",
         "type": "uint64"
       }
     ],
-    "name": "changeExecutionDelay",
-    "outputs": [],
     "payable": false,
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "MODIFY_BUFFER_BLOCKS_ROLE",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -470,11 +434,11 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "executionDelay",
+    "name": "getInitializationBlock",
     "outputs": [
       {
         "name": "",
-        "type": "uint64"
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -484,11 +448,11 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "getInitializationBlock",
+    "name": "bufferBlocks",
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "uint64"
       }
     ],
     "payable": false,
@@ -537,34 +501,6 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "getEVMScriptRegistry",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "minOpenVoteAmount",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [
       {
@@ -580,22 +516,64 @@
         "type": "uint64"
       },
       {
-        "name": "_duration",
+        "name": "_durationBlocks",
         "type": "uint64"
       },
       {
-        "name": "_executionDelay",
+        "name": "_bufferBlocks",
         "type": "uint64"
       },
       {
-        "name": "_forwarder",
-        "type": "address"
+        "name": "_executionDelayBlocks",
+        "type": "uint64"
       }
     ],
     "name": "initialize",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getEVMScriptRegistry",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_bufferBlocks",
+        "type": "uint64"
+      }
+    ],
+    "name": "changeBufferBlocks",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "minOpenVoteAmount",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -656,11 +634,11 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "MODIFY_FORWARDER_ROLE",
+    "name": "executionDelayBlocks",
     "outputs": [
       {
         "name": "",
-        "type": "bytes32"
+        "type": "uint64"
       }
     ],
     "payable": false,
@@ -825,20 +803,6 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "forwarder",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [
       {
@@ -847,6 +811,20 @@
       }
     ],
     "name": "executeVote",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_executionDelayBlocks",
+        "type": "uint64"
+      }
+    ],
+    "name": "changeExecutionDelayBlocks",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -998,11 +976,23 @@
     "inputs": [
       {
         "indexed": false,
-        "name": "executionDelay",
+        "name": "bufferBlocks",
         "type": "uint64"
       }
     ],
-    "name": "ChangeExecutionDelay",
+    "name": "ChangeBufferBlocks",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "executionDelayBlocks",
+        "type": "uint64"
+      }
+    ],
+    "name": "ChangeExecutionDelayBlocks",
     "type": "event"
   },
   {
@@ -1015,18 +1005,6 @@
       }
     ],
     "name": "ChangeMinOpenVoteAmount",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "forwarder",
-        "type": "address"
-      }
-    ],
-    "name": "ChangeForwarder",
     "type": "event"
   },
   {

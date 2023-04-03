@@ -17,6 +17,7 @@ import { mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import DandelionVotingABI from '../utils/abis/DandelionVoting'
+import DandelionVotingOldABI from '../utils/abis/DandelionVotingOld'
 import { formatAssetAmount } from '../utils/amount'
 import { hexToAscii } from '../utils/format'
 import { extractActionsFromTransaction } from '../utils/logs'
@@ -30,12 +31,141 @@ import { ProposalsContext } from '../components/context/Proposals'
 
 const now = moment().unix()
 
+const prepareOldProposal = (
+  _proposal,
+  _voteData,
+  _voteActions,
+  _executionBlockNumberTimestamp,
+  _chainId,
+  _idStart = 0,
+  _durationBlocks
+) => {
+  const { executed, executionBlock, open, script, snapshotBlock, startBlock } = _voteData
+
+  const votingPower = BigNumber(_voteData.votingPower.toString()).dividedBy(10 ** 18)
+  const no = BigNumber(_voteData.nay.toString()).dividedBy(10 ** 18)
+  const yes = BigNumber(_voteData.yea.toString()).dividedBy(10 ** 18)
+
+  const votingPnt = yes.plus(no)
+  const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
+  const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
+
+  const quorum = yes.dividedBy(votingPower)
+  const minAcceptQuorum = BigNumber(_voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
+
+  const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
+  const passed = percentageYea.isGreaterThan(51) && quorumReached
+
+  const endBlock = startBlock.add(_durationBlocks)
+
+  // No need to calculate the countdown on old votes on eth since are all closed and the new ones will be only on Polygon
+  // TODO: What does it happen if keep creating vote on ethereum?
+  const countdown = -1
+
+  const formattedCloseDate =
+    countdown > 0
+      ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
+      : _executionBlockNumberTimestamp
+      ? moment.unix(_executionBlockNumberTimestamp).format('MMM DD YYYY - HH:mm:ss')
+      : null
+
+  console.log(_executionBlockNumberTimestamp, formattedCloseDate)
+
+  return {
+    ..._proposal,
+    actions: _voteActions,
+    chainId: _chainId,
+    effectiveId: _proposal.id,
+    endBlock: endBlock.toNumber(),
+    executed,
+    executionBlock: executionBlock.toNumber(),
+    formattedCloseDate,
+    formattedPercentageNay: formatAssetAmount(percentageNay, '%', {
+      decimals: 2
+    }),
+    formattedPercentageYea: formatAssetAmount(percentageYea, '%', {
+      decimals: 2
+    }),
+    formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
+    id: _proposal.id + _idStart,
+    minAcceptQuorum: minAcceptQuorum.toFixed(),
+    no: no.toFixed(),
+    open,
+    passed,
+    quorum: quorum.toFixed(),
+    quorumReached,
+    script,
+    snapshotBlock: snapshotBlock.toNumber(),
+    startBlock: startBlock.toNumber(),
+    votingPnt,
+    votingPower: votingPower.toFixed(),
+    yes: yes.toFixed()
+  }
+}
+
+const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idStart = 0, _duration) => {
+  const { executed, executionDate, open, script, snapshotBlock, startDate } = _voteData
+
+  const votingPower = BigNumber(_voteData.votingPower.toString()).dividedBy(10 ** 18)
+  const no = BigNumber(_voteData.nay.toString()).dividedBy(10 ** 18)
+  const yes = BigNumber(_voteData.yea.toString()).dividedBy(10 ** 18)
+
+  const votingPnt = yes.plus(no)
+  const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
+  const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
+
+  const quorum = yes.dividedBy(votingPower)
+  const minAcceptQuorum = BigNumber(_voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
+
+  const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
+  const passed = percentageYea.isGreaterThan(51) && quorumReached
+
+  const endDate = startDate.add(_duration)
+
+  const countdown = now < endDate.toNumber() ? endDate.toNumber() - now : -1
+
+  const formattedCloseDate =
+    countdown > 0
+      ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
+      : moment.unix(now).format('MMM DD YYYY - HH:mm:ss')
+
+  return {
+    ..._proposal,
+    actions: _voteActions,
+    chainId: _chainId,
+    effectiveId: _proposal.id,
+    endDate: endDate.toNumber(),
+    executed,
+    executionDate: executionDate.toNumber(),
+    formattedCloseDate,
+    formattedPercentageNay: formatAssetAmount(percentageNay, '%', {
+      decimals: 2
+    }),
+    formattedPercentageYea: formatAssetAmount(percentageYea, '%', {
+      decimals: 2
+    }),
+    formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
+    id: _proposal.id + _idStart,
+    minAcceptQuorum: minAcceptQuorum.toFixed(),
+    no: no.toFixed(),
+    open,
+    passed,
+    quorum: quorum.toFixed(),
+    quorumReached,
+    script,
+    snapshotBlock: snapshotBlock.toNumber(),
+    startDate: startDate.toNumber(),
+    votingPnt,
+    votingPower: votingPower.toFixed(),
+    yes: yes.toFixed()
+  }
+}
+
 // hook used only by ProposalsProvider in order to store immediately the votes
 const useFetchProposals = ({ setProposals }) => {
   const [etherscanProposals, setEtherscanProposals] = useState([])
   const [polygonscanProposals, setPolygonscanProposals] = useState([])
   const [oldEndlockNumberTimestamps, setOldEndBlockNumberTimestamps] = useState([])
-  const [newEndBlockNumberTimestamps, setNewEndBlockNumberTimestamps] = useState([])
   const [oldVotesActions, setOldVoteActions] = useState({})
   const [newVotesActions, setNewVoteActions] = useState({})
   const mainnetProvider = useProvider({ chainId: mainnet.id })
@@ -106,7 +236,7 @@ const useFetchProposals = ({ setProposals }) => {
   const { data: oldVotesData } = useContractReads({
     contracts: etherscanProposals.map(({ id }) => ({
       address: settings.contracts.dandelionVotingOld,
-      abi: DandelionVotingABI,
+      abi: DandelionVotingOldABI,
       functionName: 'getVote',
       args: [id],
       chainId: mainnet.id
@@ -125,16 +255,16 @@ const useFetchProposals = ({ setProposals }) => {
 
   const { data: oldDurationBlocks } = useContractRead({
     address: settings.contracts.dandelionVotingOld,
-    abi: DandelionVotingABI,
+    abi: DandelionVotingOldABI,
     functionName: 'durationBlocks',
     args: [],
     chainId: mainnet.id
   })
 
-  const { data: newDurationBlocks } = useContractRead({
+  const { data: newDuration } = useContractRead({
     address: settings.contracts.dandelionVoting,
     abi: DandelionVotingABI,
-    functionName: 'durationBlocks',
+    functionName: 'duration',
     args: [],
     chainId: polygon.id
   })
@@ -142,28 +272,14 @@ const useFetchProposals = ({ setProposals }) => {
   useEffect(() => {
     const fetchExecutionBlockNumberTimestamps = async () => {
       try {
-        const [oldDataRes, newDataRes] = await Promise.all([
-          Promise.all(
-            oldVotesData
-              .filter((_voteData) => _voteData)
-              .map(({ startBlock }) => mainnetProvider.getBlock(startBlock.add(oldDurationBlocks).toNumber()))
-          ),
-          Promise.all(
-            newVotesData
-              .filter((_voteData) => _voteData)
-              .map(({ startBlock }) => polygonProvider.getBlock(startBlock.add(newDurationBlocks).toNumber()))
-          )
-        ])
-
-        setOldEndBlockNumberTimestamps(
-          oldDataRes
-            .map((_block) => _block?.timestamp)
-            .sort((_b, _a) => _a - _b)
-            .reverse()
+        const res = await Promise.all(
+          oldVotesData
+            .filter((_voteData) => _voteData)
+            .map(({ startBlock }) => mainnetProvider.getBlock(startBlock.add(oldDurationBlocks).toNumber()))
         )
 
-        setNewEndBlockNumberTimestamps(
-          newDataRes
+        setOldEndBlockNumberTimestamps(
+          res
             .map((_block) => _block?.timestamp)
             .sort((_b, _a) => _a - _b)
             .reverse()
@@ -173,10 +289,10 @@ const useFetchProposals = ({ setProposals }) => {
       }
     }
 
-    if (oldVotesData && newVotesData && newDurationBlocks && oldDurationBlocks) {
+    if (oldVotesData && oldDurationBlocks) {
       fetchExecutionBlockNumberTimestamps()
     }
-  }, [oldVotesData, newVotesData, mainnetProvider, polygonProvider, newDurationBlocks, oldDurationBlocks])
+  }, [oldVotesData, mainnetProvider, polygonProvider, oldDurationBlocks])
 
   useEffect(() => {
     const fetchExecutionBlockLogs = async () => {
@@ -227,87 +343,13 @@ const useFetchProposals = ({ setProposals }) => {
   }, [])
 
   useEffect(() => {
-    const prepareVote = (
-      _proposal,
-      _voteData,
-      _voteActions,
-      _executionBlockNumberTimestamp,
-      _chainId,
-      _idStart = 0,
-      _durationBlocks
-    ) => {
-      const { executed, executionBlock, open, script, snapshotBlock, startBlock } = _voteData
-
-      const votingPower = BigNumber(_voteData.votingPower.toString()).dividedBy(10 ** 18)
-      const no = BigNumber(_voteData.nay.toString()).dividedBy(10 ** 18)
-      const yes = BigNumber(_voteData.yea.toString()).dividedBy(10 ** 18)
-
-      const votingPnt = yes.plus(no)
-      const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
-      const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
-
-      const quorum = yes.dividedBy(votingPower)
-      const minAcceptQuorum = BigNumber(_voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
-
-      const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
-      const passed = percentageYea.isGreaterThan(51) && quorumReached
-
-      const endBlock = startBlock.add(_durationBlocks)
-
-      // No need to calculate the countdown on old votes on eth since are all closed and the new ones will be only on Polygon
-      const countdown =
-        _chainId === mainnet.id
-          ? -1
-          : currentBlockNumber < endBlock.toNumber()
-          ? (endBlock.toNumber() - currentBlockNumber) * 2
-          : -1 // * 2 = polygon block time
-
-      const formattedCloseDate =
-        countdown > 0
-          ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
-          : _executionBlockNumberTimestamp
-          ? moment.unix(_executionBlockNumberTimestamp).format('MMM DD YYYY - HH:mm:ss')
-          : null
-
-      return {
-        ..._proposal,
-        actions: _voteActions,
-        chainId: _chainId,
-        effectiveId: _proposal.id,
-        endBlock: endBlock.toNumber(),
-        executed,
-        executionBlock: executionBlock.toNumber(),
-        formattedCloseDate,
-        formattedPercentageNay: formatAssetAmount(percentageNay, '%', {
-          decimals: 2
-        }),
-        formattedPercentageYea: formatAssetAmount(percentageYea, '%', {
-          decimals: 2
-        }),
-        formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
-        id: _proposal.id + _idStart,
-        minAcceptQuorum: minAcceptQuorum.toFixed(),
-        no: no.toFixed(),
-        open,
-        passed,
-        quorum: quorum.toFixed(),
-        quorumReached,
-        script,
-        snapshotBlock: snapshotBlock.toNumber(),
-        startBlock: startBlock.toNumber(),
-        votingPnt,
-        votingPower: votingPower.toFixed(),
-        yes: yes.toFixed()
-      }
-    }
-
     const oldProposals =
       oldVotesData?.length > 0 &&
       etherscanProposals.length === oldVotesData.length &&
       oldVotesData[0] &&
       oldDurationBlocks
         ? etherscanProposals.map((_proposal, _index) =>
-            prepareVote(
+            prepareOldProposal(
               _proposal,
               oldVotesData[_index],
               oldVotesActions && oldVotesActions[_index + 1] ? oldVotesActions[_index + 1] : [],
@@ -320,19 +362,15 @@ const useFetchProposals = ({ setProposals }) => {
         : []
 
     const newProposals =
-      newVotesData?.length > 0 &&
-      polygonscanProposals.length === newVotesData.length &&
-      newVotesData[0] &&
-      newDurationBlocks
+      newVotesData?.length > 0 && polygonscanProposals.length === newVotesData.length && newVotesData[0] && newDuration
         ? polygonscanProposals.map((_proposal, _index) =>
-            prepareVote(
+            prepareNewProposal(
               _proposal,
               newVotesData[_index],
               newVotesActions && newVotesActions[_index + 1] ? newVotesActions[_index + 1] : [],
-              newEndBlockNumberTimestamps[_index],
-              137,
+              polygon.id,
               etherscanProposals.length,
-              newDurationBlocks
+              newDuration
             )
           )
         : []
@@ -345,12 +383,11 @@ const useFetchProposals = ({ setProposals }) => {
     daoPntTotalSupply,
     currentBlockNumber,
     oldEndlockNumberTimestamps,
-    newEndBlockNumberTimestamps,
     oldVotesActions,
     newVotesActions,
     setProposals,
     oldDurationBlocks,
-    newDurationBlocks
+    newDuration
   ])
 }
 
@@ -364,7 +401,7 @@ const useProposals = () => {
   const { data: oldVoterStatesData } = useContractReads({
     contracts: oldProposals.map(({ effectiveId }) => ({
       address: settings.contracts.dandelionVotingOld,
-      abi: DandelionVotingABI,
+      abi: DandelionVotingOldABI,
       functionName: 'getVoterState',
       args: [effectiveId, address],
       chainId: mainnet.id
