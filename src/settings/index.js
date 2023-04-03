@@ -13,7 +13,7 @@ const settings = {
     pntOnPolygon: '0xb6bcae6468760bc0cdfb9c8ef4ee75c9dd23e1ed',
     pntOnEthereum: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
     pntOnBsc: '0xdaacB0Ab6Fb34d24E8a67BfA14BF4D95D4C7aF92',
-    daoPnt: '0xd73EfE7D4884c124A854bFB499D48626ef062539',
+    daoPnt: '0xf2E263DEA6b7Be55DcC8df6b0ad241465e644d79',
     dandelionVotingOld: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     dandelionVoting: '0xC117F3aF3626A3A1B49e9C3ADb55c38D57A7F6AB',
     acl: '0x134b504400d5455ecf7910c8f0f235ef8956a993',

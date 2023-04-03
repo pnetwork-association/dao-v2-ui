@@ -12,10 +12,11 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction
 } from 'wagmi'
-import { mainnet, polygon } from 'wagmi/chains'
+import { polygon } from 'wagmi/chains'
 import moment from 'moment'
 
 import settings from '../settings'
+import { getPntAddressByChainId } from '../utils/preparers/balance'
 import BorrowingManagerABI from '../utils/abis/LendingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import { formatAssetAmount, formatCurrency } from '../utils/amount'
@@ -40,9 +41,8 @@ const useLend = () => {
   const activeChainId = useChainId()
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pntOnEthereum,
-    address,
-    chainId: mainnet.id
+    token: getPntAddressByChainId(activeChainId),
+    address
   })
 
   const onChainAmount = useMemo(
