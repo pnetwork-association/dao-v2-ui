@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import React from 'react'
 import styled from 'styled-components'
+import { useChainId } from 'wagmi'
 
 import settings from '../../../settings'
 import { getAddressExplorerUrl } from '../../../utils/explorer'
@@ -19,6 +20,8 @@ const AssetLogo = styled.img`
 `
 
 const Action = ({ action }) => {
+  const activeChainId = useChainId()
+
   if (action.name === 'Transfer') {
     const { from, fromNickname, to, toNickname, value, address } = action
     const asset = settings.assets.find((_asset) => _asset.address.toLowerCase() === address.toLowerCase())
@@ -32,11 +35,11 @@ const Action = ({ action }) => {
           <Text variant="text2">{amount}&nbsp;</Text>
           <AssetLogo src={asset.logo} />
           <Text>&nbsp;&nbsp;from&nbsp;</Text>
-          <A href={getAddressExplorerUrl(from)} target="_blank">
+          <A href={getAddressExplorerUrl(from, { chainId: activeChainId })} target="_blank">
             {fromNickname}
           </A>
           <Text>&nbsp;to&nbsp;</Text>
-          <A href={getAddressExplorerUrl(to)} target="_blank">
+          <A href={getAddressExplorerUrl(to, { chainId: activeChainId })} target="_blank">
             {toNickname}
           </A>
         </span>
@@ -52,7 +55,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerUrl(creator)} target="_blank">
+          <A href={getAddressExplorerUrl(creator, { chainId: activeChainId })} target="_blank">
             {creatorNickname}
           </A>
           <Text>&nbsp;opened a new proposal:&nbsp;</Text>
@@ -68,7 +71,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerUrl(voter)} target="_blank">
+          <A href={getAddressExplorerUrl(voter, { chainId: activeChainId })} target="_blank">
             {voterNickname}
           </A>
           <Text>&nbsp;voted&nbsp;</Text>
@@ -86,7 +89,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerUrl(receiver)} target="_blank">
+          <A href={getAddressExplorerUrl(receiver, { chainId: activeChainId })} target="_blank">
             {receiverNickname}
           </A>
           <Text>&nbsp;staked&nbsp;</Text>
@@ -105,7 +108,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerUrl(owner)} target="_blank">
+          <A href={getAddressExplorerUrl(owner, { chainId: activeChainId })} target="_blank">
             {ownerNickname}
           </A>
           <Text>&nbsp;unstaked&nbsp;</Text>
@@ -122,7 +125,7 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerUrl(lender)} target="_blank">
+          <A href={getAddressExplorerUrl(lender, { chainId: activeChainId })} target="_blank">
             {lenderNickname}
           </A>
           <Text>&nbsp;lended&nbsp;</Text>
