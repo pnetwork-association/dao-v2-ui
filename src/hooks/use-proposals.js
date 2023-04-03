@@ -69,8 +69,6 @@ const prepareOldProposal = (
       ? moment.unix(_executionBlockNumberTimestamp).format('MMM DD YYYY - HH:mm:ss')
       : null
 
-  console.log(_executionBlockNumberTimestamp, formattedCloseDate)
-
   return {
     ..._proposal,
     actions: _voteActions,
