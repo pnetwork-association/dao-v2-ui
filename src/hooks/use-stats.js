@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
-import { useContractReads, erc20ABI } from 'wagmi'
-import { mainnet, polygon } from 'wagmi/chains'
+import { useContractReads, erc20ABI, useChainId } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
 import { useEpochs } from './use-epochs'
+import { getPntAddressByChainId } from '../utils/preparers/balance'
 
 const useStats = () => {
   const [daoPntOnBscTotalSupply, setDaoPntOnBscTotalSupply] = useState(0)
+  const activeChainId = useChainId()
 
   const {
     currentEpoch,
@@ -26,11 +28,10 @@ const useStats = () => {
     cacheTime: 1000 * 60 * 2,
     contracts: [
       {
-        address: settings.contracts.pntOnEthereum,
+        address: getPntAddressByChainId(activeChainId),
         abi: erc20ABI,
         functionName: 'totalSupply',
-        args: [],
-        chainId: mainnet.id
+        args: []
       },
       {
         address: settings.contracts.daoPnt,
