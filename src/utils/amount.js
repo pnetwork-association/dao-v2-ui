@@ -30,11 +30,14 @@ export const formatCurrency = (_amount, _currency) =>
         format: _currency ? '%s %v' : '%v'
       })
 
+export const removeUselessDecimals = (_amount, _decimals = 5) =>
+  BigNumber(BigNumber(_amount).toFixed(_decimals)).toFixed()
+
 export const getEthersOnChainAmount = (_amount) =>
   _amount.length > 0
     ? ethers.BigNumber.from(
         BigNumber(_amount)
-          .dividedToIntegerBy(10 * 18)
+          .dividedToIntegerBy(10 ** 18)
           .toFixed()
       )
     : ethers.BigNumber.from('0')

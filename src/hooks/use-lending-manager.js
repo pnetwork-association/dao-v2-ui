@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 import { groupBy } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {

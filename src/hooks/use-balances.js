@@ -7,6 +7,7 @@ import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
 import { useStats } from './use-stats'
 import { getPntAddressByChainId } from '../utils/preparers/balance'
+import { removeUselessDecimals } from '../utils/amount'
 
 const useBalances = () => {
   const { address } = useAccount()
@@ -33,10 +34,10 @@ const useBalances = () => {
   )
 
   return {
-    daoPntBalance: daoPntBalance.toFixed(),
+    daoPntBalance: removeUselessDecimals(daoPntBalance),
     formattedDaoPntBalance: formatAssetAmount(daoPntBalance, 'daoPNT'),
     formattedPntBalance: formatAssetAmount(pntBalance, 'PNT'),
-    pntBalance: pntBalance.toFixed()
+    pntBalance: removeUselessDecimals(pntBalance)
   }
 }
 

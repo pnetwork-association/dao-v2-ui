@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import {
@@ -135,10 +134,7 @@ const useUnstake = (_opts = {}) => {
   const { availableToUnstakePntAmount } = useUserStake()
   const { address } = useAccount()
 
-  const onChainAmount = useMemo(
-    () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
-    [amount]
-  )
+  const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
   const unstakeEnabled = useMemo(
     () => BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
