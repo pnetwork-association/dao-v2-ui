@@ -69,7 +69,7 @@ const SentinelStats = ({ type = 'stake' }) => {
           </Col>
         </Row>
         <Line />
-        <Row className="justify-content-center mt-3">
+        <Row className="justify-content-center mt-2">
           {type === 'borrow' && (
             <Col xs={12} lg={6}>
               <Button disabled={!enabled} onClick={() => setShowRegisterSentinelModal(true)}>
@@ -79,17 +79,17 @@ const SentinelStats = ({ type = 'stake' }) => {
           )}
           {type === 'stake' && (
             <Fragment>
-              <Col lg={4}>
+              <Col className="mt-2" lg={4}>
                 <Button disabled={!enabled} onClick={() => setShowUnstakeModal(true)}>
                   Unstake
                 </Button>
               </Col>
-              <Col lg={4}>
+              <Col className="mt-2" lg={4}>
                 <Button disabled={!enabled} onClick={() => setShowRegisterSentinelModal(true)}>
                   Manage
                 </Button>
               </Col>
-              <Col lg={4}>
+              <Col className="mt-2" lg={4}>
                 <Button disabled={!kind} onClick={() => setShowDurationModal(true)}>
                   Increase duration
                 </Button>

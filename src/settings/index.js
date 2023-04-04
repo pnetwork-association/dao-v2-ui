@@ -6,7 +6,8 @@ const settings = {
     twitter: 'https://twitter.com/pNetworkDeFi',
     telegram: 'https://t.me/pNetworkDefi',
     'p.network': 'https://p.network/',
-    github: 'https://github.com/pnetwork-association'
+    github: 'https://github.com/pnetwork-association',
+    docs: 'https://p.network/wiki'
   },
   contracts: {
     pTokensVault: '0xe396757EC7E6aC7C8E5ABE7285dde47b98F22db8',

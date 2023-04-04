@@ -192,6 +192,8 @@ const StakeModal = ({ show, onClose }) => {
       <Row className="mt-2 mb-2">
         <Col className="text-center">
           <InfoText>
+            Lending require staking.
+            <br />
             Withdrawals from pNetwork DAO are subjected to a cooldown. Withdrawals will become available after{' '}
             {settings.stakingManager.minStakeDays} days from staking.
           </InfoText>

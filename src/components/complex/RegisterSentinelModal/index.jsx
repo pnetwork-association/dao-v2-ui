@@ -25,6 +25,7 @@ import Modal from '../../base/Modal'
 import Slider from '../../base/Slider'
 import Text from '../../base/Text'
 import TextArea from '../../base/TextArea'
+import A from '../../base/A'
 
 const ChartContainer = styled.div`
   display: inline-block;
@@ -307,10 +308,10 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
         </Fragment>
       )}
       <Row className="mt-2">
-        <Col xs={6}>
+        <Col xs={8}>
           <Text>Registration ends at epoch</Text>
         </Col>
-        <Col xs={6} className="text-end">
+        <Col xs={4} className="text-end">
           <Text variant={'text2'}>{effectiveEndEpoch ? `#${effectiveEndEpoch}` : '-'}</Text>
         </Col>
       </Row>
@@ -325,8 +326,19 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
           <TextArea rows="3" value={signature} onChange={(_e) => setSignature(_e.target.value)} />
         </Col>
       </Row>
+      <Row>
+        <Col>
+          <Text size="sm">
+            Learn more about nodes and how to become a pNetwork node operator (Sentinel) in the dedicated section of the
+            Wiki:{' '}
+            <A href={settings.links.docs} target="_blank" size="sm">
+              {settings.links.docs}
+            </A>{' '}
+          </Text>
+        </Col>
+      </Row>
       {type === 'stake' && (
-        <Row className="mt-2">
+        <Row className="mt-3">
           <Col>
             <Button disabled={!approveEnabled} loading={isApproving} onClick={() => approve?.()}>
               Approve
@@ -334,7 +346,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
           </Col>
         </Row>
       )}
-      <Row className="mt-2 mb-2">
+      <Row className={`mt-${type === 'borrow' ? 3 : 2} mb-2`}>
         <Col>
           {type === 'stake' && (
             <Button

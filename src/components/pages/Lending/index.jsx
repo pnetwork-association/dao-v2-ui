@@ -106,7 +106,13 @@ const Lending = () => {
                 <Row className="mt-2">
                   <Col xs={8}>
                     <Text>Estimated APY</Text>
-                    <Tooltip id="estimated-apy-lend-tooltip" text="todo">
+                    <Tooltip
+                      overlayType="popover"
+                      id="estimated-apy-lend-tooltip"
+                      text="The interest rate is floating, based on residual locktime (min 1 epoch) and pool utilization. This system protects against the volatility of the number of node operators and prevents emptying the lending pool at the end of epochs.
+Rewards currencies vary depending on the tokens bridged by pNetwork's users, including more than 50 different tokens, such as pBTC, PNT, and stablecoins. 
+A participation DAO vote is required for lenders to be included in the rewards distribution, lenders who don't vote will not be eligible to receive rewards for that epoch."
+                    >
                       <Text>
                         &nbsp;&nbsp;
                         <FaInfoCircle />
@@ -120,7 +126,7 @@ const Lending = () => {
                 <Line />
                 <Row className="mt-2">
                   <Col xs={6}>
-                    <Text>Your lended amount</Text>
+                    <Text>Your lent amount</Text>
                   </Col>
                   <Col xs={6} className="text-end">
                     <Text variant={'text2'}>{formattedLendedAmount}</Text>

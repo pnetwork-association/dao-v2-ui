@@ -128,7 +128,7 @@ const Action = ({ action }) => {
           <A href={getAddressExplorerUrl(lender, { chainId: activeChainId })} target="_blank">
             {lenderNickname}
           </A>
-          <Text>&nbsp;lended&nbsp;</Text>
+          <Text>&nbsp;lent&nbsp;</Text>
           <Text variant="text2">{formattedAmount}&nbsp;</Text>
           <AssetLogo src={'./assets/svg/PNT.svg'} />
           <Text>&nbsp;&nbsp;for&nbsp;</Text>
