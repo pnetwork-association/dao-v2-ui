@@ -132,8 +132,24 @@ const Action = ({ action }) => {
           <Text variant="text2">{formattedAmount}&nbsp;</Text>
           <AssetLogo src={'./assets/svg/PNT.svg'} />
           <Text>&nbsp;&nbsp;for&nbsp;</Text>
-          <Text variant="text2">{endEpoch - startEpoch}</Text>
+          <Text variant="text2">{endEpoch - startEpoch + 1}</Text>
           <Text variant="text2">&nbsp;epochs</Text>
+        </span>
+      </div>
+    )
+  }
+
+  if (action.name === 'DurationIncreased') {
+    const { endEpoch, lender, lenderNickname } = action
+
+    return (
+      <div className="d-flex">
+        <span>
+          <A href={getAddressExplorerUrl(lender, { chainId: activeChainId })} target="_blank">
+            {lenderNickname}
+          </A>
+          <Text>&nbsp;increased his loan until epoch&nbsp;</Text>
+          <Text variant="text2">{endEpoch}</Text>
         </span>
       </div>
     )

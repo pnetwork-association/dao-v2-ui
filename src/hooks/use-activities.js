@@ -89,8 +89,11 @@ const useActivities = () => {
   useEffect(() => {
     const fetchBorrowingManagerData = async () => {
       try {
-        const [lendEvents] = await Promise.all([lendingManager.queryFilter('Lended', fromBlock, toBlock)])
-        setBorrowingManagerActivities(await extractActivityFromEvents(lendEvents))
+        const [lendEvents, increaseLendDurationEvents] = await Promise.all([
+          lendingManager.queryFilter('Lended', fromBlock, toBlock),
+          lendingManager.queryFilter('DurationIncreased', fromBlock, toBlock)
+        ])
+        setBorrowingManagerActivities(await extractActivityFromEvents([...lendEvents, ...increaseLendDurationEvents]))
       } catch (_err) {
         console.error(_err)
       }

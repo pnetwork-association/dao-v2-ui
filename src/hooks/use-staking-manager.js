@@ -37,7 +37,8 @@ const useStake = () => {
 
   const { data: pntBalanceData } = useBalance({
     token: getPntAddressByChainId(activeChainId),
-    address
+    address,
+    watch: true
   })
 
   const { data: allowance } = useContractRead(prepareContractReadAllowanceApproveStake({ activeChainId, address }))

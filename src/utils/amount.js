@@ -34,10 +34,10 @@ export const removeUselessDecimals = (_amount, _decimals = 5) =>
   BigNumber(BigNumber(_amount).toFixed(_decimals)).toFixed()
 
 export const getEthersOnChainAmount = (_amount) =>
-  _amount.length > 0
+  _amount.toString().length > 0
     ? ethers.BigNumber.from(
         BigNumber(_amount)
-          .dividedToIntegerBy(10 ** 18)
+          .multipliedBy(10 ** 18)
           .toFixed()
       )
     : ethers.BigNumber.from('0')

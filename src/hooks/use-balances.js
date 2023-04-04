@@ -15,13 +15,15 @@ const useBalances = () => {
 
   const { data: pntBalanceData } = useBalance({
     token: getPntAddressByChainId(activeChainId),
-    address
+    address,
+    watch: true
   })
 
   const { data: daoPntBalanceData } = useBalance({
     token: settings.contracts.daoPnt,
     address,
-    chainId: polygon.id
+    chainId: polygon.id,
+    watch: true
   })
 
   const pntBalance = useMemo(

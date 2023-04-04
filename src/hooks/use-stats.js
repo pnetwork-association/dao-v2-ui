@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { /*useEffect,*/ useState } from 'react'
+//import axios from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
 import { useContractReads, erc20ABI, useChainId } from 'wagmi'
@@ -11,7 +11,7 @@ import { useEpochs } from './use-epochs'
 import { getPntAddressByChainId } from '../utils/preparers/balance'
 
 const useStats = () => {
-  const [daoPntOnBscTotalSupply, setDaoPntOnBscTotalSupply] = useState(0)
+  const [daoPntOnBscTotalSupply /*setDaoPntOnBscTotalSupply*/] = useState(0)
   const activeChainId = useChainId()
 
   const {
@@ -43,7 +43,7 @@ const useStats = () => {
     ]
   })
 
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchDaoPntOnBscTotalSupply = async () => {
       try {
         const { data } = await axios.get(
@@ -56,7 +56,7 @@ const useStats = () => {
     }
 
     fetchDaoPntOnBscTotalSupply()
-  }, [])
+  }, [])*/
 
   const pntTotalSupply = useMemo(
     () => (data && data[0] ? BigNumber(data[0].toString()).dividedBy(10 ** 18) : BigNumber(null)),

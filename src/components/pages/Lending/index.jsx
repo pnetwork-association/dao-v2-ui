@@ -54,7 +54,9 @@ const Lending = () => {
   const { formattedValue: formattedValueAccountLoanStartEpoch } = useAccountLoanStartEpoch()
   const { formattedValue: formattedValueAccountLoanEndEpoch } = useAccountLoanEndEpoch()
   const { formattedValue: formattedValueApy } = useApy()
-  const { amount: stakedAmount } = useUserStake({ contractAddress: settings.contracts.stakingManagerLM })
+  const { amount: lendedAmount, formattedValue: formattedLendedAmount } = useUserStake({
+    contractAddress: settings.contracts.stakingManagerLM
+  })
 
   return (
     <PageTemplate bgThemeColor="transparent" removePaddingOnMobile>
@@ -118,6 +120,15 @@ const Lending = () => {
                 <Line />
                 <Row className="mt-2">
                   <Col xs={6}>
+                    <Text>Your lended amount</Text>
+                  </Col>
+                  <Col xs={6} className="text-end">
+                    <Text variant={'text2'}>{formattedLendedAmount}</Text>
+                  </Col>
+                </Row>
+                <Line />
+                <Row className="mt-2">
+                  <Col xs={6}>
                     <Text>Your loan starts at epoch</Text>
                   </Col>
                   <Col xs={6} className="text-end">
@@ -143,7 +154,7 @@ const Lending = () => {
                   </Col>
                   <Col xs={4}>
                     <Button
-                      disabled={stakedAmount ? stakedAmount.isEqualTo(0) : true}
+                      disabled={lendedAmount ? lendedAmount.isEqualTo(0) : true}
                       onClick={() => setShowIncreaseDurationModal(true)}
                     >
                       Increase duration

@@ -129,6 +129,19 @@ const extractActivityFromEvents = async (_events) => {
         }
       }
 
+      if (event === 'DurationIncreased') {
+        const { lender, endEpoch } = data
+        return {
+          lender,
+          lenderNickname: getNickname(lender),
+          endEpoch,
+          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDateFromNow,
+          timestamp,
+          type: 'DurationIncreased'
+        }
+      }
+
       return null
     })
     .filter((_val) => _val)
