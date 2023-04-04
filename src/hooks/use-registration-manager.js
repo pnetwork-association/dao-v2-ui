@@ -29,6 +29,7 @@ import {
   prepareContractWriteUpdateSentinelRegistrationByBorrowing,
   prepareContractWriteIncreaseStakingSentinelRegistrationDuration
 } from '../utils/preparers/registration-manager'
+import { getEthersOnChainAmount } from '../utils/amount'
 
 const kind = {
   1: 'Staking',
@@ -50,10 +51,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     chainId: polygon.id
   })
 
-  const onChainAmount = useMemo(
-    () => (amount.toString().length > 0 ? ethers.utils.parseEther(amount.toString()) : ethers.BigNumber.from('0')),
-    [amount]
-  )
+  const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
   const { data: allowance } = useContractRead(
     prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking({

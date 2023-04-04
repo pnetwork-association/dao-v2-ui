@@ -24,6 +24,7 @@ import {
   prepareContractWriteStake,
   prepareContractWriteUnstake
 } from '../utils/preparers/staking-manager'
+import { getEthersOnChainAmount } from '../utils/amount'
 import { getPntAddressByChainId } from '../utils/preparers/balance'
 import { pNetworkChainIds } from '../contants'
 
@@ -42,10 +43,7 @@ const useStake = () => {
 
   const { data: allowance } = useContractRead(prepareContractReadAllowanceApproveStake({ activeChainId, address }))
 
-  const onChainAmount = useMemo(
-    () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
-    [amount]
-  )
+  const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
   const { config: approveConfigs } = usePrepareContractWrite(

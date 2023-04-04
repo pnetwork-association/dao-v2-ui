@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { format } from 'currency-formatter'
 import numeral from 'numeral'
+import { ethers } from 'ethers'
 
 export const formatAssetAmount = (_amount, _symbol, _opts = {}) => {
   const { decimals = 3 } = _opts
@@ -28,3 +29,12 @@ export const formatCurrency = (_amount, _currency) =>
         thousand: ',',
         format: _currency ? '%s %v' : '%v'
       })
+
+export const getEthersOnChainAmount = (_amount) =>
+  _amount.length > 0
+    ? ethers.BigNumber.from(
+        BigNumber(_amount)
+          .dividedToIntegerBy(10 * 18)
+          .toFixed()
+      )
+    : ethers.BigNumber.from('0')

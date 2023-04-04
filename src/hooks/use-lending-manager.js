@@ -30,6 +30,7 @@ import {
   prepareContractWriteLend,
   prepareContractWriteIncreaseLendDuration
 } from '../utils/preparers/lending-manager'
+import { getEthersOnChainAmount } from '../utils/amount'
 
 const useLend = () => {
   const [amount, setAmount] = useState('0')
@@ -45,10 +46,7 @@ const useLend = () => {
     address
   })
 
-  const onChainAmount = useMemo(
-    () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
-    [amount]
-  )
+  const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
   const { data: allowance } = useContractRead(
     prepareContractReadAllowanceApproveLend({ activeChainId, address, enabled: address })
