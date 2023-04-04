@@ -36,10 +36,10 @@ const useBalances = () => {
   )
 
   return {
-    daoPntBalance: removeUselessDecimals(daoPntBalance),
+    daoPntBalance: daoPntBalance.isNaN() ? null : removeUselessDecimals(daoPntBalance),
     formattedDaoPntBalance: formatAssetAmount(daoPntBalance, 'daoPNT'),
     formattedPntBalance: formatAssetAmount(pntBalance, 'PNT'),
-    pntBalance: removeUselessDecimals(pntBalance)
+    pntBalance: pntBalance.isNaN() ? null : removeUselessDecimals(pntBalance)
   }
 }
 

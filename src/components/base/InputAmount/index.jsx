@@ -35,7 +35,7 @@ const InputAmount = ({ max, value, onMax: _onMax, ..._props }) => {
       }}
       amountExceeded={amountExceeded}
       value={value}
-      contentLeft={<MaxButton onClick={onMax}>MAX</MaxButton>}
+      contentLeft={(max || max === 0) && <MaxButton onClick={onMax}>MAX</MaxButton>}
       min={0}
       type="number"
       {..._props}
