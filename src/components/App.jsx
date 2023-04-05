@@ -2,7 +2,7 @@ import React, { useMemo, useContext } from 'react'
 import { ThemeContext } from 'styled-components'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import { configureChains, createClient, WagmiConfig } from 'wagmi'
+import { configureChains, createClient, WagmiConfig, createStorage } from 'wagmi'
 import { mainnet, polygon, bsc } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
@@ -48,6 +48,8 @@ const { connectors } = getDefaultWallets({
 })
 
 const wagmiClient = createClient({
+  persister: null,
+  storage: createStorage({ storage: window.localStorage }),
   autoConnect: true,
   connectors,
   provider
