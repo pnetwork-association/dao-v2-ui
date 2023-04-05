@@ -1,8 +1,7 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Col, Row } from 'react-bootstrap'
 
 import { useStats } from '../../../hooks/use-stats'
-import { useProposals } from '../../../hooks/use-proposals'
 import { useCountdown } from '../../../hooks/use-countdown'
 
 import Box from '../../base/Box'
@@ -10,6 +9,7 @@ import Line from '../../base/Line'
 import ProgressBar from '../../base/ProgressBar'
 import Text from '../../base/Text'
 import Tooltip from '../../base/Tooltip'
+import { ProposalsContext } from '../../context/Proposals'
 
 const Stats = () => {
   const {
@@ -21,7 +21,7 @@ const Stats = () => {
     formattedPercentageStakedPnt,
     percentageStakedPnt
   } = useStats()
-  const proposals = useProposals()
+  const { proposals } = useContext(ProposalsContext)
 
   const { formattedLeft: formattedCurrentEpochEndInLeft, percentageLeft } = useCountdown({
     eventTime: currentEpochEndsAt,
