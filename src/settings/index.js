@@ -56,7 +56,7 @@ const settings = {
       symbolPrice: 'PNT'
     },
     {
-      address: '0x89ab32156e46f46d02ade3fecbe5fc4243b9aaed',
+      address: '0xB6bcae6468760bc0CDFb9C8ef4Ee75C9dd23e1Ed',
       name: 'pNetwork Token',
       decimals: 18,
       symbol: 'PNT',
@@ -66,7 +66,7 @@ const settings = {
       symbolPrice: 'PNT'
     },
     {
-      address: '0x62199b909fb8b8cf870f97bef2ce6783493c4908',
+      address: '0xd7ecf95Cf7eF5256990BeAf4ac895cD9e64cb947',
       name: 'pTokens pBTC',
       decimals: 18,
       symbol: 'pBTC',
@@ -74,16 +74,6 @@ const settings = {
       lendingManagerClaimEnabled: true,
       feesManagerClaimEnabled: true,
       symbolPrice: 'BTC'
-    },
-    {
-      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      name: 'USD Coin',
-      decimals: 6,
-      symbol: 'USDC',
-      logo: './assets/svg/USDC.svg',
-      lendingManagerClaimEnabled: true,
-      feesManagerClaimEnabled: true,
-      symbolPrice: 'USDC'
     }
   ]
 }

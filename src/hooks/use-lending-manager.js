@@ -144,7 +144,7 @@ const useAccountLoanEndEpoch = () => {
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'weightByEpochsRangeOf',
-    args: [address, 0, currentEpoch + 23],
+    args: [address, 0, currentEpoch + 24],
     enabled: (currentEpoch || currentEpoch === 0) && address,
     chainId: polygon.id
   })
@@ -168,7 +168,7 @@ const useAccountLoanStartEpoch = () => {
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'weightByEpochsRangeOf',
-    args: [address, 0, currentEpoch + 23],
+    args: [address, 0, currentEpoch + 24],
     enabled: (currentEpoch || currentEpoch === 0) && address,
     chainId: polygon.id
   })
@@ -348,13 +348,14 @@ const useClaimableRewardsAssetsByEpochs = () => {
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
     args: [address, assets.map(({ address }) => address), 0, currentEpoch],
     enabled: address && (currentEpoch || currentEpoch === 0),
-    watch: true
+    watch: true,
+    chainId: polygon.id
   })
 
   return useMemo(() => {
     if (!data) return null
 
-    return Array.from(Array(currentEpoch).keys()).reduce((_acc, _epoch) => {
+    return Array.from(Array(currentEpoch + 1).keys()).reduce((_acc, _epoch) => {
       _acc[_epoch] = data
         .slice(_epoch * assets.length, _epoch * assets.length + assets.length)
         .map((_value, _index) => {
@@ -487,7 +488,7 @@ const useEstimateApy = () => {
   const { PNT: pntUsd } = useRates(['PNT'])
 
   const [_startEpoch, _endEpoch] = useMemo(
-    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
+    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 24] : [null, null]),
     [currentEpoch]
   )
 
@@ -604,7 +605,7 @@ const useEstimateApyIncreaseDuration = () => {
   const { PNT: pntUsd } = useRates(['PNT'])
 
   const [_startEpoch, _endEpoch] = useMemo(
-    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
+    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 24] : [null, null]),
     [currentEpoch]
   )
 
@@ -736,7 +737,7 @@ const useApy = () => {
   const { PNT: pntUsd } = useRates(['PNT'])
 
   const [_startEpoch, _endEpoch] = useMemo(
-    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
+    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 24] : [null, null]),
     [currentEpoch]
   )
 

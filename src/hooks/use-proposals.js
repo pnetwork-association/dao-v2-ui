@@ -174,7 +174,8 @@ const useFetchProposals = ({ setProposals }) => {
     address: settings.contracts.daoPnt,
     abi: erc20ABI,
     functionName: 'totalSupply',
-    args: []
+    args: [],
+    chainId: polygon.id
   })
 
   const { data: currentBlockNumber } = useBlockNumber({ chainId: polygon.id })
