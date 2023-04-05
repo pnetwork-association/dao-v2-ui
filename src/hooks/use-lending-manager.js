@@ -16,7 +16,7 @@ import moment from 'moment'
 
 import settings from '../settings'
 import { getPntAddressByChainId } from '../utils/preparers/balance'
-import BorrowingManagerABI from '../utils/abis/LendingManager.json'
+import LendingManagerABI from '../utils/abis/LendingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import { formatAssetAmount, formatCurrency } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
@@ -142,7 +142,7 @@ const useAccountLoanEndEpoch = () => {
 
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 23],
     enabled: (currentEpoch || currentEpoch === 0) && address,
@@ -166,7 +166,7 @@ const useAccountLoanStartEpoch = () => {
 
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 23],
     enabled: (currentEpoch || currentEpoch === 0) && address,
@@ -199,7 +199,7 @@ const useAccountLoanStartEpoch = () => {
 const useTotalLendedAmountByEpoch = (_epoch) => {
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'totalLendedAmountByEpoch',
     args: [_epoch],
     chainId: polygon.id
@@ -216,7 +216,7 @@ const useTotalLendedAmountByEpoch = (_epoch) => {
 const useTotalBorrowedAmountByEpoch = (_epoch) => {
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'totaBorrowedAmountByEpoch',
     args: [_epoch],
     chainId: polygon.id
@@ -236,7 +236,7 @@ const useTotalLendedAmountByStartAndEndEpochs = () => {
 
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'totalLendedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
     enabled: startEpoch && endEpoch,
@@ -266,7 +266,7 @@ const useUtilizationRatio = () => {
 
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'utilizationRatioByEpochsRange',
     args: [currentEpoch, currentEpoch + 12],
     enabled: currentEpoch || currentEpoch === 0,
@@ -290,7 +290,7 @@ const useUtilizationRatioInTheCurrentEpoch = () => {
 
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'utilizationRatioByEpoch',
     args: [currentEpoch],
     enabled: currentEpoch || currentEpoch === 0,
@@ -312,7 +312,7 @@ const useAccountUtilizationRatio = () => {
 
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'utilizationRatioOf',
     args: [address, startEpoch, endEpoch],
     enabled: startEpoch && endEpoch && address,
@@ -333,20 +333,18 @@ const useAccountUtilizationRatio = () => {
 
 const useClaimableRewardsAssetsByEpochs = () => {
   const assets = settings.assets
-    .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
+    .filter(({ lendingManagerClaimEnabled }) => lendingManagerClaimEnabled)
     .sort((_a, _b) => _a.name.localeCompare(_b.name))
   const { address } = useAccount()
   const { currentEpoch } = useEpochs()
 
   const rates = useRates(
-    assets
-      .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
-      .map(({ symbolPrice }) => symbolPrice)
+    assets.filter(({ lendingManagerClaimEnabled }) => lendingManagerClaimEnabled).map(({ symbolPrice }) => symbolPrice)
   )
 
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
     args: [address, assets.map(({ address }) => address), 0, currentEpoch],
     enabled: address && (currentEpoch || currentEpoch === 0),
@@ -387,7 +385,7 @@ const useClaimableRewardsAssetsByEpochs = () => {
 const useClaimableRewardsAssetsByAssets = () => {
   const rates = useRates(
     settings.assets
-      .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
+      .filter(({ lendingManagerClaimEnabled }) => lendingManagerClaimEnabled)
       .map(({ symbolPrice }) => symbolPrice)
   )
 
@@ -407,7 +405,7 @@ const useClaimableRewardsAssetsByAssets = () => {
   return useMemo(
     () =>
       settings.assets
-        .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
+        .filter(({ lendingManagerClaimEnabled }) => lendingManagerClaimEnabled)
         .sort((_a, _b) => _a.name.localeCompare(_b.name))
         .map((_asset) => {
           const amount = assetsAmount[_asset.address]
@@ -435,7 +433,7 @@ const useClaimableRewardsAssetsByAssets = () => {
 const useClaimRewardByEpoch = () => {
   const { error, data, writeAsync } = useContractWrite({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'claimRewardByEpoch',
     mode: 'recklesslyUnprepared'
   })
@@ -459,7 +457,7 @@ const useClaimRewardByEpochsRange = () => {
   const { currentEpoch } = useEpochs()
   const { error, data, writeAsync } = useContractWrite({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'claimRewardByEpochsRange',
     mode: 'recklesslyUnprepared'
   })
@@ -498,7 +496,7 @@ const useEstimateApy = () => {
     contracts: [
       {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
         enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
@@ -506,7 +504,7 @@ const useEstimateApy = () => {
       },
       {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
         enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
@@ -615,7 +613,7 @@ const useEstimateApyIncreaseDuration = () => {
     contracts: [
       {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
         enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
@@ -623,7 +621,7 @@ const useEstimateApyIncreaseDuration = () => {
       },
       {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
         enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
@@ -755,7 +753,7 @@ const useApy = () => {
       },
       {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
         enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
@@ -763,7 +761,7 @@ const useApy = () => {
       },
       {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
         enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),

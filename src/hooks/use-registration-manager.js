@@ -14,7 +14,7 @@ import {
 import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
-import BorrowingManagerABI from '../utils/abis/LendingManager.json'
+import LendingManagerABI from '../utils/abis/LendingManager.json'
 import RegistrationManagerABI from '../utils/abis/RegistrationManager.json'
 import { slicer } from '../utils/address'
 import { isValidHexString } from '../utils/format'
@@ -253,7 +253,7 @@ const useBorrowingSentinelProspectus = () => {
     contracts: [
       {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [_startEpoch, _endEpoch],
         enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),

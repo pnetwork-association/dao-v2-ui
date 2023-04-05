@@ -3,7 +3,7 @@ import { useBlockNumber, useContract, useProvider } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
-import BorrowingManagerABI from '../utils/abis/LendingManager.json'
+import LendingManagerABI from '../utils/abis/LendingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
 import DandelionVotingABI from '../utils/abis/DandelionVoting.json'
 import { extractActivityFromEvents } from '../utils/logs'
@@ -42,7 +42,7 @@ const useActivities = () => {
 
   const lendingManager = useContract({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     signerOrProvider: provider
   })
 

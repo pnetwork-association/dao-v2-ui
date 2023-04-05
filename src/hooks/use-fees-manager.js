@@ -6,7 +6,7 @@ import { polygon } from 'wagmi/chains'
 import { groupBy } from 'lodash'
 
 import settings from '../settings'
-import BorrowingManagerABI from '../utils/abis/LendingManager.json'
+import LendingManagerABI from '../utils/abis/LendingManager.json'
 import FeesManagerABI from '../utils/abis/FeesManager.json'
 import RegistrationManagerABI from '../utils/abis/RegistrationManager.json'
 import { range } from '../utils/time'
@@ -22,7 +22,7 @@ const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
     contracts: [
       {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [startEpoch, endEpoch],
         enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
@@ -146,7 +146,7 @@ const useClaimableFeesAssetsByAssets = (_opts) => {
   const { type } = _opts
   const rates = useRates(
     settings.assets
-      .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
+      .filter(({ lendingManagerClaimEnabled }) => lendingManagerClaimEnabled)
       .map(({ symbolPrice }) => symbolPrice)
   )
 
@@ -166,7 +166,7 @@ const useClaimableFeesAssetsByAssets = (_opts) => {
   return useMemo(
     () =>
       settings.assets
-        .filter(({ borrowingManagerClaimEnabled }) => borrowingManagerClaimEnabled)
+        .filter(({ lendingManagerClaimEnabled }) => lendingManagerClaimEnabled)
         .sort((_a, _b) => _a.name.localeCompare(_b.name))
         .map((_asset) => {
           const amount = assetsAmount[_asset.address]
@@ -320,7 +320,7 @@ const useBorrowingSentinelEstimatedRevenues = () => {
 
   const { data } = useContractRead({
     address: settings.contracts.lendingManager,
-    abi: BorrowingManagerABI,
+    abi: LendingManagerABI,
     functionName: 'totalBorrowedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
     enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),

@@ -3,7 +3,7 @@ import { erc20ABI } from 'wagmi'
 import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
-import BorrowingManagerABI from '../abis/LendingManager.json'
+import LendingManagerABI from '../abis/LendingManager.json'
 import { getForwarderLendUserData, getForwarderIncreaseDurationLendUserData } from './forwarder'
 import { pNetworkChainIds } from '../../contants'
 
@@ -123,7 +123,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
     case polygon.id: {
       return {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'lend',
         args: [receiver, amount, duration],
         enabled,
@@ -173,7 +173,7 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
     case polygon.id: {
       return {
         address: settings.contracts.lendingManager,
-        abi: BorrowingManagerABI,
+        abi: LendingManagerABI,
         functionName: 'increaseDuration',
         args: [duration],
         enabled,
