@@ -26,7 +26,7 @@ const useActivities = () => {
 
   const [localActivities, setLocalActivities] = useState([])
   const [stakingManagerActivities, setStakingManagerActivities] = useState(null)
-  const [borrowingManagerActivities, setBorrowingManagerActivities] = useState(null)
+  const [lendingManagerActivities, setLendingManagerActivities] = useState(null)
   const [votingActivities, setVotingActivities] = useState(null)
   const { data: blockNumber } = useBlockNumber({
     watch: true,
@@ -87,13 +87,13 @@ const useActivities = () => {
   }, [stakingManager, fromBlock, toBlock, cachedLastBlock])
 
   useEffect(() => {
-    const fetchBorrowingManagerData = async () => {
+    const fetchLendingManagerData = async () => {
       try {
         const [lendEvents, increaseLendDurationEvents] = await Promise.all([
           lendingManager.queryFilter('Lended', fromBlock, toBlock),
           lendingManager.queryFilter('DurationIncreased', fromBlock, toBlock)
         ])
-        setBorrowingManagerActivities(await extractActivityFromEvents([...lendEvents, ...increaseLendDurationEvents]))
+        setLendingManagerActivities(await extractActivityFromEvents([...lendEvents, ...increaseLendDurationEvents]))
       } catch (_err) {
         console.error(_err)
       }
@@ -106,7 +106,7 @@ const useActivities = () => {
       toBlock > cachedLastBlock &&
       checkpoints.current['LendingManager'] < toBlock
     ) {
-      fetchBorrowingManagerData()
+      fetchLendingManagerData()
     }
   }, [lendingManager, fromBlock, toBlock, cachedLastBlock])
 
@@ -138,21 +138,21 @@ const useActivities = () => {
   }, [dandelionVoting, fromBlock, toBlock, cachedLastBlock])
 
   useEffect(() => {
-    if (stakingManagerActivities && votingActivities && borrowingManagerActivities) {
-      // console.log("storing", stakingManagerActivities.length, votingActivities.length)
-      setLocalActivities([...stakingManagerActivities, ...borrowingManagerActivities, ...votingActivities])
+    if (stakingManagerActivities && votingActivities && lendingManagerActivities) {
+      // console.log('storing', stakingManagerActivities.length, votingActivities.length)
+      setLocalActivities([...stakingManagerActivities, ...lendingManagerActivities, ...votingActivities])
       setStakingManagerActivities(null)
-      setBorrowingManagerActivities(null)
+      setLendingManagerActivities(null)
       setVotingActivities(null)
     }
-  }, [stakingManagerActivities, borrowingManagerActivities, votingActivities])
+  }, [stakingManagerActivities, lendingManagerActivities, votingActivities])
 
   useEffect(() => {
     if (toBlock > cachedLastBlock && localActivities?.length > 0) {
       cacheActivities(localActivities)
       cacheLastBlock(toBlock)
       setLocalActivities(null)
-      // console.log('cache')
+      //console.log('cache')
     }
   }, [toBlock, cacheActivities, localActivities, cacheLastBlock, cachedLastBlock])
 
