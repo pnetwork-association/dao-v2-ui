@@ -348,7 +348,6 @@ const useClaimableRewardsAssetsByEpochs = () => {
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
     args: [address, assets.map(({ address }) => address), 0, currentEpoch],
     enabled: address && (currentEpoch || currentEpoch === 0),
-    watch: true,
     chainId: polygon.id
   })
 
@@ -836,11 +835,47 @@ const useIncreaseLendDuration = () => {
   }
 }
 
+const useEpochsBorrowableAmount = () => {
+  const { data } = useContractReads({
+    contracts: [
+      {
+        address: settings.contracts.lendingManager,
+        abi: LendingManagerABI,
+        functionName: 'totalLendedAmountByEpochsRange',
+        args: [0, 24],
+        enabled: true,
+        chainId: polygon.id
+      },
+      {
+        address: settings.contracts.lendingManager,
+        abi: LendingManagerABI,
+        functionName: 'totalBorrowedAmountByEpochsRange',
+        args: [0, 24],
+        enabled: true,
+        chainId: polygon.id
+      }
+    ]
+  })
+
+  const epochsLendedAmount = useMemo(() => (data && data[0] ? data[0].map((_val) => BigNumber(_val)) : []), [data])
+  const epochsBorrowedAmount = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val)) : []), [data])
+  const epochsBorrowableAmount = useMemo(
+    () => epochsLendedAmount.map((_amount, _index) => _amount.minus(epochsBorrowedAmount[_index])),
+    [epochsLendedAmount, epochsBorrowedAmount]
+  )
+
+  return {
+    onChainEpochsBorrowableAmount: epochsBorrowableAmount,
+    epochsBorrowableAmount: epochsBorrowableAmount.map((_val) => _val.dividedBy(10 ** 18))
+  }
+}
+
 export {
   useAccountLoanEndEpoch,
   useAccountLoanStartEpoch,
   useAccountUtilizationRatio,
   useApy,
+  useEpochsBorrowableAmount,
   useClaimableRewardsAssetsByAssets,
   useClaimableRewardsAssetsByEpochs,
   useClaimRewardByEpoch,

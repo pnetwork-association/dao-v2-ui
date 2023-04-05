@@ -348,8 +348,28 @@ const useIncreaseStakingSentinelRegistrationDuration = () => {
   }
 }
 
+const useEffectiveEpochsForSentinelRegistration = ({ type, epochs, currentEndEpoch }) => {
+  const { currentEpoch } = useEpochs()
+  return useMemo(() => {
+    if (type === 'borrow') {
+      if (!currentEpoch && currentEpoch !== 0) return { startEpoch: null, endEpoch: null }
+
+      let startEpoch = currentEpoch >= currentEndEpoch ? currentEpoch + 1 : currentEndEpoch + 1
+      startEpoch = currentEpoch >= currentEndEpoch ? startEpoch : currentEndEpoch
+
+      const endEpoch = startEpoch + epochs - (currentEpoch >= currentEndEpoch ? 1 : 0)
+      return { startEpoch, endEpoch }
+    }
+
+    if (type === 'stake') {
+      return { startEpoch: currentEpoch + 1, endEpoch: currentEpoch + epochs }
+    }
+  }, [type, currentEpoch, currentEndEpoch, epochs])
+}
+
 export {
   useBorrowingSentinelProspectus,
+  useEffectiveEpochsForSentinelRegistration,
   useIncreaseStakingSentinelRegistrationDuration,
   useRegisterSentinel,
   useSentinel

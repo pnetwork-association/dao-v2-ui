@@ -9,9 +9,11 @@ import { useEpochs } from '../../../hooks/use-epochs'
 import { useBalances } from '../../../hooks/use-balances'
 import {
   useBorrowingSentinelProspectus,
+  useEffectiveEpochsForSentinelRegistration,
   useRegisterSentinel,
   useSentinel
 } from '../../../hooks/use-registration-manager'
+import { useEpochsBorrowableAmount } from '../../../hooks/use-lending-manager'
 import settings from '../../../settings'
 import { range } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
@@ -26,12 +28,13 @@ import Slider from '../../base/Slider'
 import Text from '../../base/Text'
 import TextArea from '../../base/TextArea'
 import A from '../../base/A'
+import InfoBox from '../../base/InfoBox'
 
 const ChartContainer = styled.div`
   display: inline-block;
   position: relative;
   width: 100%;
-  height: 350px;
+  height: 320px;
 `
 
 const chartOptions = {
@@ -181,22 +184,6 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
     }
   }, [chartEpochs, prospectusBorrowingEpochsRevenues, theme])
 
-  const effectiveEndEpoch = useMemo(() => {
-    if (type === 'borrow') {
-      if (!currentEpoch && currentEpoch !== 0) return null
-
-      let startEpoch = currentEpoch >= currentEndEpoch ? currentEpoch + 1 : currentEndEpoch + 1
-      startEpoch = currentEpoch >= currentEndEpoch ? startEpoch : currentEndEpoch
-
-      const endEpoch = startEpoch + epochs - (currentEpoch >= currentEndEpoch ? 1 : 0)
-      return endEpoch
-    }
-
-    if (type === 'stake') {
-      return currentEpoch + epochs
-    }
-  }, [type, currentEpoch, currentEndEpoch, epochs])
-
   const updateSentinelRegistrationByStakingButtonText = useMemo(
     () =>
       type === 'stake'
@@ -206,6 +193,26 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
         : null,
     [type, amount, pntBalance, updateSentinelRegistrationByStakingEnabled]
   )
+
+  const { startEpoch: effectiveStartEpoch, endEpoch: effectiveEndEpoch } = useEffectiveEpochsForSentinelRegistration({
+    type,
+    epochs,
+    currentEndEpoch
+  })
+
+  const { epochsBorrowableAmount } = useEpochsBorrowableAmount()
+  const isThereEnoughBorrowableAmount = useMemo(() => {
+    if (type === 'staking') return true
+
+    for (let epoch = effectiveStartEpoch; epoch <= effectiveEndEpoch; epoch++) {
+      if (
+        epochsBorrowableAmount[epoch] &&
+        epochsBorrowableAmount[epoch].isLessThan(settings.registrationManager.borrowAmount)
+      )
+        return false
+    }
+    return true
+  }, [effectiveStartEpoch, effectiveEndEpoch, epochsBorrowableAmount, type])
 
   return (
     <Modal show={show} title="Register Sentinel" onClose={onClose} size="xl">
@@ -252,7 +259,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
       <Line />
       {type === 'stake' && (
         <Fragment>
-          <Row className="mt-3">
+          <Row className="mt-1">
             <Col>
               <InputAmount
                 max={pntBalance}
@@ -285,7 +292,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
       )}
       {type === 'borrow' && (
         <Fragment>
-          <Row className="mt-3">
+          <Row className="mt-1">
             <Col xs={6}>
               <Text>Number of epochs</Text>
             </Col>
@@ -358,13 +365,25 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
             </Button>
           )}
           {type === 'borrow' && (
-            <Button
-              disabled={!updateSentinelRegistrationByBorrowingEnabled}
-              loading={isUpdatingSentinelRegistrationByBorrowing}
-              onClick={() => updateSentinelRegistrationByBorrowing?.()}
-            >
-              Borrow & Register
-            </Button>
+            <Fragment>
+              <Button
+                disabled={!updateSentinelRegistrationByBorrowingEnabled || !isThereEnoughBorrowableAmount}
+                loading={isUpdatingSentinelRegistrationByBorrowing}
+                onClick={() => updateSentinelRegistrationByBorrowing?.()}
+              >
+                Borrow & Register
+              </Button>
+              {!isThereEnoughBorrowableAmount && (
+                <Row className="justify-content-center mt-2 mb-2">
+                  <Col xs={12} xl={6}>
+                    <InfoBox type="warning">
+                      Not enough borrowable amount in the lending pool for the number of epochs selected. Please reduce
+                      it or provide PNT liquidity
+                    </InfoBox>
+                  </Col>
+                </Row>
+              )}
+            </Fragment>
           )}
         </Col>
       </Row>
