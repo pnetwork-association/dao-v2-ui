@@ -89,7 +89,8 @@ const useStats = () => {
       decimals: 0
     }),
     formattedPercentageStakedPnt: formatAssetAmount(percentageStakedPnt, '%', {
-      decimals: 2
+      decimals: 2,
+      forceDecimals: true
     }),
     formattedPntTotalSupply: formatAssetAmount(pntTotalSupply, 'PNT'),
     percentageStakedPnt: percentageStakedPnt.toFixed(),

@@ -4,12 +4,14 @@ import numeral from 'numeral'
 import { ethers } from 'ethers'
 
 export const formatAssetAmount = (_amount, _symbol, _opts = {}) => {
-  const { decimals = 3 } = _opts
+  const { decimals = 3, forceDecimals = false } = _opts
   if (BigNumber(_amount).isNaN()) {
     return '-'
   }
 
-  const formattedNumber = numeral(_amount).format(`0,0[.]${'0'.repeat(decimals)}`)
+  const formattedNumber = forceDecimals
+    ? BigNumber(_amount).toFixed(decimals)
+    : numeral(_amount).format(`0,0[.]${'0'.repeat(decimals)}`)
   return `${formattedNumber} ${_symbol}`
 }
 
