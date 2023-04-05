@@ -39,7 +39,7 @@
     "stream": "^0.0.2",
     "styled-components": "^5.3.6",
     "unique-names-generator": "^4.7.1",
-    "wagmi": "^0.11.7",
+    "wagmi": "^0.12.9",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {

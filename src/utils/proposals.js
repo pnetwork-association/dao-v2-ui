@@ -1,3 +1,10 @@
+import BigNumber from 'bignumber.js'
+import moment from 'moment'
+
+import { formatAssetAmount } from './amount'
+
+const now = moment().unix()
+
 const extrapolateProposalData = (_proposal) => {
   const index = _proposal.indexOf('http')
   return index > 0
@@ -31,4 +38,132 @@ const styleProposalHtml = (_html, _theme) => {
   return html.slice(0, index) + rules + html.slice(index, html.length)
 }
 
-export { extrapolateProposalData, styleProposalHtml }
+const prepareOldProposal = (
+  _proposal,
+  _voteData,
+  _voteActions,
+  _executionBlockNumberTimestamp,
+  _chainId,
+  _idStart = 0,
+  _durationBlocks
+) => {
+  const { executed, executionBlock, open, script, snapshotBlock, startBlock } = _voteData
+
+  const votingPower = BigNumber(_voteData.votingPower.toString()).dividedBy(10 ** 18)
+  const no = BigNumber(_voteData.nay.toString()).dividedBy(10 ** 18)
+  const yes = BigNumber(_voteData.yea.toString()).dividedBy(10 ** 18)
+
+  const votingPnt = yes.plus(no)
+  const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
+  const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
+
+  const quorum = yes.dividedBy(votingPower)
+  const minAcceptQuorum = BigNumber(_voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
+
+  const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
+  const passed = percentageYea.isGreaterThan(51) && quorumReached
+
+  const endBlock = startBlock.add(_durationBlocks)
+
+  // No need to calculate the countdown on old votes on eth since are all closed and the new ones will be only on Polygon
+  // TODO: What does it happen if keep creating vote on ethereum?
+  const countdown = -1
+
+  const formattedCloseDate =
+    countdown > 0
+      ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
+      : _executionBlockNumberTimestamp
+      ? moment.unix(_executionBlockNumberTimestamp).format('MMM DD YYYY - HH:mm:ss')
+      : null
+
+  return {
+    ..._proposal,
+    actions: _voteActions,
+    chainId: _chainId,
+    effectiveId: _proposal.id,
+    endBlock: endBlock.toNumber(),
+    executed,
+    executionBlock: executionBlock.toNumber(),
+    formattedCloseDate,
+    formattedPercentageNay: formatAssetAmount(percentageNay, '%', {
+      decimals: 2
+    }),
+    formattedPercentageYea: formatAssetAmount(percentageYea, '%', {
+      decimals: 2
+    }),
+    formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
+    id: _proposal.id + _idStart,
+    minAcceptQuorum: minAcceptQuorum.toFixed(),
+    no: no.toFixed(),
+    open,
+    passed,
+    quorum: quorum.toFixed(),
+    quorumReached,
+    script,
+    snapshotBlock: snapshotBlock.toNumber(),
+    startBlock: startBlock.toNumber(),
+    votingPnt,
+    votingPower: votingPower.toFixed(),
+    yes: yes.toFixed()
+  }
+}
+
+const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idStart = 0, _duration) => {
+  const { executed, executionDate, open, script, snapshotBlock, startDate } = _voteData
+
+  const votingPower = BigNumber(_voteData.votingPower.toString()).dividedBy(10 ** 18)
+  const no = BigNumber(_voteData.nay.toString()).dividedBy(10 ** 18)
+  const yes = BigNumber(_voteData.yea.toString()).dividedBy(10 ** 18)
+
+  const votingPnt = yes.plus(no)
+  const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
+  const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
+
+  const quorum = yes.dividedBy(votingPower)
+  const minAcceptQuorum = BigNumber(_voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
+
+  const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
+  const passed = percentageYea.isGreaterThan(51) && quorumReached
+
+  const endDate = startDate.add(_duration)
+
+  const countdown = now < endDate.toNumber() ? endDate.toNumber() - now : -1
+
+  const formattedCloseDate =
+    countdown > 0
+      ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
+      : moment.unix(now).format('MMM DD YYYY - HH:mm:ss')
+
+  return {
+    ..._proposal,
+    actions: _voteActions,
+    chainId: _chainId,
+    effectiveId: _proposal.id,
+    endDate: endDate.toNumber(),
+    executed,
+    executionDate: executionDate.toNumber(),
+    formattedCloseDate,
+    formattedPercentageNay: formatAssetAmount(percentageNay, '%', {
+      decimals: 2
+    }),
+    formattedPercentageYea: formatAssetAmount(percentageYea, '%', {
+      decimals: 2
+    }),
+    formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
+    id: _proposal.id + _idStart,
+    minAcceptQuorum: minAcceptQuorum.toFixed(),
+    no: no.toFixed(),
+    open,
+    passed,
+    quorum: quorum.toFixed(),
+    quorumReached,
+    script,
+    snapshotBlock: snapshotBlock.toNumber(),
+    startDate: startDate.toNumber(),
+    votingPnt,
+    votingPower: votingPower.toFixed(),
+    yes: yes.toFixed()
+  }
+}
+
+export { extrapolateProposalData, prepareNewProposal, prepareOldProposal, styleProposalHtml }
