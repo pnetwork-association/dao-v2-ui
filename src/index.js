@@ -25,6 +25,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'chart.js/auto'
 import 'rc-slider/assets/index.css'
 import './theme/font.css'
+import 'react-toastify/dist/ReactToastify.css'
 
 window.Buffer = window.Buffer || require('buffer').Buffer
 
