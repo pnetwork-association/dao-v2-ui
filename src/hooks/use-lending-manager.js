@@ -146,7 +146,8 @@ const useAccountLoanEndEpoch = () => {
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 24],
     enabled: (currentEpoch || currentEpoch === 0) && address,
-    chainId: polygon.id
+    chainId: polygon.id,
+    watch: true
   })
 
   const endEpoch = useMemo(
@@ -170,7 +171,8 @@ const useAccountLoanStartEpoch = () => {
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 24],
     enabled: (currentEpoch || currentEpoch === 0) && address,
-    chainId: polygon.id
+    chainId: polygon.id,
+    watch: true
   })
 
   const startEpoch = useMemo(() => {
@@ -492,7 +494,6 @@ const useEstimateApy = () => {
   )
 
   const { data } = useContractReads({
-    cacheTime: 1000 * 60 * 2,
     contracts: [
       {
         address: settings.contracts.lendingManager,
@@ -609,7 +610,6 @@ const useEstimateApyIncreaseDuration = () => {
   )
 
   const { data } = useContractReads({
-    cacheTime: 1000 * 60 * 2,
     contracts: [
       {
         address: settings.contracts.lendingManager,
@@ -741,7 +741,6 @@ const useApy = () => {
   )
 
   const { data } = useContractReads({
-    cacheTime: 1000 * 60 * 2,
     contracts: [
       {
         address: settings.contracts.stakingManagerLM,
