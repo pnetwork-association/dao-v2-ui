@@ -36,7 +36,7 @@ const StyledHeader = styled(Modal.Header)`
 const MyModal = ({ show, title, children, size = 'lg', bodyStyle, onClose }) => {
   return (
     <Modal show={show} aria-labelledby="modal" size={size} centered onHide={onClose}>
-      <StyledHeader closeButton>
+      <StyledHeader closeButton={Boolean(onClose)}>
         <StyledModalTitle>{title}</StyledModalTitle>
       </StyledHeader>
       <StyledBody style={bodyStyle}>{children}</StyledBody>
