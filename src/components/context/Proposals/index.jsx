@@ -1,5 +1,4 @@
 import React, { createContext, useEffect, useRef, useState } from 'react'
-import { readContract, readContracts, getProvider } from '@wagmi/core'
 import axios from 'axios'
 import moment from 'moment'
 import { mainnet, polygon } from 'wagmi/chains'
@@ -14,8 +13,8 @@ import DandelionVotingOldABI from '../../../utils/abis/DandelionVotingOld.json'
 import DandelionVotingABI from '../../../utils/abis/DandelionVoting.json'
 
 const fetchProposals = async ({ setProposals }) => {
-  const mainnetProvider = getProvider({ chainId: mainnet.id })
-  const polygonProvider = getProvider({ chainId: polygon.id })
+  const mainnetProvider = new ethers.providers.AlchemyProvider(mainnet.id, process.env.REACT_APP_ALCHEMY_ID)
+  const polygonProvider = new ethers.providers.AlchemyProvider(polygon.id, process.env.REACT_APP_ALCHEMY_ID)
 
   const fetchEtherscanAndPolygonscanProposals = async () => {
     try {
@@ -61,41 +60,20 @@ const fetchProposals = async ({ setProposals }) => {
   }
   const { etherscanProposals, polygonscanProposals } = await fetchEtherscanAndPolygonscanProposals()
 
-  const oldVotesData = await readContracts({
-    contracts: etherscanProposals.map(({ id }) => ({
-      address: settings.contracts.dandelionVotingOld,
-      abi: DandelionVotingOldABI,
-      functionName: 'getVote',
-      args: [id],
-      chainId: mainnet.id
-    }))
-  })
-
-  const newVotesData = await readContracts({
-    contracts: polygonscanProposals.map(({ id }) => ({
-      address: settings.contracts.dandelionVoting,
-      abi: DandelionVotingABI,
-      functionName: 'getVote',
-      args: [id],
-      chainId: polygon.id
-    }))
-  })
-
-  const oldDurationBlocks = await readContract({
-    address: settings.contracts.dandelionVotingOld,
-    abi: DandelionVotingOldABI,
-    functionName: 'durationBlocks',
-    args: [],
-    chainId: mainnet.id
-  })
-
-  const newDuration = await readContract({
-    address: settings.contracts.dandelionVoting,
-    abi: DandelionVotingABI,
-    functionName: 'duration',
-    args: [],
-    chainId: polygon.id
-  })
+  const dandelionVotingOld = new ethers.Contract(
+    settings.contracts.dandelionVotingOld,
+    DandelionVotingOldABI,
+    mainnetProvider
+  )
+  const dandelionVotingNew = new ethers.Contract(
+    settings.contracts.dandelionVoting,
+    DandelionVotingABI,
+    polygonProvider
+  )
+  const oldVotesData = await Promise.all(etherscanProposals.map(({ id }) => dandelionVotingOld.getVote(id)))
+  const newVotesData = await Promise.all(polygonscanProposals.map(({ id }) => dandelionVotingNew.getVote(id)))
+  const oldDurationBlocks = await dandelionVotingOld.durationBlocks()
+  const newDuration = await dandelionVotingNew.duration()
 
   const fetchExecutionBlockNumberTimestamps = async () => {
     try {

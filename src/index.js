@@ -14,10 +14,6 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { ToastContainer } from 'react-toastify'
 import styled from 'styled-components'
-import { createClient, configureChains } from '@wagmi/core'
-import { publicProvider } from '@wagmi/core/providers/public'
-import { alchemyProvider } from '@wagmi/core/providers/alchemy'
-import { mainnet, polygon, bsc } from 'wagmi/chains'
 
 import reportWebVitals from './reportWebVitals'
 import ThemeProvider, { ThemedGlobalStyle } from './theme/ThemeProvider'
@@ -81,17 +77,6 @@ const StyledContainer = styled(ToastContainer)`
     color: ${({ theme }) => theme.white};
   }
 `
-
-const { provider, webSocketProvider } = configureChains(
-  [mainnet, polygon, bsc],
-  [alchemyProvider({ apiKey: process.env.REACT_APP_ALCHEMY_ID }), publicProvider()]
-)
-
-createClient({
-  autoConnect: true,
-  provider,
-  webSocketProvider
-})
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
