@@ -209,7 +209,6 @@ const useSentinel = () => {
     functionName: 'sentinelOf',
     args: [address],
     enabled: address,
-    watch: true,
     chainId: polygon.id
   })
 
@@ -249,7 +248,6 @@ const useBorrowingSentinelProspectus = () => {
   )
 
   const { data } = useContractReads({
-    cacheTime: 1000 * 60 * 2,
     contracts: [
       {
         address: settings.contracts.lendingManager,

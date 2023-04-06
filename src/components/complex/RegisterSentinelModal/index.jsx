@@ -378,7 +378,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
                   <Col xs={12} xl={6}>
                     <InfoBox type="warning">
                       Not enough borrowable amount in the lending pool for the number of epochs selected. Please reduce
-                      it or provide PNT liquidity
+                      it or wait for additional PNT liquidity to be available in the lending pool.
                     </InfoBox>
                   </Col>
                 </Row>

@@ -18,7 +18,6 @@ import { BORROWING_SENTINEL, STAKING_SENTINEL } from '../contants'
 
 const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
   const { data } = useContractReads({
-    cacheTime: 1000 * 60 * 2,
     contracts: [
       {
         address: settings.contracts.lendingManager,
@@ -107,7 +106,6 @@ const useClaimableFeesAssetsByEpochs = (_opts = {}) => {
     functionName: 'claimableFeesByEpochsRangeOf',
     args: [sentinelAddress, assets.map(({ address }) => address), 0, currentEpoch],
     enabled,
-    watch: true,
     chainId: polygon.id
   })
 
@@ -324,7 +322,6 @@ const useBorrowingSentinelEstimatedRevenues = () => {
     functionName: 'totalBorrowedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
     enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-    cacheTime: 1000 * 60 * 2,
     chainId: polygon.id
   })
 
