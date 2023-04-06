@@ -9,7 +9,6 @@ import { parseSeconds } from '../utils/time'
 
 const useEpochs = () => {
   const { data } = useContractReads({
-    cacheTime: 1000 * 60 * 2,
     contracts: [
       {
         address: settings.contracts.epochsManager,

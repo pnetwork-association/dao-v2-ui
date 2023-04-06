@@ -9,7 +9,7 @@ import { useStats } from './use-stats'
 import { getPntAddressByChainId } from '../utils/preparers/balance'
 import { removeUselessDecimals } from '../utils/amount'
 
-const useBalances = () => {
+const usePntBalance = () => {
   const { address } = useAccount()
   const activeChainId = useChainId()
 
@@ -19,6 +19,20 @@ const useBalances = () => {
     watch: true
   })
 
+  const pntBalance = useMemo(
+    () => (pntBalanceData ? BigNumber(pntBalanceData?.value.toString()).dividedBy(10 ** 18) : BigNumber(null)),
+    [pntBalanceData]
+  )
+
+  return {
+    amount: pntBalance.isNaN() ? null : removeUselessDecimals(pntBalance),
+    formattedAmount: formatAssetAmount(pntBalance, 'PNT')
+  }
+}
+
+const useDaoPntBalance = () => {
+  const { address } = useAccount()
+
   const { data: daoPntBalanceData } = useBalance({
     token: settings.contracts.daoPnt,
     address,
@@ -26,20 +40,26 @@ const useBalances = () => {
     watch: true
   })
 
-  const pntBalance = useMemo(
-    () => (pntBalanceData ? BigNumber(pntBalanceData?.value.toString()).dividedBy(10 ** 18) : BigNumber(null)),
-    [pntBalanceData]
-  )
   const daoPntBalance = useMemo(
     () => (daoPntBalanceData ? BigNumber(daoPntBalanceData?.value.toString()).dividedBy(10 ** 18) : BigNumber(null)),
     [daoPntBalanceData]
   )
 
   return {
-    daoPntBalance: daoPntBalance.isNaN() ? null : removeUselessDecimals(daoPntBalance),
-    formattedDaoPntBalance: formatAssetAmount(daoPntBalance, 'daoPNT'),
-    formattedPntBalance: formatAssetAmount(pntBalance, 'PNT'),
-    pntBalance: pntBalance.isNaN() ? null : removeUselessDecimals(pntBalance)
+    amount: daoPntBalance.isNaN() ? null : removeUselessDecimals(daoPntBalance),
+    formattedAmount: formatAssetAmount(daoPntBalance, 'daoPNT')
+  }
+}
+
+const useBalances = () => {
+  const pntBalance = usePntBalance()
+  const daoPntBalance = useDaoPntBalance()
+
+  return {
+    daoPntBalance: daoPntBalance.amount,
+    formattedDaoPntBalance: daoPntBalance.formattedAmount,
+    formattedPntBalance: pntBalance.formattedAmount,
+    pntBalance: pntBalance.amount
   }
 }
 
@@ -60,4 +80,4 @@ const useVotingPower = () => {
   }
 }
 
-export { useBalances, useVotingPower }
+export { useBalances, useDaoPntBalance, usePntBalance, useVotingPower }

@@ -3,6 +3,7 @@ import { Tab } from 'react-bootstrap'
 import styled from 'styled-components'
 
 import { useProposals } from '../../../hooks/use-proposals'
+import { useDaoPntBalance } from '../../../hooks/use-balances'
 
 import Icon from '../../base/Icon'
 import Line from '../../base/Line'
@@ -33,6 +34,7 @@ const StyledLine = styled(Line)`
 const Proposals = () => {
   const [showCreateProposalModal, setShowCreateProposalModal] = useState(false)
   const proposals = useProposals()
+  const { amount: daoPntBalance } = useDaoPntBalance()
 
   const { newProposals, pastProposals } = useMemo(() => {
     const newp = proposals.filter(({ open }) => open)
@@ -50,7 +52,7 @@ const Proposals = () => {
         <Tab eventKey="new" title="New proposals">
           {newProposals.map((_proposal) => (
             <div className="mt-2" key={`proposal_${_proposal.id}`}>
-              <Proposal {..._proposal} />
+              <Proposal daoPntBalance={daoPntBalance} {..._proposal} />
               <StyledLine />
             </div>
           ))}
@@ -64,7 +66,7 @@ const Proposals = () => {
         <Tab eventKey="past" title="Past proposals">
           {pastProposals.map((_proposal) => (
             <div key={`proposal_${_proposal.id}`} className="mt-2">
-              <Proposal {..._proposal} />
+              <Proposal daoPntBalance={daoPntBalance} {..._proposal} />
               <StyledLine />
             </div>
           ))}

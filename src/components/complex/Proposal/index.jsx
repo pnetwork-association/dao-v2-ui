@@ -9,7 +9,6 @@ import axios from 'axios'
 
 import { styleProposalHtml } from '../../../utils/proposals'
 import { toastifyTransaction } from '../../../utils/transaction'
-import { useBalances } from '../../../hooks/use-balances'
 import { isValidError } from '../../../utils/errors'
 import { prepareContractWriteVote } from '../../../utils/preparers/dandelion-voting'
 
@@ -134,6 +133,7 @@ const ScriptContainer = styled.div`
 
 const Proposal = ({
   actions,
+  daoPntBalance,
   description,
   effectiveId,
   formattedCloseDate,
@@ -150,7 +150,6 @@ const Proposal = ({
   vote
 }) => {
   const theme = useContext(ThemeContext)
-  const { daoPntBalance } = useBalances()
   const [readMoreContent, setReadMoreContent] = useState(null)
   const [showScript, setShowScript] = useState(null)
   const activeChainId = useChainId()

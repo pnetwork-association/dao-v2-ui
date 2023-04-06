@@ -1,12 +1,11 @@
 import { useMemo, useState, useContext } from 'react'
-import { useAccount, useContractReads, useContractWrite, usePrepareContractWrite } from 'wagmi'
+import { useAccount, useBalance, useContractReads, useContractWrite, usePrepareContractWrite } from 'wagmi'
 import BigNumber from 'bignumber.js'
 import { mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import DandelionVotingABI from '../utils/abis/DandelionVoting'
 import DandelionVotingOldABI from '../utils/abis/DandelionVotingOld'
-import { useBalances } from './use-balances'
 import ACLAbi from '../utils/abis/ACL.json'
 import { getRole } from '../utils/role'
 import { isValidHexString } from '../utils/format'
@@ -86,8 +85,12 @@ const useProposals = () => {
 }
 
 const useCreateProposal = () => {
-  const { daoPntBalance } = useBalances()
   const { address } = useAccount()
+  const { data: daoPntBalance } = useBalance({
+    token: settings.contracts.daoPnt,
+    address,
+    chainId: polygon.id
+  })
   const [metadata, setMetadata] = useState('')
   const [script, setScript] = useState('')
   const [showScript, setShowScript] = useState(false)
@@ -123,9 +126,7 @@ const useCreateProposal = () => {
 
   const isScriptValid = useMemo(() => isValidHexString(script), [script])
   const hasPermissionOrEnoughBalance = useMemo(
-    () =>
-      hasPermission ||
-      BigNumber(daoPntBalance).isGreaterThanOrEqualTo(BigNumber(minOpenVoteAmount?.toString()).dividedBy(10 ** 18)),
+    () => hasPermission || BigNumber(daoPntBalance).isGreaterThanOrEqualTo(minOpenVoteAmount),
     [hasPermission, minOpenVoteAmount, daoPntBalance]
   )
 

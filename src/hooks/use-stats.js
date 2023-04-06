@@ -25,7 +25,7 @@ const useStats = () => {
   } = useEpochs()
 
   const { data } = useContractReads({
-    cacheTime: 1000 * 60 * 2,
+    watch: true,
     contracts: [
       {
         address: getPntAddressByChainId(activeChainId),

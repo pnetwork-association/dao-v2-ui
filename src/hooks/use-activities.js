@@ -29,7 +29,7 @@ const useActivities = () => {
   const [lendingManagerActivities, setLendingManagerActivities] = useState(null)
   const [votingActivities, setVotingActivities] = useState(null)
   const { data: blockNumber } = useBlockNumber({
-    watch: true,
+    watch: false, // NOTE: keep it false becase of rate limiting
     chainId: polygon.id
   })
   const provider = useProvider({ chainId: polygon.id })
