@@ -17,6 +17,7 @@ import Overview from './pages/Overview'
 import Lending from './pages/Lending'
 import Nodes from './pages/Nodes'
 import Staking from './pages/Staking'
+import Disclaimer from './complex/Disclaimer'
 
 const router = createHashRouter([
   {
@@ -66,6 +67,7 @@ const App = () => {
           <ActivitiesProvider>
             <ProposalsProvider>
               <RouterProvider router={router} />
+              <Disclaimer />
             </ProposalsProvider>
           </ActivitiesProvider>
         </CryptoCompareProvider>
