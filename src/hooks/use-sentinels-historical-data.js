@@ -11,7 +11,7 @@ const useSentinelsHistoricalData = () => {
       try {
         const {
           data: { epochs }
-        } = await axios.get('https://pnetwork.watch/api/datasources/proxy/3')
+        } = await axios.get('https://pnetwork.watch:4443/api/datasources/proxy/3')
         setEpochs(Object.keys(epochs))
         setNumberOfNodes(Object.values(epochs).map(({ nodes_count }) => nodes_count))
         setAccruedFees(

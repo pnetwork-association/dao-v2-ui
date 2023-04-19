@@ -41,7 +41,9 @@ const useStake = () => {
     watch: true
   })
 
-  const { data: allowance } = useContractRead(prepareContractReadAllowanceApproveStake({ activeChainId, address }))
+  const { data: allowance, refetch: refetchAllowance } = useContractRead(
+    prepareContractReadAllowanceApproveStake({ activeChainId, address })
+  )
 
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
@@ -72,11 +74,13 @@ const useStake = () => {
   const { write: stake, error: stakeError, data: stakeData } = useContractWrite(stakeConfigs)
 
   const { isLoading: isApproving } = useWaitForTransaction({
-    hash: approveData?.hash
+    hash: approveData?.hash,
+    confirmations: 1
   })
 
   const { isLoading: isStaking } = useWaitForTransaction({
-    hash: stakeData?.hash
+    hash: stakeData?.hash,
+    confirmations: 1
   })
 
   useEffect(() => {
@@ -85,17 +89,14 @@ const useStake = () => {
 
   useEffect(() => {
     if (approveData) {
-      approveData.wait(1).then(() => {
-        setApproved(true)
-      })
+      setApproved(true)
+      refetchAllowance()
     }
-  }, [approveData, setApproved])
+  }, [approveData, setApproved, refetchAllowance])
 
   useEffect(() => {
     if (stakeData) {
-      stakeData.wait(1).then(() => {
-        setAmount('0')
-      })
+      setAmount('0')
     }
   }, [stakeData, setAmount])
 
@@ -155,7 +156,8 @@ const useUnstake = (_opts = {}) => {
   const { write: unstake, error: unstakeError, data: unstakeData } = useContractWrite(unstakeConfigs)
 
   const { isLoading: isUnstaking } = useWaitForTransaction({
-    hash: unstakeData?.hash
+    hash: unstakeData?.hash,
+    confirmations: 1
   })
 
   return {
@@ -213,7 +215,7 @@ const useHistoricalDaoPntTotalSupply = () => {
     const fetch = async () => {
       try {
         const { data } = await axios.get(
-          `https://pnetwork.watch:443/api/datasources/proxy/1/query?db=pnetwork-volumes-1&q=SELECT%20%22daopnt_supply_sum%22%20FROM%20%22daopnt_supply_sum%22%20WHERE%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()%3BSELECT%20%22daopnt_supply%22%20FROM%20%22daopnt_supply%22%20WHERE%20(%22chain%22%20%3D%20%27eth%27)%20AND%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()%3BSELECT%20%22daopnt_supply%22%20FROM%20%22daopnt_supply%22%20WHERE%20(%22chain%22%20%3D%20%27bsc%27)%20AND%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()&epoch=ms`
+          `https://pnetwork.watch:4443/api/datasources/proxy/1/query?db=pnetwork-volumes-1&q=SELECT%20%22daopnt_supply_sum%22%20FROM%20%22daopnt_supply_sum%22%20WHERE%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()%3BSELECT%20%22daopnt_supply%22%20FROM%20%22daopnt_supply%22%20WHERE%20(%22chain%22%20%3D%20%27eth%27)%20AND%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()%3BSELECT%20%22daopnt_supply%22%20FROM%20%22daopnt_supply%22%20WHERE%20(%22chain%22%20%3D%20%27bsc%27)%20AND%20time%20%3E%3D%20now()%20-%2090d%20and%20time%20%3C%3D%20now()&epoch=ms`
         )
 
         const daoPntTotalSupply = data.results[0].series[0].values

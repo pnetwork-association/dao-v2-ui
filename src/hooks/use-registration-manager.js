@@ -53,7 +53,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
 
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
-  const { data: allowance } = useContractRead(
+  const { data: allowance, refetch: refetchAllowance } = useContractRead(
     prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking({
       address,
       activeChainId
@@ -114,11 +114,13 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   } = useContractWrite(updateSentinelRegistrationByStakingConfigs)
 
   const { isLoading: isApproving } = useWaitForTransaction({
-    hash: approveData?.hash
+    hash: approveData?.hash,
+    confirmations: 1
   })
 
   const { isLoading: isUpdatingSentinelRegistrationByStaking } = useWaitForTransaction({
-    hash: updateSentinelRegistrationByStakingData?.hash
+    hash: updateSentinelRegistrationByStakingData?.hash,
+    confirmations: 1
   })
 
   const updateSentinelRegistrationByBorrowingEnabled = useMemo(
@@ -141,7 +143,8 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   } = useContractWrite(updateSentinelRegistrationByBorrowingConfigs)
 
   const { isLoading: isUpdatingSentinelRegistrationByBorrowing } = useWaitForTransaction({
-    hash: updateSentinelRegistrationByBorrowingData?.hash
+    hash: updateSentinelRegistrationByBorrowingData?.hash,
+    confirmations: 1
   })
 
   useEffect(() => {
@@ -150,25 +153,20 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
 
   useEffect(() => {
     if (approveData) {
-      approveData.wait(1).then(() => {
-        setApproved(true)
-      })
+      setApproved(true)
+      refetchAllowance()
     }
-  }, [approveData, setApproved])
+  }, [approveData, setApproved, refetchAllowance])
 
   useEffect(() => {
     if (updateSentinelRegistrationByStakingData) {
-      updateSentinelRegistrationByStakingData.wait(1).then(() => {
-        setAmount(0)
-      })
+      setAmount(0)
     }
   }, [updateSentinelRegistrationByStakingData, setAmount])
 
   useEffect(() => {
     if (updateSentinelRegistrationByBorrowingData) {
-      updateSentinelRegistrationByBorrowingData.wait(1).then(() => {
-        setAmount(0)
-      })
+      setAmount(0)
     }
   }, [updateSentinelRegistrationByBorrowingData, setAmount])
 

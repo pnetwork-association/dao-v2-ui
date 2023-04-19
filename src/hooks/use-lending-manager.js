@@ -47,7 +47,7 @@ const useLend = () => {
 
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
-  const { data: allowance } = useContractRead(
+  const { data: allowance, refetch: refetchAllowance } = useContractRead(
     prepareContractReadAllowanceApproveLend({ activeChainId, address, enabled: address })
   )
 
@@ -81,11 +81,13 @@ const useLend = () => {
   const { write: lend, error: lendError, data: lendData } = useContractWrite(lendConfigs)
 
   const { isLoading: isApproving } = useWaitForTransaction({
-    hash: approveData?.hash
+    hash: approveData?.hash,
+    confirmations: 1
   })
 
   const { isLoading: isLending } = useWaitForTransaction({
-    hash: lendData?.hash
+    hash: lendData?.hash,
+    confirmations: 1
   })
 
   useEffect(() => {
@@ -94,17 +96,14 @@ const useLend = () => {
 
   useEffect(() => {
     if (approveData) {
-      approveData.wait(1).then(() => {
-        setApproved(true)
-      })
+      setApproved(true)
+      refetchAllowance()
     }
-  }, [approveData, setApproved])
+  }, [approveData, setApproved, refetchAllowance])
 
   useEffect(() => {
     if (lendData) {
-      lendData.wait(1).then(() => {
-        setAmount('0')
-      })
+      setAmount('0')
     }
   }, [lendData, setAmount])
 
@@ -865,7 +864,7 @@ const useEpochsBorrowableAmount = () => {
 
   return {
     onChainEpochsBorrowableAmount: epochsBorrowableAmount,
-    epochsBorrowableAmount: epochsBorrowableAmount.map((_val) => _val.dividedBy(10 ** 18))
+    epochsBorrowableAmount: epochsBorrowableAmount.map((_val) => _val)
   }
 }
 
