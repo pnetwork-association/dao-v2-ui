@@ -221,7 +221,9 @@ const CustomConnectButton = () => {
                               {chain.id === bsc.id && (
                                 <ChainImg alt={chain.name ?? 'Chain icon'} src={'./assets/svg/bsc.svg'} />
                               )}
-                              {chain.iconUrl && <ChainImg alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} />}
+                              {chain.iconUrl && chain.id !== bsc.id && (
+                                <ChainImg alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} />
+                              )}
                             </div>
                           )}
                           <ChainName>{chain.name}</ChainName>
