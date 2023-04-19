@@ -142,7 +142,8 @@ const ChainModal = ({ show, onClose }) => {
           })
         ) : (
           <Text>
-            Your wallet does not support switching networks. Try switching networks from within your wallet instead.
+            Your wallet does not support switching networks via external dapps. Try switching network from within your
+            wallet instead.
           </Text>
         )}
       </div>
