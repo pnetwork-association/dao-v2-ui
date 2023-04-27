@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState, useContext, useRef } from 'react'
+import { useEffect, useMemo, useState, useContext } from 'react'
 import { useBlockNumber, useContract, useProvider } from 'wagmi'
 import { polygon } from 'wagmi/chains'
+import retry from 'async-retry'
 
 import settings from '../settings'
 import LendingManagerABI from '../utils/abis/LendingManager.json'
@@ -10,24 +11,44 @@ import { extractActivityFromEvents } from '../utils/logs'
 
 import { ActivitiesContext } from '../components/context/Activities'
 
+const fetchWithRecursion = async (
+  _fromBlock,
+  _toBlock,
+  _withRecursion,
+  { fetchData, canProoced, limitBlock = settings.activities.limitBlock }
+) => {
+  const data = await fetchData(_fromBlock, _toBlock)
+  const proceed = _fromBlock >= limitBlock && _withRecursion && canProoced(data)
+  if (proceed) {
+    return await fetchWithRecursion(
+      _fromBlock - settings.activities.blocksWindow,
+      _toBlock - settings.activities.blocksWindow,
+      true,
+      {
+        fetchData,
+        canProoced
+      }
+    )
+  }
+
+  return data
+}
+
 const useActivities = () => {
   const {
     activities,
     cacheActivities,
+    checkpoint,
     lastBlock: cachedLastBlock,
+    mutex,
+    recursiveMode,
     setLastBlock: cacheLastBlock
   } = useContext(ActivitiesContext)
-
-  const checkpoints = useRef({
-    LendingManager: 0,
-    StakingManager: 0,
-    DandelionVoting: 0
-  })
 
   const [localActivities, setLocalActivities] = useState([])
   const [stakingManagerActivities, setStakingManagerActivities] = useState(null)
   const [lendingManagerActivities, setLendingManagerActivities] = useState(null)
-  const [votingActivities, setVotingActivities] = useState(null)
+  const [dandelionVotingActivities, setDandelionVotingActivities] = useState(null)
   const { data: blockNumber } = useBlockNumber({
     watch: false, // NOTE: keep it false becase of rate limiting
     chainId: polygon.id
@@ -54,21 +75,112 @@ const useActivities = () => {
 
   const { fromBlock, toBlock } = useMemo(
     () => ({
-      fromBlock: blockNumber ? (cachedLastBlock === 0 ? blockNumber - 130000 : cachedLastBlock + 1) : 0,
+      fromBlock: blockNumber
+        ? cachedLastBlock === 0
+          ? blockNumber - settings.activities.blocksWindow
+          : cachedLastBlock + 1
+        : 0,
       toBlock: blockNumber ? blockNumber + 1 : 0
     }),
     [blockNumber, cachedLastBlock]
   )
 
   useEffect(() => {
-    const fetchStakingManagerData = async () => {
+    const fetchAllData = async () => {
       try {
-        const [stakeEvents, unstakeEvents] = await Promise.all([
-          stakingManager.queryFilter('Staked', fromBlock, toBlock),
-          stakingManager.queryFilter('Unstaked', fromBlock, toBlock)
-        ])
+        // S T A K I N G   M A N A G E
+        try {
+          const [stakeEvents, unstakeEvents] = await fetchWithRecursion(
+            fromBlock,
+            toBlock,
+            recursiveMode.current.StakingManager,
+            {
+              fetchData: (_fromBlock, _toBlock) =>
+                Promise.all([
+                  retry(() => stakingManager.queryFilter('Staked', _fromBlock, _toBlock), {
+                    retries: 2,
+                    minTimeout: 1 * 1000
+                  }),
+                  retry(() => stakingManager.queryFilter('Unstaked', _fromBlock, _toBlock), {
+                    retries: 2,
+                    minTimeout: 1 * 1000
+                  })
+                ]),
+              canProoced: ([_stakeEvents, _unstakeEvents]) => _stakeEvents.length === 0 && _unstakeEvents.length === 0
+            }
+          )
+          if (recursiveMode.current.StakingManager) {
+            recursiveMode.current.StakingManager = false
+          }
 
-        setStakingManagerActivities(await extractActivityFromEvents([...stakeEvents, ...unstakeEvents]))
+          setStakingManagerActivities(await extractActivityFromEvents([...stakeEvents, ...unstakeEvents]))
+        } catch (_err) {
+          setStakingManagerActivities([])
+          console.error(_err)
+        }
+
+        // L E N D I N G   M A N A G E R
+        try {
+          const [lendEvents, increaseLendDurationEvents] = await fetchWithRecursion(
+            fromBlock,
+            toBlock,
+            recursiveMode.current.LendingManager,
+            {
+              fetchData: (_fromBlock, _toBlock) =>
+                Promise.all([
+                  retry(() => lendingManager.queryFilter('Lended', _fromBlock, _toBlock), {
+                    retries: 2,
+                    minTimeout: 1 * 1000
+                  }),
+                  retry(() => lendingManager.queryFilter('DurationIncreased', _fromBlock, _toBlock), {
+                    retries: 2,
+                    minTimeout: 1 * 1000
+                  })
+                ]),
+              canProoced: ([_lendEvents, _increaseLendDurationEvents]) =>
+                _lendEvents.length === 0 && _increaseLendDurationEvents.length === 0
+            }
+          )
+          if (recursiveMode.current.LendingManager) {
+            recursiveMode.current.LendingManager = false
+          }
+
+          setLendingManagerActivities(await extractActivityFromEvents([...lendEvents, ...increaseLendDurationEvents]))
+        } catch (_err) {
+          setLendingManagerActivities([])
+          console.error(_err)
+        }
+
+        // D A N D E L I O N   V O T I N G
+        try {
+          const [castVoteEvents, startVoteEvents] = await fetchWithRecursion(
+            fromBlock,
+            toBlock,
+            recursiveMode.current.DandelionVoting,
+            {
+              fetchData: (_fromBlock, _toBlock) =>
+                Promise.all([
+                  retry(() => dandelionVoting.queryFilter('CastVote', _fromBlock, _toBlock), {
+                    retries: 2,
+                    minTimeout: 1 * 1000
+                  }),
+                  retry(() => dandelionVoting.queryFilter('StartVote', _fromBlock, _toBlock), {
+                    retries: 2,
+                    minTimeout: 1 * 1000
+                  })
+                ]),
+              canProoced: ([_castVoteEvents, _startVoteEvents]) =>
+                _castVoteEvents.length === 0 && _startVoteEvents.length === 0
+            }
+          )
+          if (recursiveMode.current.DandelionVoting) {
+            recursiveMode.current.DandelionVoting = false
+          }
+
+          setDandelionVotingActivities(await extractActivityFromEvents([...castVoteEvents, ...startVoteEvents]))
+        } catch (_err) {
+          setDandelionVotingActivities([])
+        }
       } catch (_err) {
         console.error(_err)
       }
@@ -76,83 +188,51 @@ const useActivities = () => {
 
     if (
       stakingManager?.queryFilter &&
-      fromBlock &&
-      toBlock &&
-      toBlock > cachedLastBlock &&
-      checkpoints.current['StakingManager'] < toBlock
-    ) {
-      checkpoints.current['StakingManager'] = toBlock
-      fetchStakingManagerData()
-    }
-  }, [stakingManager, fromBlock, toBlock, cachedLastBlock])
-
-  useEffect(() => {
-    const fetchLendingManagerData = async () => {
-      try {
-        const [lendEvents, increaseLendDurationEvents] = await Promise.all([
-          lendingManager.queryFilter('Lended', fromBlock, toBlock),
-          lendingManager.queryFilter('DurationIncreased', fromBlock, toBlock)
-        ])
-        setLendingManagerActivities(await extractActivityFromEvents([...lendEvents, ...increaseLendDurationEvents]))
-      } catch (_err) {
-        console.error(_err)
-      }
-    }
-
-    if (
       lendingManager?.queryFilter &&
-      fromBlock &&
-      toBlock &&
-      toBlock > cachedLastBlock &&
-      checkpoints.current['LendingManager'] < toBlock
-    ) {
-      fetchLendingManagerData()
-    }
-  }, [lendingManager, fromBlock, toBlock, cachedLastBlock])
-
-  useEffect(() => {
-    const fetchVotingData = async () => {
-      try {
-        const [castVoteEvents, startVoteEvents] = await Promise.all([
-          dandelionVoting.queryFilter('CastVote', fromBlock, toBlock),
-          dandelionVoting.queryFilter('StartVote', fromBlock, toBlock)
-        ])
-
-        setVotingActivities(await extractActivityFromEvents([...castVoteEvents, ...startVoteEvents]))
-      } catch (_err) {
-        console.error(_err)
-      }
-    }
-
-    if (
       dandelionVoting?.queryFilter &&
       fromBlock &&
       toBlock &&
       toBlock > cachedLastBlock &&
-      checkpoints.current['DandelionVoting'] < toBlock
+      checkpoint.current < toBlock
     ) {
-      checkpoints.current['DandelionVoting'] = toBlock
-      // console.log('fetch', fromBlock, toBlock)
-      fetchVotingData()
+      checkpoint.current = toBlock
+      mutex.current.runExclusive(async () => {
+        await fetchAllData()
+      })
     }
-  }, [dandelionVoting, fromBlock, toBlock, cachedLastBlock])
+  }, [
+    stakingManager,
+    lendingManager,
+    dandelionVoting,
+    fromBlock,
+    toBlock,
+    cachedLastBlock,
+    recursiveMode,
+    mutex,
+    checkpoint
+  ])
 
   useEffect(() => {
-    if (stakingManagerActivities && votingActivities && lendingManagerActivities) {
-      // console.log('storing', stakingManagerActivities.length, votingActivities.length)
-      setLocalActivities([...stakingManagerActivities, ...lendingManagerActivities, ...votingActivities])
+    if (stakingManagerActivities && dandelionVotingActivities && lendingManagerActivities) {
+      /*console.log(
+        'storing',
+        stakingManagerActivities.length,
+        lendingManagerActivities.length,
+        dandelionVotingActivities.length
+      )*/
+      setLocalActivities([...stakingManagerActivities, ...lendingManagerActivities, ...dandelionVotingActivities])
       setStakingManagerActivities(null)
       setLendingManagerActivities(null)
-      setVotingActivities(null)
+      setDandelionVotingActivities(null)
     }
-  }, [stakingManagerActivities, lendingManagerActivities, votingActivities])
+  }, [stakingManagerActivities, lendingManagerActivities, dandelionVotingActivities])
 
   useEffect(() => {
     if (toBlock > cachedLastBlock && localActivities?.length > 0) {
       cacheActivities(localActivities)
       cacheLastBlock(toBlock)
       setLocalActivities(null)
-      //console.log('cache')
+      // console.log('cache')
     }
   }, [toBlock, cacheActivities, localActivities, cacheLastBlock, cachedLastBlock])
 

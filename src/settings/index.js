@@ -75,7 +75,11 @@ const settings = {
       feesManagerClaimEnabled: true,
       symbolPrice: 'BTC'
     }
-  ]
+  ],
+  activities: {
+    blocksWindow: 130000,
+    limitBlock: 41124493
+  }
 }
 
 export default settings

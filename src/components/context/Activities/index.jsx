@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useState } from 'react'
+import React, { createContext, useCallback, useState, useRef } from 'react'
+import { Mutex } from 'async-mutex'
 
 export const ActivitiesContext = createContext({
   activities: [],
@@ -11,6 +12,13 @@ export const ActivitiesContext = createContext({
 const ActivitiesProvider = ({ children }) => {
   const [activities, setActivities] = useState([])
   const [lastBlock, setLastBlock] = useState(0)
+  const recursiveMode = useRef({
+    StakingManager: true,
+    LendingManager: true,
+    DandelionVoting: true
+  })
+  const checkpoint = useRef(0)
+  const mutex = useRef(new Mutex())
 
   const cacheActivities = useCallback(
     (_activities) => {
@@ -19,7 +27,16 @@ const ActivitiesProvider = ({ children }) => {
     [activities]
   )
 
-  const value = { activities, cacheActivities, lastBlock, setActivities, setLastBlock }
+  const value = {
+    activities,
+    cacheActivities,
+    checkpoint,
+    lastBlock,
+    mutex,
+    recursiveMode,
+    setActivities,
+    setLastBlock
+  }
   return <ActivitiesContext.Provider value={value}>{children}</ActivitiesContext.Provider>
 }
 
