@@ -158,6 +158,7 @@ const useActivities = () => {
             toBlock,
             recursiveMode.current.DandelionVoting,
             {
+              limitBlock: 42023192, // no votes until now
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
                   retry(() => dandelionVoting.queryFilter('CastVote', _fromBlock, _toBlock), {
