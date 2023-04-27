@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import moment from 'moment'
 
 const calculateDuration = (_eventTime) =>
@@ -34,18 +34,17 @@ const formatDuration = (_duration) => {
 const useCountdown = ({ eventStart, eventTime, interval = 1000 }) => {
   const [duration, setDuration] = useState(calculateDuration(eventTime))
   const timerRef = useRef(0)
-  const timerCallback = useCallback(() => {
-    setDuration(calculateDuration(eventTime))
-  }, [eventTime])
 
   useEffect(() => {
-    timerRef.current = setInterval(timerCallback, interval)
+    if (eventTime && !timerRef.current)
+      timerRef.current = setInterval(() => {
+        setDuration(calculateDuration(eventTime))
+      }, interval)
 
     return () => {
       clearInterval(timerRef.current)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [eventTime, interval])
 
   const percentageLeft = useMemo(() => {
     if (eventStart) {
