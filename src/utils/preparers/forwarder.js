@@ -59,7 +59,7 @@ const getForwarderUnstakeUserData = ({
     'function unstake(address owner, uint256 amount, bytes4 chainId)'
   ])
 
-  encode(
+  return encode(
     ['address[]', 'bytes[]'],
     [[contractAddress], [stakingManagerInterface.encodeFunctionData('unstake', [receiverAddress, amount, chainId])]]
   )
@@ -125,7 +125,7 @@ const getForwarderUpdateSentinelRegistrationByBorrowingUserData = ({ ownerAddres
 const getForwarderIncreaseDurationLendUserData = ({ duration }) => {
   const borrowingManagerInterface = new ethers.utils.Interface(['function increaseDuration(uint64 duration)'])
 
-  encode(
+  return encode(
     ['address[]', 'bytes[]'],
     [
       [settings.contracts.lendingManager],
@@ -139,7 +139,7 @@ const getForwarderIncreaseStakingSentinelRegistrationDurationUserData = ({ durat
     'function increaseSentinelRegistrationDuration(uint64 duration)'
   ])
 
-  encode(
+  return encode(
     ['address[]', 'bytes[]'],
     [
       [settings.contracts.lendingManager],
