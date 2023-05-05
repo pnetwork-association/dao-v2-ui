@@ -1,19 +1,13 @@
-import { /*useEffect,*/ useState } from 'react'
-//import axios from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
-import { useContractReads, erc20ABI, useChainId } from 'wagmi'
+import { useContractReads, erc20ABI, mainnet } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
 import { useEpochs } from './use-epochs'
-import { getPntAddressByChainId } from '../utils/preparers/balance'
 
 const useStats = () => {
-  const [daoPntOnBscTotalSupply /*setDaoPntOnBscTotalSupply*/] = useState(0)
-  const activeChainId = useChainId()
-
   const {
     currentEpoch,
     currentEpochEndsAt,
@@ -28,10 +22,11 @@ const useStats = () => {
     watch: true,
     contracts: [
       {
-        address: getPntAddressByChainId(activeChainId),
+        address: settings.contracts.pntOnEthereum,
         abi: erc20ABI,
         functionName: 'totalSupply',
-        args: []
+        args: [],
+        chainId: mainnet.id
       },
       {
         address: settings.contracts.daoPnt,
@@ -63,13 +58,8 @@ const useStats = () => {
     [data]
   )
   const daoPntTotalSupply = useMemo(
-    () =>
-      data && data[1]
-        ? BigNumber(data[1].toString())
-            .dividedBy(10 ** 18)
-            .plus(daoPntOnBscTotalSupply ? daoPntOnBscTotalSupply : 0)
-        : BigNumber(null),
-    [data, daoPntOnBscTotalSupply]
+    () => (data && data[1] ? BigNumber(data[1].toString()).dividedBy(10 ** 18) : BigNumber(null)),
+    [data]
   )
   const percentageStakedPnt = useMemo(
     () => daoPntTotalSupply.dividedBy(pntTotalSupply).multipliedBy(100),

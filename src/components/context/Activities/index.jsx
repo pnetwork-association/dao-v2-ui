@@ -15,7 +15,8 @@ const ActivitiesProvider = ({ children }) => {
   const recursiveMode = useRef({
     StakingManager: true,
     LendingManager: true,
-    DandelionVoting: true
+    DandelionVoting: true,
+    RegistrationManager: true
   })
   const checkpoint = useRef(0)
   const mutex = useRef(new Mutex())

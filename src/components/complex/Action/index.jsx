@@ -9,6 +9,7 @@ import { getAddressExplorerUrl } from '../../../utils/explorer'
 import { formatAssetAmount } from '../../../utils/amount'
 import A from '../../base/A'
 import Text from '../../base/Text'
+import { BORROWING_SENTINEL } from '../../../contants'
 
 const AssetLogo = styled.img`
   width: 24px;
@@ -150,6 +151,32 @@ const Action = ({ action }) => {
           </A>
           <Text>&nbsp;increased his loan until epoch&nbsp;</Text>
           <Text variant="text2">{endEpoch}</Text>
+        </span>
+      </div>
+    )
+  }
+  if (action.name === 'SentinelRegistrationUpdated') {
+    const { kind, owner, ownerNickname, numberOfEpochs } = action
+
+    return (
+      <div className="d-flex">
+        <span>
+          <A href={getAddressExplorerUrl(owner, { chainId: activeChainId })} target="_blank">
+            {ownerNickname}
+          </A>
+          <Text>&nbsp;registered a sentinel&nbsp;</Text>
+          {kind === BORROWING_SENTINEL && (
+            <Text>
+              by borrowing{' '}
+              <Text variant="text2">{formatAssetAmount(settings.registrationManager.minStakeAmount, 'PNT')}</Text>&nbsp;
+            </Text>
+          )}
+          <Text>
+            for&nbsp;
+            <Text variant="text2">
+              {numberOfEpochs} epoch{numberOfEpochs > 1 ? 's' : ''}
+            </Text>
+          </Text>
         </span>
       </div>
     )

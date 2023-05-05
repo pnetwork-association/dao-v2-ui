@@ -52,7 +52,7 @@ const extractActivityFromEvents = async (_events) => {
         return {
           amount: am,
           duration: BigNumber(duration?.toString()).toNumber(),
-          formattedAmount: formatAssetAmount(am, 'PNT'),
+          formattedAmount: formatAssetAmount(am, 'PNT', { decimals: 2 }),
           formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
           formattedDateFromNow,
           formattedDuration: parseSeconds(duration),
@@ -139,6 +139,23 @@ const extractActivityFromEvents = async (_events) => {
           formattedDateFromNow,
           timestamp,
           type: 'DurationIncreased'
+        }
+      }
+
+      if (event === 'SentinelRegistrationUpdated') {
+        const { owner, startEpoch, endEpoch, sentinel, kind, amount } = data
+        return {
+          amount,
+          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDateFromNow,
+          kind,
+          numberOfEpochs: endEpoch - startEpoch + 1,
+          owner,
+          ownerNickname: getNickname(owner),
+          sentinel,
+          sentinelNickname: getNickname(sentinel),
+          timestamp,
+          type: 'SentinelRegistrationUpdated'
         }
       }
 

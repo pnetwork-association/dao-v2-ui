@@ -30,6 +30,7 @@ import {
   prepareContractWriteIncreaseStakingSentinelRegistrationDuration
 } from '../utils/preparers/registration-manager'
 import { getEthersOnChainAmount } from '../utils/amount'
+import { useSentinelLastEpochReward } from './use-sentinels-historical-data'
 
 const kind = {
   1: 'Staking',
@@ -239,27 +240,7 @@ const useBorrowingSentinelProspectus = () => {
   const { currentEpoch } = useEpochs()
   const [epochs, setEpochs] = useState(0)
   const { startEpoch: currentStartEpoch = 0, endEpoch: currentEndEpoch = 0 } = useSentinel()
-
-  const [_startEpoch, _endEpoch] = useMemo(
-    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 25] : [null, null]),
-    [currentEpoch]
-  )
-
-  const { data } = useContractReads({
-    contracts: [
-      {
-        address: settings.contracts.lendingManager,
-        abi: LendingManagerABI,
-        functionName: 'totalBorrowedAmountByEpochsRange',
-        args: [_startEpoch, _endEpoch],
-        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
-        chainId: polygon.id
-      }
-    ]
-  })
-
-  const borrowedAmount = settings.registrationManager.borrowAmount
-  const totalBorrowedAmountInEpoch = useMemo(() => (data && data[0] ? data[0] : []), [data])
+  const { value: mr } = useSentinelLastEpochReward()
 
   const { startEpoch, endEpoch } = useMemo(() => {
     if (!currentEpoch && currentEpoch !== 0) {
@@ -279,10 +260,26 @@ const useBorrowingSentinelProspectus = () => {
     }
   }, [currentEpoch, epochs, currentEndEpoch, currentStartEpoch])
 
+  const { data } = useContractReads({
+    contracts: [
+      {
+        address: settings.contracts.lendingManager,
+        abi: LendingManagerABI,
+        functionName: 'totalBorrowedAmountByEpochsRange',
+        args: [startEpoch, endEpoch],
+        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
+        chainId: polygon.id
+      }
+    ]
+  })
+  const borrowedAmount = settings.registrationManager.borrowAmount
+  const totalBorrowedAmountInEpoch = useMemo(() => (data && data[0] ? data[0] : []), [data])
+
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
-    startEpoch,
+    addBorrowAmountToBorrowedAmount: true,
     endEpoch,
-    mr: 300
+    mr,
+    startEpoch
   })
 
   // NOTE: onchain borrowed amount has no decimals
@@ -293,19 +290,19 @@ const useBorrowingSentinelProspectus = () => {
   const epochsRevenues = useMemo(
     () =>
       (startEpoch || startEpoch === 0) && endEpoch
-        ? range(startEpoch, endEpoch + 1).map((_, _index) => {
-            const borrowingSentinelsFeesAmount =
-              feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_index]
-                ? feeDistributionByMonthlyRevenues[_index].borrowingSentinelsFeesAmount
+        ? range(startEpoch, endEpoch + 1).map((_epoch) => {
+            const borrowingSentinelsRevenuesAmount =
+              feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_epoch]
+                ? feeDistributionByMonthlyRevenues[_epoch].borrowingSentinelsRevenuesAmount
                 : BigNumber(0)
 
-            const numberOfSentinels = numberOfSentinelsInEpoch[_index]
+            const numberOfSentinels = numberOfSentinelsInEpoch[_epoch]
             const borrowingFeePercentage =
               !numberOfSentinels || numberOfSentinels.isNaN() || numberOfSentinels.isEqualTo(0)
                 ? new BigNumber(1)
                 : BigNumber(1).dividedBy(numberOfSentinels)
 
-            return borrowingSentinelsFeesAmount.multipliedBy(borrowingFeePercentage).toFixed()
+            return borrowingSentinelsRevenuesAmount.multipliedBy(borrowingFeePercentage).toFixed()
           })
         : [],
     [numberOfSentinelsInEpoch, feeDistributionByMonthlyRevenues, endEpoch, startEpoch]

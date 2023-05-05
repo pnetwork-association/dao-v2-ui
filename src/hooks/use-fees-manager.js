@@ -15,32 +15,43 @@ import { useEpochs } from './use-epochs'
 import { useSentinel } from './use-registration-manager'
 import { formatAssetAmount, formatCurrency } from '../utils/amount'
 import { BORROWING_SENTINEL, STAKING_SENTINEL } from '../contants'
+import { useSentinelLastEpochReward } from './use-sentinels-historical-data'
 
-const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
+const useFeesDistributionByMonthlyRevenues = ({
+  startEpoch,
+  endEpoch,
+  mr,
+  addBorrowAmountToBorrowedAmount = false // used when we want to simulate a borrowing sentinel registration
+}) => {
   const { data } = useContractReads({
     contracts: [
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
-        args: [startEpoch, endEpoch],
-        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
+        args: [0, 24],
+
         chainId: polygon.id
       },
       {
         address: settings.contracts.registrationManager,
         abi: RegistrationManagerABI,
         functionName: 'totalSentinelStakedAmountByEpochsRange',
-        args: [startEpoch, endEpoch],
-        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
+        args: [0, 24],
+        chainId: polygon.id
+      },
+      {
+        address: settings.contracts.lendingManager,
+        abi: LendingManagerABI,
+        functionName: 'totalLendedAmountByEpochsRange',
+        args: [0, 24],
         chainId: polygon.id
       },
       {
         address: settings.contracts.feesManager,
         abi: FeesManagerABI,
-        functionName: 'kByEpochsRange',
-        args: [startEpoch, endEpoch],
-        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
+        functionName: 'minimumBorrowingFee',
+        args: [],
         chainId: polygon.id
       }
     ]
@@ -48,36 +59,83 @@ const useFeesDistributionByMonthlyRevenues = ({ startEpoch, endEpoch, mr }) => {
 
   const totalBorrowedAmountInEpoch = useMemo(() => (data && data[0] ? data[0] : []), [data])
   const totalStakedAmountInEpoch = useMemo(() => (data && data[1] ? data[1] : []), [data])
-  const kInEpoch = useMemo(() => (data && data[2] ? data[2] : []), [data])
+  const totalLendedAmountInEpoch = useMemo(() => (data && data[2] ? data[2] : []), [data])
+  const minimumBorrowingFee = useMemo(
+    () => (data && data[3] ? BigNumber(data[3]).dividedBy(10 ** 6) : BigNumber(0)),
+    [data]
+  )
 
   return useMemo(
     () =>
-      (startEpoch || startEpoch === 0) &&
-      endEpoch &&
-      range(startEpoch, endEpoch + 1).map((_, _index) => {
-        const k = BigNumber(kInEpoch[_index] ? kInEpoch[_index].toString() : 0).multipliedBy(10 ** -6)
-        const totalBorrowedAmount = BigNumber(
-          totalBorrowedAmountInEpoch[_index] ? totalBorrowedAmountInEpoch[_index].toString() : 0
-        )
-        const totalSentinelStakedAmount = BigNumber(
-          totalStakedAmountInEpoch[_index] ? totalStakedAmountInEpoch[_index].toString() : 0
-        )
-        const totalAmount = totalBorrowedAmount.plus(totalSentinelStakedAmount)
-        const sentinelsStakingFeesPercentage = totalAmount.isEqualTo(0)
-          ? BigNumber(0)
-          : totalSentinelStakedAmount.dividedBy(totalAmount)
-        const stakingSentinelsFeesAmount = BigNumber(mr).multipliedBy(sentinelsStakingFeesPercentage)
-        const sentinelsBorrowingFeesAndLendersRewardsAmount = BigNumber(mr).minus(stakingSentinelsFeesAmount)
-        const lendersRewardsAmount = sentinelsBorrowingFeesAndLendersRewardsAmount.multipliedBy(k)
-        const borrowingSentinelsFeesAmount = sentinelsBorrowingFeesAndLendersRewardsAmount.minus(lendersRewardsAmount)
+      (startEpoch || startEpoch === 0) && endEpoch
+        ? range(startEpoch, endEpoch + 1)
+            .map((_epoch, _index) => {
+              // totalAmount = totalSentinelStakedAmount + totalBorrowedAmount
+              // parcentageHowManyFeesToStakingSentinels = totalSentinelStakedAmount / totalAmount
+              // howManyRevenuesToStakingSentinels = revenues * parcentageHowManyFeesToStakingSentinels
+              // howManyRevenuesToLendersAndBorrowers = revenues - howManyFeesToStakingSentinels
+              // howManyRevenuesToLenders = howManyRevenuesToLendersAndBorrowers * k
+              // howManyRevenuesToBorrowers = howManyRevenuesToLendersAndBorrowers - howManyRevenuesToLenders
 
-        return {
-          lendersRewardsAmount,
-          stakingSentinelsFeesAmount,
-          borrowingSentinelsFeesAmount
-        }
-      }),
-    [totalBorrowedAmountInEpoch, totalStakedAmountInEpoch, kInEpoch, startEpoch, endEpoch, mr]
+              let totalBorrowedAmount = BigNumber(
+                totalBorrowedAmountInEpoch[_epoch] ? totalBorrowedAmountInEpoch[_epoch].toString() : 0
+              )
+              const totalLendedAmount = BigNumber(
+                totalLendedAmountInEpoch[_epoch] ? totalLendedAmountInEpoch[_epoch].toString() : 0
+              )
+
+              const canBorrow = totalLendedAmount
+                .minus(totalBorrowedAmount)
+                .isGreaterThan(settings.registrationManager.borrowAmount)
+              if (addBorrowAmountToBorrowedAmount && canBorrow) {
+                totalBorrowedAmount = totalBorrowedAmount.plus(settings.registrationManager.borrowAmount)
+              }
+
+              const totalSentinelStakedAmount = BigNumber(
+                totalStakedAmountInEpoch[_epoch] ? totalStakedAmountInEpoch[_epoch].toString() : 0
+              )
+              const totalAmount = totalBorrowedAmount.plus(totalLendedAmount)
+
+              const utilizationRatio = totalLendedAmount.isGreaterThan(0)
+                ? totalBorrowedAmount.dividedBy(totalLendedAmount)
+                : BigNumber(0)
+              const k = utilizationRatio.multipliedBy(utilizationRatio).plus(minimumBorrowingFee)
+
+              const sentinelsStakingRevenuesPercentage = totalAmount.isEqualTo(0)
+                ? BigNumber(0)
+                : totalSentinelStakedAmount.dividedBy(totalAmount)
+              const stakingSentinelsRevenuesAmount = BigNumber(mr).multipliedBy(sentinelsStakingRevenuesPercentage)
+              const sentinelsBorrowingFeesAndLendersRewardsAmount = BigNumber(mr).minus(stakingSentinelsRevenuesAmount) // k.isEqualTo(0) ? BigNumber(0) : BigNumber(mr).minus(stakingSentinelsRevenuesAmount)
+              const lendersRevenuesAmount = sentinelsBorrowingFeesAndLendersRewardsAmount.multipliedBy(k)
+              const borrowingSentinelsRevenuesAmount =
+                sentinelsBorrowingFeesAndLendersRewardsAmount.minus(lendersRevenuesAmount)
+
+              return {
+                epoch: _epoch,
+                lendersRevenuesAmount,
+                stakingSentinelsRevenuesAmount,
+                borrowingSentinelsRevenuesAmount
+              }
+            })
+            .reduce((_acc, _val) => {
+              _acc[_val.epoch] = {
+                lendersRevenuesAmount: _val.lendersRevenuesAmount,
+                stakingSentinelsRevenuesAmount: _val.stakingSentinelsRevenuesAmount,
+                borrowingSentinelsRevenuesAmount: _val.borrowingSentinelsRevenuesAmount
+              }
+              return _acc
+            }, {})
+        : {},
+    [
+      minimumBorrowingFee,
+      totalLendedAmountInEpoch,
+      addBorrowAmountToBorrowedAmount,
+      totalBorrowedAmountInEpoch,
+      totalStakedAmountInEpoch,
+      startEpoch,
+      endEpoch,
+      mr
+    ]
   )
 }
 
@@ -247,6 +305,7 @@ const useClaimFeeByEpochsRange = () => {
 const useStakingSentinelEstimatedRevenues = () => {
   const { currentEpoch } = useEpochs()
   const { endEpoch: sentinelRegistrationEndEpoch, kind, startEpoch: sentinelRegistrationStartEpoch } = useSentinel()
+  const { value: mr } = useSentinelLastEpochReward()
 
   const { startEpoch, endEpoch } = useMemo(() => {
     if (kind !== STAKING_SENTINEL) {
@@ -262,22 +321,36 @@ const useStakingSentinelEstimatedRevenues = () => {
     }
   }, [kind, currentEpoch, sentinelRegistrationStartEpoch, sentinelRegistrationEndEpoch])
 
+  const { data } = useContractRead({
+    address: settings.contracts.lendingManager,
+    abi: LendingManagerABI,
+    functionName: 'totalBorrowedAmountByEpochsRange',
+    args: [startEpoch, endEpoch],
+    enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
+    chainId: polygon.id
+  })
+
+  const borrowedAmount = settings.registrationManager.borrowAmount
+  const totalBorrowedAmountInEpoch = useMemo(() => (data ? data : []), [data])
+
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
     startEpoch,
     endEpoch,
-    mr: 150
+    mr
   })
 
   // NOTE: i need the current number of staking sentinels
-  const numberOfSentinelsInEpoch = BigNumber(1)
+  const numberOfSentinelsInEpoch = useMemo(() => {
+    return totalBorrowedAmountInEpoch.map((_val) => BigNumber(_val.toString()).dividedBy(borrowedAmount))
+  }, [totalBorrowedAmountInEpoch, borrowedAmount])
 
   const revenues = useMemo(
     () =>
       (startEpoch || startEpoch === 0) && endEpoch && kind === STAKING_SENTINEL
-        ? range(startEpoch, endEpoch + 1).map((_, _index) => {
-            const stakingSentinelsFeesAmount =
-              feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_index]
-                ? feeDistributionByMonthlyRevenues[_index].stakingSentinelsFeesAmount
+        ? range(startEpoch, endEpoch + 1).map((_epoch) => {
+            const stakingSentinelsRevenuesAmount =
+              feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_epoch]
+                ? feeDistributionByMonthlyRevenues[_epoch].stakingSentinelsRevenuesAmount
                 : BigNumber(0)
 
             const numberOfSentinels = numberOfSentinelsInEpoch
@@ -286,7 +359,7 @@ const useStakingSentinelEstimatedRevenues = () => {
                 ? new BigNumber(0)
                 : BigNumber(1).dividedBy(numberOfSentinels)
 
-            return stakingSentinelsFeesAmount.multipliedBy(stakingFeePercentage).toFixed()
+            return stakingSentinelsRevenuesAmount.multipliedBy(stakingFeePercentage).toFixed()
           })
         : [],
     [numberOfSentinelsInEpoch, feeDistributionByMonthlyRevenues, endEpoch, startEpoch, kind]
@@ -302,6 +375,7 @@ const useStakingSentinelEstimatedRevenues = () => {
 const useBorrowingSentinelEstimatedRevenues = () => {
   const { currentEpoch } = useEpochs()
   const { endEpoch: sentinelRegistrationEndEpoch, kind, startEpoch: sentinelRegistrationStartEpoch } = useSentinel()
+  const { value: mr } = useSentinelLastEpochReward()
 
   const { startEpoch, endEpoch } = useMemo(() => {
     if (kind !== BORROWING_SENTINEL) {
@@ -331,7 +405,7 @@ const useBorrowingSentinelEstimatedRevenues = () => {
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
     startEpoch,
     endEpoch,
-    mr: 150
+    mr
   })
 
   // NOTE: onchain borrowed amount has no decimals
@@ -342,12 +416,13 @@ const useBorrowingSentinelEstimatedRevenues = () => {
   const revenues = useMemo(
     () =>
       (startEpoch || startEpoch === 0) && endEpoch && kind === BORROWING_SENTINEL
-        ? range(startEpoch, endEpoch + 1).map((_, _index) => {
-            const borrowingSentinelsFeesAmount =
-              feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_index]
-                ? feeDistributionByMonthlyRevenues[_index].borrowingSentinelsFeesAmount
+        ? range(startEpoch, endEpoch + 1).map((_epoch, _index) => {
+            const borrowingSentinelsRevenuesAmount =
+              feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_epoch]
+                ? feeDistributionByMonthlyRevenues[_epoch].borrowingSentinelsRevenuesAmount
                 : BigNumber(0)
 
+            // _index is needed since numberOfSentinelsInEpoch is an array where elements[0] represent the value of the current epoch
             const numberOfSentinels = numberOfSentinelsInEpoch[_index]
 
             const borrowingFeePercentage =
@@ -355,7 +430,7 @@ const useBorrowingSentinelEstimatedRevenues = () => {
                 ? new BigNumber(0)
                 : BigNumber(1).dividedBy(numberOfSentinels)
 
-            return borrowingSentinelsFeesAmount.multipliedBy(borrowingFeePercentage).toFixed()
+            return borrowingSentinelsRevenuesAmount.multipliedBy(borrowingFeePercentage).toFixed()
           })
         : [],
     [numberOfSentinelsInEpoch, feeDistributionByMonthlyRevenues, endEpoch, startEpoch, kind]

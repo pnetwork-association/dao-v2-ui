@@ -6,6 +6,7 @@ import retry from 'async-retry'
 import settings from '../settings'
 import LendingManagerABI from '../utils/abis/LendingManager.json'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
+import RegistrationManagerABI from '../utils/abis/RegistrationManager.json'
 import DandelionVotingABI from '../utils/abis/DandelionVoting.json'
 import { extractActivityFromEvents } from '../utils/logs'
 
@@ -48,6 +49,7 @@ const useActivities = () => {
   const [localActivities, setLocalActivities] = useState([])
   const [stakingManagerActivities, setStakingManagerActivities] = useState(null)
   const [lendingManagerActivities, setLendingManagerActivities] = useState(null)
+  const [registrationManagerActivities, setRegistrationManagerActivities] = useState(null)
   const [dandelionVotingActivities, setDandelionVotingActivities] = useState(null)
   const { data: blockNumber } = useBlockNumber({
     watch: false, // NOTE: keep it false becase of rate limiting
@@ -64,6 +66,12 @@ const useActivities = () => {
   const lendingManager = useContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
+    signerOrProvider: provider
+  })
+
+  const registrationManager = useContract({
+    address: settings.contracts.registrationManager,
+    abi: RegistrationManagerABI,
     signerOrProvider: provider
   })
 
@@ -177,10 +185,36 @@ const useActivities = () => {
           if (recursiveMode.current.DandelionVoting) {
             recursiveMode.current.DandelionVoting = false
           }
-
           setDandelionVotingActivities(await extractActivityFromEvents([...castVoteEvents, ...startVoteEvents]))
         } catch (_err) {
           setDandelionVotingActivities([])
+        }
+
+        // R E G I S T R A T I O N   M A N A G E R
+        try {
+          const [sentinelRegistrationEvents] = await fetchWithRecursion(
+            fromBlock,
+            toBlock,
+            recursiveMode.current.RegistrationManager,
+            {
+              limitBlock: 42023192, // no votes until now
+              fetchData: (_fromBlock, _toBlock) =>
+                Promise.all([
+                  retry(() => registrationManager.queryFilter('SentinelRegistrationUpdated', _fromBlock, _toBlock), {
+                    retries: 2,
+                    minTimeout: 1 * 1000
+                  })
+                ]),
+              canProoced: ([_sentinelRegistrationEvents]) => _sentinelRegistrationEvents.length === 0
+            }
+          )
+          if (recursiveMode.current.RegistrationManager) {
+            recursiveMode.current.RegistrationManager = false
+          }
+
+          setRegistrationManagerActivities(await extractActivityFromEvents(sentinelRegistrationEvents))
+        } catch (_err) {
+          setRegistrationManagerActivities([])
         }
       } catch (_err) {
         console.error(_err)
@@ -196,6 +230,7 @@ const useActivities = () => {
       toBlock > cachedLastBlock &&
       checkpoint.current < toBlock
     ) {
+      if (mutex.current.isLocked()) return
       checkpoint.current = toBlock
       mutex.current.runExclusive(async () => {
         await fetchAllData()
@@ -204,6 +239,7 @@ const useActivities = () => {
   }, [
     stakingManager,
     lendingManager,
+    registrationManager,
     dandelionVoting,
     fromBlock,
     toBlock,
@@ -214,19 +250,30 @@ const useActivities = () => {
   ])
 
   useEffect(() => {
-    if (stakingManagerActivities && dandelionVotingActivities && lendingManagerActivities) {
+    if (
+      stakingManagerActivities &&
+      dandelionVotingActivities &&
+      lendingManagerActivities &&
+      registrationManagerActivities
+    ) {
       /*console.log(
         'storing',
         stakingManagerActivities.length,
         lendingManagerActivities.length,
         dandelionVotingActivities.length
       )*/
-      setLocalActivities([...stakingManagerActivities, ...lendingManagerActivities, ...dandelionVotingActivities])
+      setLocalActivities([
+        ...stakingManagerActivities,
+        ...lendingManagerActivities,
+        ...dandelionVotingActivities,
+        ...registrationManagerActivities
+      ])
       setStakingManagerActivities(null)
       setLendingManagerActivities(null)
       setDandelionVotingActivities(null)
+      setRegistrationManagerActivities(null)
     }
-  }, [stakingManagerActivities, lendingManagerActivities, dandelionVotingActivities])
+  }, [stakingManagerActivities, lendingManagerActivities, dandelionVotingActivities, registrationManagerActivities])
 
   useEffect(() => {
     if (toBlock > cachedLastBlock && localActivities?.length > 0) {

@@ -52,7 +52,8 @@ const chartOptions = {
     tooltip: {
       callbacks: {
         label: (_context) => {
-          return `${_context.dataset.label} ${formatAssetAmount(_context.parsed.y, 'USD', { decimals: 2 })}`
+          const label = _context.dataset.labels[_context.parsed.x]
+          return `${label} ${formatAssetAmount(_context.parsed.y, 'USD', { decimals: 2 })}`
         }
       }
     }
@@ -165,14 +166,29 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
     return range(currentEpoch + 1, endEpoch + 1)
   }, [currentEpoch, endEpoch])
 
+  const { epochsBorrowableAmount } = useEpochsBorrowableAmount()
+
   const chartData = useMemo(() => {
     return {
       labels: chartEpochs.map((_epoch) => `Epoch #${_epoch}`),
       datasets: [
         {
-          label: 'Revenues',
+          labels: prospectusBorrowingEpochsRevenues.map((_val, _epoch) => {
+            if (
+              epochsBorrowableAmount[_epoch] &&
+              epochsBorrowableAmount[_epoch].isLessThan(settings.registrationManager.minStakeAmount)
+            )
+              return 'Not Enough borrowable amount in the selected epoch. If the amount was available, the estimated revenues would be'
+
+            return 'Revenues'
+          }),
           data: prospectusBorrowingEpochsRevenues,
-          backgroundColor: prospectusBorrowingEpochsRevenues.map((_val) => {
+          backgroundColor: prospectusBorrowingEpochsRevenues.map((_val, _epoch) => {
+            if (
+              epochsBorrowableAmount[_epoch] &&
+              epochsBorrowableAmount[_epoch].isLessThan(settings.registrationManager.minStakeAmount)
+            )
+              return '#FFCE55'
             if (_val < settings.registrationManager.estimatedSentinelRunningCost) return theme.lightRed
             return theme.lightGreen
           }),
@@ -182,7 +198,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
         }
       ]
     }
-  }, [chartEpochs, prospectusBorrowingEpochsRevenues, theme])
+  }, [chartEpochs, prospectusBorrowingEpochsRevenues, theme, epochsBorrowableAmount])
 
   const updateSentinelRegistrationByStakingButtonText = useMemo(
     () =>
@@ -200,7 +216,6 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
     currentEndEpoch
   })
 
-  const { epochsBorrowableAmount } = useEpochsBorrowableAmount()
   const isThereEnoughBorrowableAmount = useMemo(() => {
     if (type === 'staking') return true
 

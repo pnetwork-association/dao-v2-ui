@@ -30,6 +30,7 @@ import {
   prepareContractWriteIncreaseLendDuration
 } from '../utils/preparers/lending-manager'
 import { getEthersOnChainAmount } from '../utils/amount'
+import { useSentinelLastEpochReward } from './use-sentinels-historical-data'
 
 const useLend = () => {
   const [amount, setAmount] = useState('0')
@@ -170,8 +171,7 @@ const useAccountLoanStartEpoch = () => {
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 24],
     enabled: (currentEpoch || currentEpoch === 0) && address,
-    chainId: polygon.id,
-    watch: true
+    chainId: polygon.id
   })
 
   const startEpoch = useMemo(() => {
@@ -298,11 +298,11 @@ const useUtilizationRatioInTheCurrentEpoch = () => {
     chainId: polygon.id
   })
 
-  const ratio = BigNumber(data?.toString()).dividedBy(10 ** 16)
+  const ratio = BigNumber(data?.toString()).dividedBy(10 ** 4)
 
   return {
     value: ratio.toFixed(),
-    formattedValue: `${ratio}%`
+    formattedValue: `${ratio.toFixed(2)}%`
   }
 }
 
@@ -321,7 +321,7 @@ const useAccountUtilizationRatio = () => {
   })
 
   return data?.reduce((_acc, _amount, _index) => {
-    const ratio = BigNumber(_amount?.toString()).dividedBy(10 ** 16)
+    const ratio = BigNumber(_amount?.toString()).dividedBy(10 ** 4)
 
     _acc[_index + startEpoch] = {
       value: ratio.toFixed(),
@@ -486,6 +486,7 @@ const useEstimateApy = () => {
   const [duration, setDuration] = useState(0) // in days
   const [amount, setAmount] = useState(0)
   const { PNT: pntUsd } = useRates(['PNT'])
+  const { value: mr } = useSentinelLastEpochReward()
 
   const [_startEpoch, _endEpoch] = useMemo(
     () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 24] : [null, null]),
@@ -538,7 +539,7 @@ const useEstimateApy = () => {
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
     startEpoch,
     endEpoch,
-    mr: 150
+    mr
   })
 
   const { apy, userWeightPercentages } = useMemo(() => {
@@ -551,7 +552,7 @@ const useEstimateApy = () => {
     for (let epoch = startEpoch, index = 0; epoch <= endEpoch; epoch++, index++) {
       const poolRevenue =
         feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[index]
-          ? feeDistributionByMonthlyRevenues[index].lendersRewardsAmount
+          ? feeDistributionByMonthlyRevenues[index].lendersRevenuesAmount
           : BigNumber(0)
 
       const currentUserWeight = BigNumber(userWeights && userWeights[epoch] ? userWeights[epoch] : 0)
@@ -602,6 +603,7 @@ const useEstimateApyIncreaseDuration = () => {
   const { value: currentLoanStartEpoch } = useAccountLoanStartEpoch()
   const { value: currentLoanEndEpoch } = useAccountLoanEndEpoch()
   const { PNT: pntUsd } = useRates(['PNT'])
+  const { value: mr } = useSentinelLastEpochReward()
 
   const [_startEpoch, _endEpoch] = useMemo(
     () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 24] : [null, null]),
@@ -663,7 +665,7 @@ const useEstimateApyIncreaseDuration = () => {
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
     startEpoch,
     endEpoch,
-    mr: 150
+    mr
   })
 
   const { apy, userWeightPercentages } = useMemo(() => {
@@ -677,7 +679,7 @@ const useEstimateApyIncreaseDuration = () => {
     for (let epoch = startEpoch, index = 0; epoch <= endEpoch; epoch++, index++) {
       const poolRevenue =
         feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[index]
-          ? feeDistributionByMonthlyRevenues[index].lendersRewardsAmount
+          ? feeDistributionByMonthlyRevenues[index].lendersRevenuesAmount
           : BigNumber(0)
 
       const currentUserWeight = BigNumber(userWeights && userWeights[epoch] ? userWeights[epoch] : 0)
@@ -728,16 +730,11 @@ const useEstimateApyIncreaseDuration = () => {
 }
 
 const useApy = () => {
-  const { currentEpoch } = useEpochs()
   const { address } = useAccount()
   const { value: startEpoch } = useAccountLoanStartEpoch()
   const { value: endEpoch } = useAccountLoanEndEpoch()
   const { PNT: pntUsd } = useRates(['PNT'])
-
-  const [_startEpoch, _endEpoch] = useMemo(
-    () => (currentEpoch || currentEpoch === 0 ? [0, currentEpoch + 24] : [null, null]),
-    [currentEpoch]
-  )
+  const { value: mr } = useSentinelLastEpochReward()
 
   const { data } = useContractReads({
     contracts: [
@@ -753,30 +750,30 @@ const useApy = () => {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'totalWeightByEpochsRange',
-        args: [_startEpoch, _endEpoch],
-        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        args: [startEpoch, endEpoch],
+        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
         chainId: polygon.id
       },
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'weightByEpochsRangeOf',
-        args: [address, _startEpoch, _endEpoch],
-        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
+        args: [address, startEpoch, endEpoch],
+        enabled: address && (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
         chainId: polygon.id
       }
     ]
   })
 
-  const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
-    startEpoch,
-    endEpoch,
-    mr: 150
-  })
-
   const stake = useMemo(() => (data && data[0] ? data[0] : {}), [data])
   const totalWeights = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val)) : []), [data])
   const userWeights = useMemo(() => (data && data[2] ? data[2].map((_val) => BigNumber(_val)) : []), [data])
+
+  const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
+    startEpoch,
+    endEpoch,
+    mr
+  })
 
   return useMemo(() => {
     const stakedAmount = BigNumber(stake?.amount?.toString()).dividedBy(10 ** 18)
@@ -785,7 +782,7 @@ const useApy = () => {
     for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
       const poolRevenue =
         feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[epoch]
-          ? feeDistributionByMonthlyRevenues[epoch].lendersRewardsAmount
+          ? feeDistributionByMonthlyRevenues[epoch].lendersRevenuesAmount
           : BigNumber(0)
 
       const totalWeight = totalWeights[epoch]
@@ -834,22 +831,23 @@ const useIncreaseLendDuration = () => {
 }
 
 const useEpochsBorrowableAmount = () => {
+  const { currentEpoch } = useEpochs()
   const { data } = useContractReads({
     contracts: [
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'totalLendedAmountByEpochsRange',
-        args: [0, 24],
-        enabled: true,
+        args: [currentEpoch + 1, 24],
+        enabled: currentEpoch,
         chainId: polygon.id
       },
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
-        args: [0, 24],
-        enabled: true,
+        args: [currentEpoch + 1, 24],
+        enabled: currentEpoch,
         chainId: polygon.id
       }
     ]
