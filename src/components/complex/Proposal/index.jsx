@@ -18,6 +18,7 @@ import Modal from '../../base/Modal'
 import ButtonSecondary from '../../base/ButtonSecondary'
 import Action from '../Action'
 import Line from '../../base/Line'
+import Spinner from '../../base/Spinner'
 
 const ProposalContainer = styled.div`
   display: flex;
@@ -131,6 +132,15 @@ const ScriptContainer = styled.div`
   word-wrap: break-word;
 `
 
+const SpinnerView = styled.div`
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items. center;
+  margin-top: 50px;
+  margin-bottom: 50px;
+`
+
 const Proposal = ({
   actions,
   daoPntBalance,
@@ -171,6 +181,7 @@ const Proposal = ({
 
   const onReadMore = useCallback(async () => {
     try {
+      setReadMoreContent('loading')
       const { data: html } = await retry(() => axios.get(url), { retries: 3 })
       setReadMoreContent(styleProposalHtml(html, theme))
     } catch (_err) {
@@ -216,6 +227,8 @@ const Proposal = ({
       toastifyTransaction(noData, { chainId: activeChainId })
     }
   }, [noData, activeChainId])
+
+  console.log(readMoreContent)
 
   return (
     <ProposalContainer>
@@ -317,8 +330,15 @@ const Proposal = ({
           </Row>
         )*/}
       </DataContainer>
-      <Modal show={Boolean(readMoreContent)} title={`#${id}`} onClose={() => setReadMoreContent(null)} size="xl">
-        <ReadMoreContent dangerouslySetInnerHTML={{ __html: readMoreContent }}></ReadMoreContent>
+      <Modal show={readMoreContent} title={`#${id}`} onClose={() => setReadMoreContent(null)} size="xl">
+        {readMoreContent === 'loading' ? (
+          <SpinnerView>
+            {' '}
+            <Spinner size="lg" />
+          </SpinnerView>
+        ) : (
+          <ReadMoreContent dangerouslySetInnerHTML={{ __html: readMoreContent }}></ReadMoreContent>
+        )}
       </Modal>
       <Modal show={showScript} title={'Script'} onClose={() => setShowScript(false)}>
         <ScriptContainer>
