@@ -332,7 +332,7 @@ const Proposal = ({
           </SpinnerView>
         ) : (
           <ReadMoreContent>
-            <ProposalIframe src={readMoreContent} title="vote" />
+            <ProposalIframe src={readMoreContent} title="vote" sandbox />
           </ReadMoreContent>
         )}
       </Modal>
