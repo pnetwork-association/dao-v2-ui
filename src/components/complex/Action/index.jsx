@@ -100,13 +100,12 @@ const Action = ({ action }) => {
   }
 
   if (action.name === 'Unstaked') {
-    const { formattedAmount, owner, ownerNickname } = action
-
+    const { formattedAmount, receiver, receiverNickname } = action
     return (
       <div className="d-flex">
         <span>
-          <A href={getAddressExplorerLink(owner)} target="_blank">
-            {ownerNickname}
+          <A href={getAddressExplorerLink(receiver)} target="_blank">
+            {receiverNickname}
           </A>
           <Text>&nbsp;unstaked&nbsp;</Text>
           <Text variant="text2">{formattedAmount}&nbsp;</Text>

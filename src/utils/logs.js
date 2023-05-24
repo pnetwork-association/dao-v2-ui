@@ -64,7 +64,7 @@ const extractActivityFromEvents = async (_events) => {
       }
 
       if (event === 'Unstaked') {
-        const { amount, owner } = data
+        const { amount, receiver } = data
         const am = BigNumber(amount?.toString())
           .dividedBy(10 ** 18)
           .toFixed()
@@ -74,8 +74,8 @@ const extractActivityFromEvents = async (_events) => {
           formattedAmount: formatAssetAmount(am, 'PNT'),
           formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
           formattedDateFromNow,
-          owner,
-          ownerNickname: getNickname(owner),
+          receiver,
+          receiverNickname: getNickname(receiver),
           timestamp,
           type: 'Unstaked'
         }
