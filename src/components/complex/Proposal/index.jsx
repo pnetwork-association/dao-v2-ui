@@ -1,13 +1,10 @@
-import React, { Fragment, useCallback, useContext, useMemo, useState, useEffect } from 'react'
+import React, { Fragment, useCallback, useMemo, useState, useEffect } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import styled, { ThemeContext } from 'styled-components'
-import retry from 'async-retry'
+import styled from 'styled-components'
 import { usePrepareContractWrite, useContractWrite, useChainId, useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
 import BigNumber from 'bignumber.js'
-import axios from 'axios'
 
-import { styleProposalHtml } from '../../../utils/proposals'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { isValidError } from '../../../utils/errors'
 import { prepareContractWriteVote } from '../../../utils/preparers/dandelion-voting'
@@ -111,6 +108,7 @@ const StyledIcon = styled(Icon)`
 
 const ReadMoreContent = styled.div`
   color: ${({ theme }) => theme.text2} !important;
+  height: 500px;
 `
 
 const VoteButton = styled(ButtonSecondary)`
@@ -141,6 +139,11 @@ const SpinnerView = styled.div`
   margin-bottom: 50px;
 `
 
+const ProposalIframe = styled.iframe`
+  width: 100%;
+  height: 100%;
+`
+
 const Proposal = ({
   actions,
   daoPntBalance,
@@ -159,7 +162,6 @@ const Proposal = ({
   url,
   vote
 }) => {
-  const theme = useContext(ThemeContext)
   const [readMoreContent, setReadMoreContent] = useState(null)
   const [showScript, setShowScript] = useState(null)
   const activeChainId = useChainId()
@@ -180,14 +182,8 @@ const Proposal = ({
   }, [type])
 
   const onReadMore = useCallback(async () => {
-    try {
-      setReadMoreContent('loading')
-      const { data: html } = await retry(() => axios.get(url), { retries: 3 })
-      setReadMoreContent(styleProposalHtml(html, theme))
-    } catch (_err) {
-      console.error(_err)
-    }
-  }, [url, theme])
+    setReadMoreContent(url)
+  }, [url])
 
   const canVote = useMemo(
     () => open && vote === 0 && BigNumber(daoPntBalance).isGreaterThan(0),
@@ -227,8 +223,6 @@ const Proposal = ({
       toastifyTransaction(noData, { chainId: activeChainId })
     }
   }, [noData, activeChainId])
-
-  console.log(readMoreContent)
 
   return (
     <ProposalContainer>
@@ -337,7 +331,9 @@ const Proposal = ({
             <Spinner size="lg" />
           </SpinnerView>
         ) : (
-          <ReadMoreContent dangerouslySetInnerHTML={{ __html: readMoreContent }}></ReadMoreContent>
+          <ReadMoreContent>
+            <ProposalIframe src={readMoreContent} title="vote" />
+          </ReadMoreContent>
         )}
       </Modal>
       <Modal show={showScript} title={'Script'} onClose={() => setShowScript(false)}>
