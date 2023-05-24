@@ -1,13 +1,10 @@
-import React, { Fragment, useCallback, useContext, useMemo, useState, useEffect } from 'react'
+import React, { Fragment, useCallback, useMemo, useState, useEffect } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import styled, { ThemeContext } from 'styled-components'
-import retry from 'async-retry'
+import styled from 'styled-components'
 import { usePrepareContractWrite, useContractWrite } from 'wagmi'
 import { toast } from 'react-toastify'
 import BigNumber from 'bignumber.js'
-import axios from 'axios'
 
-import { styleProposalHtml } from '../../../utils/proposals'
 import DandelionVotingABI from '../../../utils/abis/DandelionVoting'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useBalances } from '../../../hooks/use-balances'
@@ -112,6 +109,7 @@ const StyledIcon = styled(Icon)`
 
 const ReadMoreContent = styled.div`
   color: ${({ theme }) => theme.text2} !important;
+  height: 500px;
 `
 
 const VoteButton = styled(ButtonSecondary)`
@@ -133,6 +131,11 @@ const ScriptContainer = styled.div`
   word-wrap: break-word;
 `
 
+const StyledIframe = styled.iframe`
+  width: 100%;
+  height: 100%;
+`
+
 const Proposal = ({
   actions,
   description,
@@ -149,7 +152,6 @@ const Proposal = ({
   url,
   vote
 }) => {
-  const theme = useContext(ThemeContext)
   const { daoPntBalance } = useBalances()
   const [readMoreContent, setReadMoreContent] = useState(null)
   const [showScript, setShowScript] = useState(null)
@@ -169,13 +171,8 @@ const Proposal = ({
   }, [type])
 
   const onReadMore = useCallback(async () => {
-    try {
-      const { data: html } = await retry(() => axios.get(url), { retries: 3 })
-      setReadMoreContent(styleProposalHtml(html, theme))
-    } catch (_err) {
-      console.error(_err)
-    }
-  }, [url, theme])
+    setReadMoreContent(url)
+  }, [url])
 
   const canVote = useMemo(
     () => open && vote === 0 && BigNumber(daoPntBalance).isGreaterThan(0),
@@ -324,7 +321,9 @@ const Proposal = ({
         )*/}
       </DataContainer>
       <Modal show={Boolean(readMoreContent)} title={`#${id}`} onClose={() => setReadMoreContent(null)} size="xl">
-        <ReadMoreContent dangerouslySetInnerHTML={{ __html: readMoreContent }}></ReadMoreContent>
+        <ReadMoreContent>
+          <StyledIframe src={readMoreContent} title="vote" />
+        </ReadMoreContent>
       </Modal>
       <Modal show={showScript} title={'Script'} onClose={() => setShowScript(false)}>
         <ScriptContainer>
