@@ -5,7 +5,7 @@ import settings from '../../settings'
 import ForwarderABI from '../abis/Forwarder.json'
 import LendingManagerABI from '../abis/LendingManager.json'
 import { getForwarderLendUserData, getForwarderIncreaseDurationLendUserData } from './forwarder'
-import { pNetworkChainIds } from '../../contants'
+import { pNetworkNetworkIds } from '../../contants'
 
 const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabled }) => {
   switch (activeChainId) {
@@ -96,7 +96,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -115,7 +115,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: bsc.id
       }
@@ -148,7 +148,7 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -165,7 +165,7 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: bsc.id
       }

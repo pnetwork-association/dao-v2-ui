@@ -9,7 +9,7 @@ import {
   getForwarderUpdateSentinelRegistrationByBorrowingUserData,
   getForwarderIncreaseStakingSentinelRegistrationDurationUserData
 } from './forwarder'
-import { pNetworkChainIds } from '../../contants'
+import { pNetworkNetworkIds } from '../../contants'
 import { isValidHexString } from '../format'
 
 const prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking = ({ activeChainId, address }) => {
@@ -107,7 +107,7 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -127,7 +127,7 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: bsc.id
       }
@@ -169,7 +169,7 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -188,7 +188,7 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: bsc.id
       }
@@ -225,7 +225,7 @@ export const prepareContractWriteIncreaseStakingSentinelRegistrationDuration = (
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -242,7 +242,7 @@ export const prepareContractWriteIncreaseStakingSentinelRegistrationDuration = (
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: bsc.id
       }

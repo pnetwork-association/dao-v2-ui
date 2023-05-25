@@ -25,7 +25,7 @@ import {
 } from '../utils/preparers/staking-manager'
 import { getEthersOnChainAmount } from '../utils/amount'
 import { getPntAddressByChainId } from '../utils/preparers/balance'
-import { pNetworkChainIds } from '../contants'
+import { chainIdToPNetworkNetworkId } from '../contants'
 
 const useStake = () => {
   const [approved, setApproved] = useState(false)
@@ -132,7 +132,7 @@ const useUnstake = (_opts = {}) => {
 
   const [amount, setAmount] = useState('0')
   const activeChainId = useChainId()
-  const [chainId, setChainId] = useState(activeChainId)
+  const [chainId, setChainId] = useState(1) // NOTE: ChainSelection starts with eth
   const { availableToUnstakePntAmount } = useUserStake()
   const { address } = useAccount()
 
@@ -147,7 +147,7 @@ const useUnstake = (_opts = {}) => {
     prepareContractWriteUnstake({
       activeChainId,
       amount: onChainAmount,
-      chainId: pNetworkChainIds[chainId],
+      chainId: chainIdToPNetworkNetworkId[chainId],
       receiver: address,
       enabled: unstakeEnabled,
       contractAddress
@@ -189,7 +189,7 @@ const useUserStake = (_opts = {}) => {
   const availableToUnstakePntAmount = useMemo(() => {
     if (!data) return
     const { endDate, amount } = data
-    return BigNumber(endDate.toNumber() <= moment().unix() ? amount.toString() : 0)
+    return BigNumber(endDate.toNumber() <= moment().unix() ? amount.toString() : amount.toString())
       .dividedBy(10 ** 18)
       .toFixed()
   }, [data])

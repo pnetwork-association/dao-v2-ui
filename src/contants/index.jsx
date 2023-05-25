@@ -13,8 +13,14 @@ export const chainIdToPnetworkChainId = {
   137: '0x0075dd4c'
 }
 
-export const pNetworkChainIds = {
+export const pNetworkNetworkIds = {
   mainnet: '0x005fe7f9',
   bsc: '0x00e4b170',
   polygon: '0x0075dd4c'
+}
+
+export const chainIdToPNetworkNetworkId = {
+  1: '0x005fe7f9',
+  56: '0x00e4b170',
+  137: '0x0075dd4c'
 }

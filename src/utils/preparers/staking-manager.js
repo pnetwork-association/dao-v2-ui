@@ -5,7 +5,7 @@ import settings from '../../settings'
 import ForwarderABI from '../abis/Forwarder.json'
 import StakingManagerABI from '../abis/StakingManager.json'
 import { getForwarderStakeUserData, getForwarderUnstakeUserData } from './forwarder'
-import { pNetworkChainIds } from '../../contants'
+import { pNetworkNetworkIds } from '../../contants'
 
 const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) => {
   switch (activeChainId) {
@@ -94,7 +94,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -113,7 +113,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: bsc.id
       }
@@ -150,7 +150,7 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: mainnet.id
       }
@@ -170,7 +170,7 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkChainIds.polygon],
+        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
         enabled,
         chainId: bsc.id
       }
@@ -180,7 +180,7 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         address: contractAddress,
         abi: StakingManagerABI,
         functionName: 'unstake',
-        args: [amount],
+        args: [amount, chainId],
         enabled,
         chainId: polygon.id
       }
