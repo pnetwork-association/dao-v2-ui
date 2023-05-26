@@ -4,6 +4,7 @@ import { Chart } from 'react-chartjs-2'
 import styled, { ThemeContext } from 'styled-components'
 import { useChainId } from 'wagmi'
 import BigNumber from 'bignumber.js'
+import { polygon } from 'wagmi/chains'
 
 import { useEpochs } from '../../../hooks/use-epochs'
 import { useBalances } from '../../../hooks/use-balances'
@@ -19,6 +20,7 @@ import { range } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { formatAssetAmount } from '../../../utils/amount'
 import { STAKING_SENTINEL, BORROWING_SENTINEL } from '../../../contants'
+import { useIsSafe } from '../../../hooks/use-safe-check'
 
 import Button from '../../base/Button'
 import InputAmount from '../../base/InputAmount'
@@ -107,6 +109,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
   } = useRegisterSentinel({
     type
   })
+  const isSafe = useIsSafe()
 
   const { kind, endEpoch: currentEndEpoch = 0 } = useSentinel()
   const enabled = useMemo(() => {
@@ -359,6 +362,16 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
           </Text>
         </Col>
       </Row>
+      {isSafe && activeChainId !== polygon.id && (
+        <Row className="mt-2">
+          <Col>
+            <InfoBox>
+              it looks like you are connected with a Gnosis Safe wallet. Make sure you control the same address on{' '}
+              {polygon.name} as well.
+            </InfoBox>
+          </Col>
+        </Row>
+      )}
       {type === 'stake' && (
         <Row className="mt-3">
           <Col>

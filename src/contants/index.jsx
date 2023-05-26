@@ -1,3 +1,5 @@
+import { mainnet, bsc, polygon } from 'wagmi/chains'
+
 export const STAKING_SENTINEL = '0x01'
 export const BORROWING_SENTINEL = '0x02'
 
@@ -23,4 +25,10 @@ export const chainIdToPNetworkNetworkId = {
   1: '0x005fe7f9',
   56: '0x00e4b170',
   137: '0x0075dd4c'
+}
+
+export const chainIdToNetworkName = {
+  1: mainnet.name,
+  56: bsc.name,
+  137: polygon.name
 }

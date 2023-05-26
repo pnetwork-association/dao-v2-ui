@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import styled, { ThemeContext } from 'styled-components'
 import { useChainId } from 'wagmi'
 import { FaInfoCircle } from 'react-icons/fa'
+import { polygon } from 'wagmi/chains'
 
 import { useBalances } from '../../../hooks/use-balances'
 import { useEstimateApy, useLend } from '../../../hooks/use-lending-manager'
@@ -13,6 +14,7 @@ import { useEpochs } from '../../../hooks/use-epochs'
 import { range, SECONDS_IN_ONE_DAY } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { isValidError } from '../../../utils/errors'
+import { useIsSafe } from '../../../hooks/use-safe-check'
 
 import InputAmount from '../../base/InputAmount'
 import Button from '../../base/Button'
@@ -21,6 +23,7 @@ import Modal from '../../base/Modal'
 import Slider from '../../base/Slider'
 import Text from '../../base/Text'
 import Tooltip from '../../base/Tooltip'
+import InfoBox from '../../base/InfoBox'
 
 const ChartContainer = styled.div`
   display: inline-block;
@@ -122,6 +125,7 @@ const LendModal = ({ show, onClose }) => {
     userWeightPercentages
   } = useEstimateApy()
   const activeChainId = useChainId()
+  const isSafe = useIsSafe()
 
   const chartEpochs = useMemo(() => {
     if (!(currentEpoch || currentEpoch === 0) || !(endEpoch || endEpoch === 0)) return []
@@ -323,6 +327,17 @@ const LendModal = ({ show, onClose }) => {
           <Text variant={'text2'}>{formattedEndEpoch}</Text>
         </Col>
       </Row>
+      {isSafe && activeChainId !== polygon.id && (
+        <Row className="mt-2">
+          <Col>
+            <InfoBox>
+              it looks like you are connected with a Gnosis Safe wallet. Make sure you control the same address on{' '}
+              {polygon.name} as well. Otherwise you can specify a destination address by clicking on the "show advanced
+              options" button
+            </InfoBox>
+          </Col>
+        </Row>
+      )}
       <Row className="mt-3">
         <Col>
           <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>

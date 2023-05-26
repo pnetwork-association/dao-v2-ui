@@ -9,6 +9,9 @@ import { useUserStake } from '../../../hooks/use-staking-manager'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useUnstake } from '../../../hooks/use-staking-manager'
 import { isValidError } from '../../../utils/errors'
+import { useIsSafe } from '../../../hooks/use-safe-check'
+import { chainIdToNetworkName } from '../../../contants'
+import InfoBox from '../../base/InfoBox'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
@@ -20,9 +23,19 @@ const UnstakeModal = ({ show, contractAddress, onClose }) => {
   const activeChainId = useChainId()
   const { formattedPntBalance, formattedDaoPntBalance } = useBalances()
   const { availableToUnstakePntAmount, fomattedAvailableToUnstakePntAmount } = useUserStake({ contractAddress })
-  const { amount, isUnstaking, setAmount, setChainId, unstake, unstakeData, unstakeError } = useUnstake({
+  const {
+    amount,
+    chainId: selectedChainId,
+    isUnstaking,
+    setAmount,
+    setChainId,
+    unstake,
+    unstakeData,
+    unstakeError
+  } = useUnstake({
     contractAddress
   })
+  const isSafe = useIsSafe()
 
   useEffect(() => {
     if (unstakeError && isValidError(unstakeError)) {
@@ -93,6 +106,17 @@ const UnstakeModal = ({ show, contractAddress, onClose }) => {
           />
         </Col>
       </Row>
+      {isSafe && selectedChainId !== activeChainId && (
+        <Row className="mt-2">
+          <Col>
+            <InfoBox>
+              It looks like that you are connected with a Gnosis Safe wallet and you want to unstake to a chain where
+              the receiving address may not be a Gnosis Safe wallet under your control. Make sure of the above or else
+              select {chainIdToNetworkName[activeChainId]} as the destinatioin chain
+            </InfoBox>
+          </Col>
+        </Row>
+      )}
       <Row className="mt-2">
         <Col xs={6}>
           <Text>Destination chain</Text>

@@ -4,12 +4,14 @@ import styled from 'styled-components'
 import { useAccount, useChainId } from 'wagmi'
 import { toast } from 'react-toastify'
 import BigNumber from 'bignumber.js'
+import { polygon } from 'wagmi/chains'
 
 import { useStake } from '../../../hooks/use-staking-manager'
 import { useBalances } from '../../../hooks/use-balances'
 import { toastifyTransaction } from '../../../utils/transaction'
 import settings from '../../../settings'
 import { isValidError } from '../../../utils/errors'
+import { useIsSafe } from '../../../hooks/use-safe-check'
 
 import Modal from '../../base/Modal'
 import Text from '../../base/Text'
@@ -18,6 +20,7 @@ import Line from '../../base/Line'
 import Input from '../../base/Input'
 import Slider from '../../base/Slider'
 import InputAmount from '../../base/InputAmount'
+import InfoBox from '../../base/InfoBox'
 
 const InfoText = styled(Text)`
   font-size: 12px;
@@ -42,6 +45,7 @@ const StakeModal = ({ show, onClose }) => {
   const { pntBalance, formattedPntBalance, formattedDaoPntBalance } = useBalances()
   const { address } = useAccount()
   const activeChainId = useChainId()
+  const isSafe = useIsSafe()
 
   const {
     amount,
@@ -134,6 +138,17 @@ const StakeModal = ({ show, onClose }) => {
           />
         </Col>
       </Row>
+      {isSafe && activeChainId !== polygon.id && (
+        <Row className="mt-2">
+          <Col>
+            <InfoBox>
+              it looks like you are connected with a Gnosis Safe wallet. Make sure you control the same address on{' '}
+              {polygon.name} as well. Otherwise you can specify a destination address by clicking on the "show advanced
+              options" button
+            </InfoBox>
+          </Col>
+        </Row>
+      )}
       <Row className="mt-2">
         <Col>
           <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>
