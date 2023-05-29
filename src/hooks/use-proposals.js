@@ -78,10 +78,29 @@ const useProposals = () => {
     [newProposals, newVoterStatesData]
   )
 
-  return useMemo(
-    () => [...oldProposalsWithVote, ...newProposalsWithVote].sort((_a, _b) => _b.id - _a.id),
-    [oldProposalsWithVote, newProposalsWithVote]
-  )
+  return useMemo(() => {
+    // if a new proposal (on polygon) is equal to an old one (on eth) it means that
+    // the proposal has been opened on both chains (daov1 & daov2) so we have to
+    // keep only the polygon one
+    const effectiveOldProposals = oldProposalsWithVote.filter(
+      ({ multihash: oldMultihash }) =>
+        !newProposalsWithVote.find(({ multihash: newMultihash }) => {
+          return oldMultihash === newMultihash
+        })
+    )
+
+    let proposals = [...effectiveOldProposals, ...newProposalsWithVote]
+    for (let i = 0; i < proposals.length; i++) {
+      if (proposals[i + 1] && proposals[i + 1].id - proposals[i].id > 1) {
+        proposals[i + 1] = {
+          ...proposals[i + 1],
+          id: proposals[i + 1].id - 1
+        }
+      }
+    }
+
+    return proposals.sort((_a, _b) => _b.id - _a.id)
+  }, [oldProposalsWithVote, newProposalsWithVote])
 }
 
 const useCreateProposal = () => {

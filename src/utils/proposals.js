@@ -9,7 +9,7 @@ const extrapolateProposalData = (_proposal) => {
   const index = _proposal.indexOf('http')
   return index > 0
     ? {
-        url: _proposal.slice(index),
+        url: _proposal.slice(index).trim(),
         description: _proposal.slice(0, index)
       }
     : {
@@ -17,6 +17,12 @@ const extrapolateProposalData = (_proposal) => {
         description: _proposal
       }
 }
+
+const escapeUrl = (_url) =>
+  Buffer.from(_url)
+    .toString('utf-8')
+    // eslint-disable-next-line no-control-regex
+    .replace(/\u0000/g, '')
 
 const styleProposalHtml = (_html, _theme) => {
   let html = _html
@@ -76,6 +82,8 @@ const prepareOldProposal = (
       ? moment.unix(_executionBlockNumberTimestamp).format('MMM DD YYYY - HH:mm:ss')
       : null
 
+  const url = escapeUrl(_proposal.url)
+
   return {
     ..._proposal,
     actions: _voteActions,
@@ -94,6 +102,7 @@ const prepareOldProposal = (
     formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
     id: _proposal.id + _idStart,
     minAcceptQuorum: minAcceptQuorum.toFixed(),
+    multihash: url.slice(url.length - 46, url.length),
     no: no.toFixed(),
     open,
     passed,
@@ -102,6 +111,7 @@ const prepareOldProposal = (
     script,
     snapshotBlock: snapshotBlock.toNumber(),
     startBlock: startBlock.toNumber(),
+    url,
     votingPnt,
     votingPower: votingPower.toFixed(),
     yes: yes.toFixed()
@@ -134,6 +144,8 @@ const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idSta
       ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
       : moment.unix(now).format('MMM DD YYYY - HH:mm:ss')
 
+  const url = escapeUrl(_proposal.url)
+
   return {
     ..._proposal,
     actions: _voteActions,
@@ -152,6 +164,7 @@ const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idSta
     formattedVotingPnt: formatAssetAmount(votingPnt, 'PNT'),
     id: _proposal.id + _idStart,
     minAcceptQuorum: minAcceptQuorum.toFixed(),
+    multihash: url.slice(url.length - 46, url.length),
     no: no.toFixed(),
     open,
     passed,
@@ -160,6 +173,7 @@ const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idSta
     script,
     snapshotBlock: snapshotBlock.toNumber(),
     startDate: startDate.toNumber(),
+    url,
     votingPnt,
     votingPower: votingPower.toFixed(),
     yes: yes.toFixed()
