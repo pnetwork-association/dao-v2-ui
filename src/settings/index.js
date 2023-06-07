@@ -25,7 +25,6 @@ const settings = {
     epochsManager: '0xbA1067FB99Ad837F0e2895B57D1635Bdbefa789E',
     registrationManager: '0xCcdbBC9Dea73673dF74E1EE4D5faC8c6Ce1930ef',
     feesManager: '0xE2261C279FE39CEA798Cd96b72ccB150bc164310',
-    financeVault: '0xFBe9Bb8992cFc6a21e611621d5Ef5a8794AC6D80',
     forwarderOnMainnet: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
     forwarderOnPolygon: '0x257A984836F4459954CE09955E3c00e8C5b1fb89',
     forwarderOnBsc: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
