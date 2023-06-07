@@ -28,7 +28,8 @@ const settings = {
     financeVault: '0xFBe9Bb8992cFc6a21e611621d5Ef5a8794AC6D80',
     forwarderOnMainnet: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
     forwarderOnPolygon: '0x257A984836F4459954CE09955E3c00e8C5b1fb89',
-    forwarderOnBsc: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E'
+    forwarderOnBsc: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
+    financeVault: '0x139Ad01CAcbbe51B4A2B099E52C47693Ba87351b'
   },
   stakingManager: {
     minStakeDays: 7,

@@ -86,7 +86,7 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
           .toFixed()
 
         return {
-          to: '0xDd92eb1478D3189707aB7F4a5aCE3a615cdD0476', //settings.contracts.financeVault,
+          to: settings.contracts.financeVault,
           calldata: Vault.encodeFunctionData('transfer', params)
         }
       }
