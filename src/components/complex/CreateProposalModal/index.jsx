@@ -144,7 +144,7 @@ const CreateProposalModal = ({ show, onClose }) => {
           </Row>
           <Row className="mt-2">
             <Col>
-              <Text>IPFS attachment (optional)</Text>
+              <Text>IPFS attachment</Text>
             </Col>
           </Row>
           <Row className="mt-1">

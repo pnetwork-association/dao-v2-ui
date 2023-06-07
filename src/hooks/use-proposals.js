@@ -23,7 +23,7 @@ import { extrapolateProposalData } from '../utils/proposals'
 import { useBalances } from './use-balances'
 import ACLAbi from '../utils/abis/ACL.json'
 import { getRole } from '../utils/role'
-import { isValidHexString } from '../utils/format'
+import { isValidHexString, isValidMultiHash } from '../utils/format'
 
 import { ProposalsContext } from '../components/context/Proposals'
 
@@ -307,6 +307,7 @@ const useCreateProposal = () => {
     [data]
   )
 
+  const isValidIpfsMultiHash = useMemo(() => isValidMultiHash(ipfsMultihash), [ipfsMultihash])
   const isScriptValid = useMemo(() => isValidHexString(script), [script])
   const hasPermissionOrEnoughBalance = useMemo(
     () =>
@@ -317,12 +318,12 @@ const useCreateProposal = () => {
 
   const canCreateProposal = useMemo(
     () =>
-      hasPermissionOrEnoughBalance && metadata.length > 0
+      hasPermissionOrEnoughBalance && metadata.length > 0 && isValidIpfsMultiHash
         ? showScript
           ? isScriptValid && metadata.length > 0
           : true
         : false,
-    [isScriptValid, showScript, hasPermissionOrEnoughBalance, metadata]
+    [isScriptValid, showScript, hasPermissionOrEnoughBalance, metadata, isValidIpfsMultiHash]
   )
 
   const { config: newProposalConfig } = usePrepareContractWrite({
@@ -353,6 +354,7 @@ const useCreateProposal = () => {
     ipfsMultihash,
     isLoading,
     isScriptValid,
+    isValidIpfsMultiHash,
     metadata,
     minOpenVoteAmount,
     script,
