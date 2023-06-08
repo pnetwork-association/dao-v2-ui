@@ -16,6 +16,7 @@ import ButtonSecondary from '../../base/ButtonSecondary'
 import Action from '../Action'
 import Line from '../../base/Line'
 import Spinner from '../../base/Spinner'
+import Badge from '../../base/Badge'
 
 const ProposalContainer = styled.div`
   display: flex;
@@ -147,6 +148,7 @@ const ProposalIframe = styled.iframe`
 const Proposal = ({
   actions,
   daoPntBalance,
+  idTextDouble,
   description,
   effectiveId,
   formattedCloseDate,
@@ -155,6 +157,7 @@ const Proposal = ({
   formattedVote,
   formattedVotingPnt,
   id,
+  idText,
   open,
   passed,
   quorumReached,
@@ -229,8 +232,9 @@ const Proposal = ({
       <StatusLine type={type} />
       <DataContainer>
         <Row>
-          <Col xs={6}>
-            <ProposalNumberText>#{id}</ProposalNumberText>
+          <Col xs={6} className="d-flex align-items-center">
+            <ProposalNumberText>{idText}</ProposalNumberText>
+            {idTextDouble && <Badge style={{ marginLeft: 5 }} text={idTextDouble} />}
           </Col>
           <Col xs={6} className="text-end">
             <ProposalResultText type={type}>{typeText}</ProposalResultText>

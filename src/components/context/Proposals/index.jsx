@@ -3,6 +3,7 @@ import axios from 'axios'
 import moment from 'moment'
 import { mainnet, polygon } from 'wagmi/chains'
 import { ethers } from 'ethers'
+import BigNumber from 'bignumber.js'
 
 import { prepareNewProposal, prepareOldProposal } from '../../../utils/proposals'
 import { hexToAscii } from '../../../utils/format'
@@ -46,17 +47,21 @@ const fetchProposals = async ({ setProposals }) => {
 
           return {
             id: voteId,
+            idText: `PIP-${voteId}`,
             formattedOpenDate: moment.unix(_proposal.timeStamp).format('MMM DD YYYY - HH:mm:ss'),
-            timestamp: _proposal.timeStamp,
+            timestamp: BigNumber(_proposal.timeStamp).toNumber(),
             ...data
           }
         }),
         polygonscanProposals: resultPolygonscan.map((_proposal, _id) => {
+          const voteId = _id + 1
           const data = extrapolateProposalData(hexToAscii(_proposal.data))
+
           return {
             id: _id + 1,
+            idText: `PGP-${voteId}`,
             formattedOpenDate: moment.unix(_proposal.timeStamp).format('MMM DD YYYY - HH:mm:ss'),
-            timestamp: _proposal.timeStamp,
+            timestamp: BigNumber(_proposal.timeStamp).toNumber(),
             ...data
           }
         })

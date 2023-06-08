@@ -89,17 +89,21 @@ const useProposals = () => {
         })
     )
 
-    let proposals = [...effectiveOldProposals, ...newProposalsWithVote]
-    for (let i = 0; i < proposals.length; i++) {
-      if (proposals[i + 1] && proposals[i + 1].id - proposals[i].id > 1) {
-        proposals[i + 1] = {
-          ...proposals[i + 1],
-          id: proposals[i + 1].id - 1
-        }
-      }
-    }
+    // If exists a PIP equal to a PGP, we have to indicate the exists also the PIP
+    const effectiveNewProposalVotes = newProposalsWithVote.map((_proposal) => {
+      const oldProposal = oldProposalsWithVote.find(({ multihash: oldMultihash }) => {
+        return oldMultihash === _proposal.multihash
+      })
 
-    return proposals.sort((_a, _b) => _b.id - _a.id)
+      if (!oldProposal) return _proposal
+
+      return {
+        idTextDouble: oldProposal.idText,
+        ..._proposal
+      }
+    })
+
+    return [...effectiveOldProposals, ...effectiveNewProposalVotes].sort((_a, _b) => _b.timestamp - _a.timestamp)
   }, [oldProposalsWithVote, newProposalsWithVote])
 }
 
