@@ -8,7 +8,7 @@ const StyledModalTitle = styled(Text)`
   font-size: 20px;
   color: ${({ theme }) => theme.text2} !important;
   @media (max-width: 767.98px) {
-    font-size: 16px;
+    font-size: 17px;
   }
 `
 

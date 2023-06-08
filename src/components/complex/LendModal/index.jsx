@@ -230,7 +230,7 @@ const LendModal = ({ show, onClose }) => {
   )
 
   return (
-    <Modal show={show} title="Lend PNT in pNetwork DAO" onClose={onClose} size="xl">
+    <Modal show={show} title="Lend PNT in pNetwork DAO" onClose={onClose} size="lg">
       <Row className="mt-2">
         <Col xs={6}>
           <Text>PNT balance</Text>
@@ -303,6 +303,7 @@ const LendModal = ({ show, onClose }) => {
           </ChartContainer>
         </Col>
       </Row>
+
       <Row className="mt-2">
         <Col xs={6}>
           <Text>Number of epochs</Text>
@@ -327,6 +328,7 @@ const LendModal = ({ show, onClose }) => {
           <Text variant={'text2'}>{formattedEndEpoch}</Text>
         </Col>
       </Row>
+      <Line />
       {isSafe && activeChainId !== polygon.id && (
         <Row className="mt-2">
           <Col>

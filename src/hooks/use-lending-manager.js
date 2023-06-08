@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { groupBy } from 'lodash'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   useAccount,
   useBalance,
@@ -31,6 +31,9 @@ import {
 } from '../utils/preparers/lending-manager'
 import { getEthersOnChainAmount } from '../utils/amount'
 import { useSentinelLastEpochReward } from './use-sentinels-historical-data'
+import { extractActivityFromEvents } from '../utils/logs'
+
+import { EventsContext } from '../components/context/Events'
 
 const useLend = () => {
   const [amount, setAmount] = useState('0')
@@ -866,20 +869,98 @@ const useEpochsBorrowableAmount = () => {
   }
 }
 
+const useLenders = () => {
+  const [lenders, setLenders] = useState([])
+  const { currentEpoch, startFirstEpochTimestamp, epochDuration } = useEpochs()
+  const { lendedEvents } = useContext(EventsContext)
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const formattedLendedEvents = (await extractActivityFromEvents(lendedEvents)).filter(
+          ({ endEpoch }) => endEpoch > currentEpoch
+        )
+        const lendedEventsGroupedByLender = groupBy(formattedLendedEvents, 'lender')
+
+        const totalLendedAmountByEpoch = formattedLendedEvents.reduce((_acc, { startEpoch, endEpoch, amount }) => {
+          for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
+            _acc[epoch] = BigNumber(_acc[epoch] || 0).plus(amount)
+          }
+          return _acc
+        }, {})
+
+        setLenders(
+          Object.keys(lendedEventsGroupedByLender)
+            .map((_address) => {
+              const { lender, lenderNickname } = lendedEventsGroupedByLender[_address][0]
+
+              const amount = lendedEventsGroupedByLender[_address].reduce((_acc, { amount }) => {
+                _acc = _acc.plus(amount)
+                return _acc
+              }, BigNumber(0))
+
+              const endEpoch = lendedEventsGroupedByLender[_address].reduce((_acc, { endEpoch }) => {
+                if (endEpoch > _acc) {
+                  _acc = endEpoch
+                }
+                return _acc
+              }, 0)
+
+              const lendedAmountByEpoch = lendedEventsGroupedByLender[_address].reduce(
+                (_acc, { startEpoch, endEpoch, amount }) => {
+                  for (let epoch = startEpoch; epoch <= endEpoch; epoch++) {
+                    _acc[epoch] = BigNumber(_acc[epoch] || 0).plus(amount)
+                  }
+                  return _acc
+                },
+                {}
+              )
+
+              const finishesAt = startFirstEpochTimestamp + endEpoch * epochDuration
+              const remainingTime = moment.unix(finishesAt).fromNow()
+              const poolPercentage = lendedAmountByEpoch[currentEpoch]
+                .dividedBy(totalLendedAmountByEpoch[currentEpoch])
+                .toFixed(5)
+
+              return {
+                address: lender,
+                amount: amount.toFixed(),
+                endEpoch,
+                formattedAmount: formatAssetAmount(amount, 'PNT'),
+                formattedPoolPercentage: `${poolPercentage * 100}%`,
+                nickname: lenderNickname,
+                poolPercentage,
+                remainingTime
+              }
+            })
+            .sort((_a, _b) => _b.amount - _a.amount)
+        )
+      } catch (_err) {
+        console.error(_err)
+      }
+    }
+
+    fetch()
+  }, [lendedEvents, currentEpoch, startFirstEpochTimestamp, epochDuration])
+
+  return lenders
+}
+
 export {
   useAccountLoanEndEpoch,
   useAccountLoanStartEpoch,
   useAccountUtilizationRatio,
   useApy,
-  useEpochsBorrowableAmount,
   useClaimableRewardsAssetsByAssets,
   useClaimableRewardsAssetsByEpochs,
   useClaimRewardByEpoch,
   useClaimRewardByEpochsRange,
+  useEpochsBorrowableAmount,
   useEstimateApy,
   useEstimateApyIncreaseDuration,
   useIncreaseLendDuration,
   useLend,
+  useLenders,
   useTotalBorrowedAmountByEpoch,
   useTotalLendedAmountByEpoch,
   useTotalLendedAmountByStartAndEndEpochs,

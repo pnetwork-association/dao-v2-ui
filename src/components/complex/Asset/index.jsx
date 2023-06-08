@@ -42,7 +42,9 @@ const Asset = ({
           <AssetLogo src={logo} />
           <div className="d-flex flex-column">
             <Text variant="text2">&nbsp;&nbsp;{name}</Text>
-            <Symbol variant="text3">&nbsp;&nbsp;{symbol}</Symbol>
+            <Symbol variant="text3" size="sm">
+              &nbsp;&nbsp;{symbol}
+            </Symbol>
           </div>
         </div>
       </Col>

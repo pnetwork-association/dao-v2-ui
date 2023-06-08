@@ -7,7 +7,7 @@ const StyledButton = styled.button`
   border: 0;
   padding: 0px 15px;
   background: ${({ theme }) => theme.secondary4};
-  height: 50px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   color: ${({ theme }) => theme.text2};
@@ -31,7 +31,7 @@ const StyledButton = styled.button`
     }
   }
   @media (max-width: 767.98px) {
-    height: 35px;
+    height: 30px;
     font-size: 13px;
   }
 `

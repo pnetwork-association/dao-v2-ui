@@ -60,7 +60,7 @@ const ProposalResultText = styled(Text)`
         return theme.text4
     }
   }};
-  font-size: 16px;
+  font-size: 17px;
   @media (max-width: 767.98px) {
     font-size: 13px;
   }

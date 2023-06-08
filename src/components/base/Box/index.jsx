@@ -36,7 +36,7 @@ const StyledLine = styled(Line)`
   margin-bottom: 0rem;
 `
 
-const Box = ({ headerTitle, children, bodyStyle, ..._props }) => {
+const Box = ({ headerTitle, headerTitleSize = 'md', children, bodyStyle, ..._props }) => {
   return (
     <GlobalContainer {..._props}>
       {headerTitle && (
@@ -44,7 +44,7 @@ const Box = ({ headerTitle, children, bodyStyle, ..._props }) => {
           <Header>
             <Row>
               <Col>
-                <HeaderTitle variant="text4" size="md">
+                <HeaderTitle variant="text4" size={headerTitleSize}>
                   {headerTitle}
                 </HeaderTitle>
               </Col>

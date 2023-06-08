@@ -63,8 +63,8 @@ const ConnectedButton = styled(Button)`
   height: 40px;
   width: auto;
   @media (max-width: 767.98px) {
-    height: 35px;
-    width: 35px;
+    height: 30px;
+    width: 30px;
   }
 `
 
@@ -76,17 +76,16 @@ const SelectChainButton = styled(Button)`
   height: 40px;
   width: auto;
   @media (max-width: 767.98px) {
-    height: 35px;
+    height: 30px;
   }
 `
 
 const StyledAvatar = styled(Avatar)`
   border-radius: 50px;
-  margin-right: 10px;
   @media (max-width: 767.98px) {
     margin-right: 0;
-    height: 30px !important;
-    width: 30px !important;
+    height: 25px !important;
+    width: 25px !important;
   }
 `
 
@@ -154,7 +153,7 @@ const ModeContainer = styled.div`
     left: 30px;
     padding-right: 30px;
     padding-left: 10px;
-    height: 35px;
+    height: 30px;
   }
 `
 

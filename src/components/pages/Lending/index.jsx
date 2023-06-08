@@ -28,6 +28,7 @@ import UnstakeModal from '../../complex/UnstakeModal'
 import LendDurationModal from '../../complex/LendDurationModal'
 import Tooltip from '../../base/Tooltip'
 import ProgressBar from '../../base/ProgressBar'
+import Lenders from '../../complex/Lenders'
 
 const InnerTabContainer = styled.div`
   padding: 1.5rem 1.5rem;
@@ -173,6 +174,9 @@ A participation DAO vote is required for lenders to be included in the rewards d
               </Box>
               <Box className="mt-4" bodyStyle={{ padding: 0 }}>
                 <ClaimRewards />
+              </Box>
+              <Box className="mt-4">
+                <Lenders />
               </Box>
             </InnerTabContainer>
           </Tab>

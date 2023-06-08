@@ -233,7 +233,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
   }, [effectiveStartEpoch, effectiveEndEpoch, epochsBorrowableAmount, type])
 
   return (
-    <Modal show={show} title="Register Sentinel" onClose={onClose} size="xl">
+    <Modal show={show} title="Register Sentinel" onClose={onClose} size="lg">
       <Row className="mt-2">
         <Col xs={6}>
           <Text>PNT balance</Text>
@@ -403,7 +403,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
               </Button>
               {!isThereEnoughBorrowableAmount && (
                 <Row className="justify-content-center mt-2 mb-2">
-                  <Col xs={12} xl={6}>
+                  <Col xs={12} xl={12}>
                     <InfoBox type="warning">
                       Not enough borrowable amount in the lending pool for the number of epochs selected. Please reduce
                       it or wait for additional PNT liquidity to be available in the lending pool.
