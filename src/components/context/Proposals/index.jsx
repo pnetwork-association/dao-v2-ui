@@ -36,9 +36,16 @@ const fetchProposals = async ({ setProposals }) => {
 
       return {
         etherscanProposals: resultEtherscan.map((_proposal, _id) => {
+          const voteId = _id + 1
           const data = extrapolateProposalData(hexToAscii(_proposal.data))
+
+          // NOTE: add missing url for vote 27
+          if (voteId === 27) {
+            data.url = 'https://ipfs.io/ipfs/QmUfjePnbdq5SeKTWFaaVmF1yLHDs66jSstgkVDAfVBUCr'
+          }
+
           return {
-            id: _id + 1,
+            id: voteId,
             formattedOpenDate: moment.unix(_proposal.timeStamp).format('MMM DD YYYY - HH:mm:ss'),
             timestamp: _proposal.timeStamp,
             ...data
