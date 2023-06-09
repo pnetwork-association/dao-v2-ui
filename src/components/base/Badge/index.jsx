@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import Text from '../Text'
 
 const BadgeOuter = styled.div`
-  background-color: ${({ theme }) => theme.blue};
+  background-color: ${({ theme }) => theme.lightRed};
   border-radius: 4px;
   padding: 0px 4px;
 `
