@@ -142,7 +142,7 @@ const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idSta
   const formattedCloseDate =
     countdown > 0
       ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
-      : moment.unix(now).format('MMM DD YYYY - HH:mm:ss')
+      : moment.unix(endDate).format('MMM DD YYYY - HH:mm:ss')
 
   const url = escapeUrl(_proposal.url)
 

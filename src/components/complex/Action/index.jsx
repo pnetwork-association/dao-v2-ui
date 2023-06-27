@@ -5,11 +5,11 @@ import { useChainId } from 'wagmi'
 
 import settings from '../../../settings'
 import { getAddressExplorerUrl } from '../../../utils/explorer'
-
 import { formatAssetAmount } from '../../../utils/amount'
+import { BORROWING_SENTINEL } from '../../../contants'
+
 import A from '../../base/A'
 import Text from '../../base/Text'
-import { BORROWING_SENTINEL } from '../../../contants'
 
 const AssetLogo = styled.img`
   width: 24px;
