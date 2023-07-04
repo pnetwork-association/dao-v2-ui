@@ -46,7 +46,8 @@ const { chains, provider } = configureChains(
 
 const { connectors } = getDefaultWallets({
   appName: 'pNetwork DAO',
-  chains
+  chains,
+  projectId: process.env.REACT_APP_WC2_PROJECT_ID
 })
 
 const wagmiClient = createClient({
