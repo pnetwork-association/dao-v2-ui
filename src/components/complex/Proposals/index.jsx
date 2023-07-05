@@ -1,6 +1,7 @@
 import React, { Fragment, useMemo, useState } from 'react'
 import { Tab } from 'react-bootstrap'
 import styled from 'styled-components'
+import { mainnet } from 'wagmi'
 
 import { useProposals } from '../../../hooks/use-proposals'
 import { useDaoPntBalance } from '../../../hooks/use-balances'
@@ -52,7 +53,7 @@ const Proposals = () => {
         <Tab eventKey="new" title="New proposals">
           {newProposals.map((_proposal) => (
             <div className="mt-2" key={`proposal_${_proposal.id}`}>
-              <Proposal daoPntBalance={daoPntBalance} {..._proposal} />
+              <Proposal daoPntBalance={daoPntBalance} disabled={_proposal.chainId === mainnet.id} {..._proposal} />
               <StyledLine />
             </div>
           ))}
@@ -66,7 +67,7 @@ const Proposals = () => {
         <Tab eventKey="past" title="Past proposals">
           {pastProposals.map((_proposal) => (
             <div key={`proposal_${_proposal.id}`} className="mt-2">
-              <Proposal daoPntBalance={daoPntBalance} {..._proposal} />
+              <Proposal daoPntBalance={daoPntBalance} disabled={_proposal.chainId === mainnet.id} {..._proposal} />
               <StyledLine />
             </div>
           ))}

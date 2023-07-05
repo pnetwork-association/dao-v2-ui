@@ -23,6 +23,7 @@ const ProposalContainer = styled.div`
   width: 100%;
   padding-left: 15px;
   padding-right: 15px;
+  opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
 `
 
 const StatusLine = styled.div`
@@ -148,6 +149,7 @@ const ProposalIframe = styled.iframe`
 const Proposal = ({
   actions,
   daoPntBalance,
+  disabled,
   idTextDouble,
   description,
   effectiveId,
@@ -228,7 +230,7 @@ const Proposal = ({
   }, [noData, activeChainId])
 
   return (
-    <ProposalContainer>
+    <ProposalContainer disabled={disabled}>
       <StatusLine type={type} />
       <DataContainer>
         <Row>
