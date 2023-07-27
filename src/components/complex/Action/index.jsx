@@ -26,6 +26,8 @@ const Action = ({ action }) => {
   if (action.name === 'Transfer') {
     const { from, fromNickname, to, toNickname, value, address } = action
     const asset = settings.assets.find((_asset) => _asset.address.toLowerCase() === address.toLowerCase())
+    if (!asset) return null
+
     const amount = formatAssetAmount(BigNumber(value).dividedBy(10 ** 18), asset.symbol)
 
     return (
@@ -50,7 +52,6 @@ const Action = ({ action }) => {
 
   if (action.name === 'StartVote') {
     const { creator, creatorNickname, metadata } = action
-
     const metadataWithoutIpfsLink = metadata ? metadata.split(' ').slice(0, -1).join(' ') : metadata
 
     return (
