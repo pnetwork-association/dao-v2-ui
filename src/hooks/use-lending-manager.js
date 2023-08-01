@@ -834,23 +834,22 @@ const useIncreaseLendDuration = () => {
 }
 
 const useEpochsBorrowableAmount = () => {
-  const { currentEpoch } = useEpochs()
   const { data } = useContractReads({
     contracts: [
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'totalLendedAmountByEpochsRange',
-        args: [currentEpoch + 1, 24],
-        enabled: currentEpoch,
+        args: [0, 24],
+        enabled: true,
         chainId: polygon.id
       },
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
-        args: [currentEpoch + 1, 24],
-        enabled: currentEpoch,
+        args: [0, 24],
+        enabled: true,
         chainId: polygon.id
       }
     ]
