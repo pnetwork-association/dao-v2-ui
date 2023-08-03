@@ -68,7 +68,7 @@ const useLend = () => {
       pntBalanceData &&
       onChainAmount.lte(pntBalanceData.value) &&
       epochs > 0 &&
-      address,
+      Boolean(address),
     [onChainAmount, approved, pntBalanceData, epochs, address]
   )
 

@@ -161,15 +161,19 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
 
   useEffect(() => {
     if (updateSentinelRegistrationByStakingData) {
+      setEpochs(0)
       setAmount(0)
+      setSignature('')
     }
-  }, [updateSentinelRegistrationByStakingData, setAmount])
+  }, [updateSentinelRegistrationByStakingData])
 
   useEffect(() => {
     if (updateSentinelRegistrationByBorrowingData) {
+      setEpochs(0)
       setAmount(0)
+      setSignature('')
     }
-  }, [updateSentinelRegistrationByBorrowingData, setAmount])
+  }, [updateSentinelRegistrationByBorrowingData])
 
   return {
     amount,

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import React, { useCallback, useContext, useEffect, useMemo } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { Chart } from 'react-chartjs-2'
 import { toast } from 'react-toastify'
@@ -93,7 +93,7 @@ const chartOptions = {
 // const skipped = (ctx, value) => (ctx.p0.skip || ctx.p1.skip ? value : undefined)
 // const down = (ctx, value) => (ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined)
 
-const LendModal = ({ show, onClose }) => {
+const LendModal = ({ show, onClose = () => null }) => {
   const theme = useContext(ThemeContext)
   const { currentEpoch, epochDuration, formattedCurrentEpoch, formattedEpochDuration } = useEpochs()
   const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useBalances()
@@ -126,6 +126,7 @@ const LendModal = ({ show, onClose }) => {
   } = useEstimateApy()
   const activeChainId = useChainId()
   const isSafe = useIsSafe()
+  const isAutoClosing = useRef(false)
 
   const chartEpochs = useMemo(() => {
     if (!(currentEpoch || currentEpoch === 0) || !(endEpoch || endEpoch === 0)) return []
@@ -190,10 +191,19 @@ const LendModal = ({ show, onClose }) => {
   }, [lendData, activeChainId])
 
   useEffect(() => {
+    if (lendData && !isAutoClosing.current) {
+      isAutoClosing.current = true
+      lendData.wait(1).then(onClose).catch(console.error)
+    }
+  }, [lendData, onClose])
+
+  useEffect(() => {
     if (!show) {
       setAmount('0')
       setAmountEstimatedApy('0')
       setDuration(7)
+    } else {
+      isAutoClosing.current = false
     }
   }, [show, setAmount, setDuration, setAmountEstimatedApy])
 

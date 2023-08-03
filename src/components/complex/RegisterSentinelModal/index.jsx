@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useContext, useEffect, useMemo } from 'react'
+import React, { Fragment, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { Chart } from 'react-chartjs-2'
 import styled, { ThemeContext } from 'styled-components'
@@ -82,7 +82,7 @@ const chartOptions = {
   }
 }
 
-const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
+const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) => {
   const theme = useContext(ThemeContext)
   const activeChainId = useChainId()
   const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useBalances()
@@ -110,6 +110,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
     type
   })
   const isSafe = useIsSafe()
+  const isAutoClosing = useRef(false)
 
   const { kind, endEpoch: currentEndEpoch = 0 } = useSentinel()
   const enabled = useMemo(() => {
@@ -131,25 +132,40 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
 
   useEffect(() => {
     if (updateSentinelRegistrationByStakingData) {
-      setEpochs(1)
       toastifyTransaction(updateSentinelRegistrationByStakingData, { chainId: activeChainId })
     }
-  }, [updateSentinelRegistrationByStakingData, activeChainId, setEpochs])
+  }, [updateSentinelRegistrationByStakingData, activeChainId])
+
+  useEffect(() => {
+    if (updateSentinelRegistrationByStakingData && !isAutoClosing.current) {
+      isAutoClosing.current = true
+      updateSentinelRegistrationByStakingData.wait(1).then(onClose).catch(console.error)
+    }
+  }, [updateSentinelRegistrationByStakingData, onClose])
 
   useEffect(() => {
     if (updateSentinelRegistrationByBorrowingData) {
-      setEpochs(1)
       toastifyTransaction(updateSentinelRegistrationByBorrowingData, { chainId: activeChainId })
     }
-  }, [updateSentinelRegistrationByBorrowingData, activeChainId, setEpochs])
+  }, [updateSentinelRegistrationByBorrowingData, activeChainId])
+
+  useEffect(() => {
+    if (updateSentinelRegistrationByBorrowingData && !isAutoClosing.current) {
+      isAutoClosing.current = true
+      updateSentinelRegistrationByBorrowingData.wait(1).then(onClose).catch(console.error)
+    }
+  }, [updateSentinelRegistrationByBorrowingData, onClose])
 
   useEffect(() => {
     if (!show) {
       setEpochs(1)
       setProspectusBorrowingEpochs(1)
       setAmount(0)
+      setSignature('')
+    } else {
+      isAutoClosing.current = false
     }
-  }, [show, setEpochs, setAmount, setProspectusBorrowingEpochs])
+  }, [show, setEpochs, setAmount, setProspectusBorrowingEpochs, setSignature])
 
   const onChangeBorrowingEpochs = useCallback(
     (_epochs) => {
