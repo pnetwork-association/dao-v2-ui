@@ -1,12 +1,13 @@
 import { ethers } from 'ethers'
 import { erc20ABI } from 'wagmi'
 import BigNumber from 'bignumber.js'
+import { GoVerified } from 'react-icons/go'
 
 import VaultABI from './abis/Vault.json'
 import settings from '../settings'
 import { removeCommas } from './amount'
 
-const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
+const getVotePresets = ({ presetParams, setPresetParams, provider, theme }) => {
   return {
     paymentFromTreasury: {
       id: 'paymentFromTreasury',
@@ -28,18 +29,21 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
         {
           id: 'input-receiver-address',
           name: 'receiverAddress',
-          component: 'Input',
+          component: 'IconedInput',
           props: {
-            style: {
-              fontSize: 15
-            },
-            placeholder: 'Receiver address ...',
-            value: presetParams[1] || '',
-            onChange: (_e) =>
-              setPresetParams({
-                ...presetParams,
-                1: _e.target.value
-              })
+            icon: ethers.utils.isAddress(presetParams[1]) ? <GoVerified color={theme.green} /> : null,
+            inputProps: {
+              style: {
+                fontSize: 15
+              },
+              placeholder: 'Receiver address ...',
+              value: presetParams[1] || '',
+              onChange: (_e) =>
+                setPresetParams({
+                  ...presetParams,
+                  1: _e.target.value
+                })
+            }
           }
         },
         {

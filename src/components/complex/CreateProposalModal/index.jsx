@@ -1,10 +1,11 @@
-import React, { useEffect, useCallback, Fragment, useState, useMemo } from 'react'
+import React, { useEffect, useCallback, Fragment, useState, useMemo, useContext } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import styled from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
 import { mainnet, useProvider } from 'wagmi'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { GoVerified } from 'react-icons/go'
 
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useCreateProposal } from '../../../hooks/use-proposals'
@@ -22,6 +23,7 @@ import Input from '../../base/Input'
 import Select from '../../base/Select'
 import AssetSelection from '../AssetSelection'
 import NumericFormat from '../../base/NumericFormat'
+import IconedInput from '../../base/IconedInput'
 
 const UseScriptText = styled(Text)`
   font-size: 13px;
@@ -32,11 +34,8 @@ const UseScriptText = styled(Text)`
   }
 `
 
-const IPFSAttachmentInput = styled(Input)`
-  font-size: 17px;
-`
-
 const CreateProposalModal = ({ show, onClose }) => {
+  const theme = useContext(ThemeContext)
   const [selectedPreset, setSelectedPreset] = useState('paymentFromTreasury')
   const [presetParams, setPresetParams] = useState({})
   const [showEncodedScript, setShowEncodedScript] = useState(false)
@@ -50,6 +49,7 @@ const CreateProposalModal = ({ show, onClose }) => {
     hasPermissionOrEnoughBalance,
     ipfsMultihash,
     isLoading,
+    isValidIpfsMultiHash,
     metadata,
     minOpenVoteAmount,
     script,
@@ -90,7 +90,10 @@ const CreateProposalModal = ({ show, onClose }) => {
     setPresetParams({})
   }, [showScript, setShowScript, setScript])
 
-  const presets = useMemo(() => getVotePresets({ presetParams, setPresetParams, provider }), [presetParams, provider])
+  const presets = useMemo(
+    () => getVotePresets({ presetParams, setPresetParams, provider, theme }),
+    [presetParams, provider, theme]
+  )
 
   const renderPresetArg = useCallback(({ id, component, props }) => {
     switch (component) {
@@ -100,6 +103,8 @@ const CreateProposalModal = ({ show, onClose }) => {
         return <Input key={id} {...props} />
       case 'NumericFormat':
         return <NumericFormat key={id} {...props} />
+      case 'IconedInput':
+        return <IconedInput key={id} {...props} />
       default:
         return null
     }
@@ -152,7 +157,16 @@ const CreateProposalModal = ({ show, onClose }) => {
           </Row>
           <Row className="mt-1">
             <Col xs={12}>
-              <IPFSAttachmentInput value={ipfsMultihash} onChange={(_e) => setIpfsMultihash(_e.target.value)} />
+              <IconedInput
+                icon={isValidIpfsMultiHash ? <GoVerified color={theme.green} /> : null}
+                inputProps={{
+                  style: {
+                    fontSize: 17
+                  },
+                  value: ipfsMultihash,
+                  onChange: (_e) => setIpfsMultihash(_e.target.value)
+                }}
+              />
             </Col>
           </Row>
           <Row>
