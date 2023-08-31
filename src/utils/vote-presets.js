@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 
 import VaultABI from './abis/Vault.json'
 import settings from '../settings'
+import { removeCommas } from './amount'
 
 const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
   return {
@@ -44,9 +45,10 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
         {
           id: 'input-amount',
           name: 'amount',
-          component: 'Input',
+          component: 'NumericFormat',
           props: {
-            type: 'number',
+            type: 'text',
+            thousandSeparator: true,
             style: {
               fontSize: 15
             },
@@ -81,7 +83,7 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
           decimals = await erc20.decimals()
         }
 
-        params[2] = BigNumber(params[2])
+        params[2] = BigNumber(removeCommas(params[2]))
           .multipliedBy(10 ** decimals)
           .toFixed()
 

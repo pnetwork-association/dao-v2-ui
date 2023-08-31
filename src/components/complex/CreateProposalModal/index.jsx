@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
 import { mainnet, useProvider } from 'wagmi'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 import { toastifyTransaction } from '../../../utils/transaction'
 import { useCreateProposal } from '../../../hooks/use-proposals'
@@ -20,7 +21,7 @@ import InfoBox from '../../base/InfoBox'
 import Input from '../../base/Input'
 import Select from '../../base/Select'
 import AssetSelection from '../AssetSelection'
-import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import NumericFormat from '../../base/NumericFormat'
 
 const UseScriptText = styled(Text)`
   font-size: 13px;
@@ -97,6 +98,8 @@ const CreateProposalModal = ({ show, onClose }) => {
         return <AssetSelection key={id} {...props} />
       case 'Input':
         return <Input key={id} {...props} />
+      case 'NumericFormat':
+        return <NumericFormat key={id} {...props} />
       default:
         return null
     }

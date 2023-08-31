@@ -43,3 +43,5 @@ export const getEthersOnChainAmount = (_amount) =>
           .toFixed()
       )
     : ethers.BigNumber.from('0')
+
+export const removeCommas = (_num) => _num?.replace(/,/g, '')
