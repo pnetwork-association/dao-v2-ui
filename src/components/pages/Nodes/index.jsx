@@ -82,7 +82,7 @@ const Nodes = () => {
                     <Switch
                       checked={borrowingSwitchChecked}
                       onChange={setBorrowingSwitchChecked}
-                      onColor={theme.secondary4}
+                      onColor={theme.secondary2}
                     />
                     <Text size="sm">&nbsp;&nbsp;&nbsp;Prediction</Text>
                   </div>

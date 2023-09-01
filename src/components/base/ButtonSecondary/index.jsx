@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 const ButtonSecondary = styled.button`
   border: 0;
-  background: ${({ theme }) => theme.secondary4};
+  background: ${({ theme }) => theme.secondary2};
   display: inline-flex;
   align-items: center;
   color: ${({ theme }) => theme.text2};

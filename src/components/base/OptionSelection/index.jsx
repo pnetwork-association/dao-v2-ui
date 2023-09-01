@@ -19,7 +19,7 @@ const StyledButton = styled(Button)`
     font-size: 11px;
     padding: 5px 7.5px;
   }
-  background: ${({ theme, active }) => (active === 'true' ? theme.secondary4Hovered : theme.secondary4)} !important;
+  background: ${({ theme, active }) => (active === 'true' ? theme.secondary2Hovered : theme.secondary2)} !important;
 `
 
 const OptionSelection = ({ options, buttonStyle, onPress }) => {

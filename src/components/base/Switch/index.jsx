@@ -8,7 +8,7 @@ const Switch = (_props) => {
   return (
     <RSwitch
       onColor={theme.green}
-      offColor={theme.secondary4}
+      offColor={theme.secondary2}
       uncheckedIcon={false}
       checkedIcon={false}
       activeBoxShadow={null}

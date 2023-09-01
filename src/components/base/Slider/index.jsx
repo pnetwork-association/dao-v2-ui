@@ -8,7 +8,7 @@ const Slider = (_props) => {
   return (
     <RcSlider
       railStyle={{
-        background: theme.secondary4,
+        background: theme.secondary2,
         height: 10
       }}
       trackStyle={{

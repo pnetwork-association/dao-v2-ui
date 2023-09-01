@@ -6,7 +6,7 @@ import Spinner from '../Spinner'
 const StyledButton = styled.button`
   border: 0;
   padding: 0px 15px;
-  background: ${({ theme }) => theme.secondary4};
+  background: ${({ theme }) => theme.secondary2};
   height: 40px;
   display: inline-flex;
   align-items: center;
@@ -21,13 +21,13 @@ const StyledButton = styled.button`
   line-height: 15px;
   text-align: center;
   &:hover {
-    background: ${({ theme }) => theme.secondary4Hovered};
+    background: ${({ theme }) => theme.secondary2Hovered};
   }
   &:disabled {
     opacity: 0.4;
     &:hover {
       opacity: 0.4;
-      background: ${({ theme }) => theme.secondary4};
+      background: ${({ theme }) => theme.secondary2};
     }
   }
   @media (max-width: 767.98px) {

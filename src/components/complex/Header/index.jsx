@@ -43,7 +43,7 @@ const StyledLink = styled(Link)`
 `
 
 const StyledLinkMobile = styled(StyledLink)`
-  background: ${({ theme }) => theme.secondary4};
+  background: ${({ theme }) => theme.secondary2};
   padding: 5px 20px;
   border-radius: 20px;
   font-size: 12px;
@@ -142,7 +142,7 @@ const ModeContainer = styled.div`
   padding-right: 40px;
   padding-left: 20px;
   background: ${({ theme }) => theme.bg1};
-  border: 1.5px solid ${({ theme }) => theme.secondary4};
+  border: 1.5px solid ${({ theme }) => theme.secondary2};
   position: relative;
   display: inline-flex;
   align-items: center;
