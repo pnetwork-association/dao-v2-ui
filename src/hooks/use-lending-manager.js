@@ -945,6 +945,69 @@ const useLenders = () => {
   return lenders
 }
 
+const useTotalNumberOfLendersInEpochs = () => {
+  const { lendedEvents } = useContext(EventsContext)
+  const decodedEvents = useMemo(
+    () => lendedEvents.map(({ decode, data, topics }) => decode(data, topics)),
+    [lendedEvents]
+  )
+
+  return useMemo(() => {
+    const doubleLenders = {}
+    return decodedEvents.reduce((_acc, _event) => {
+      const lender = _event.lender
+      if (!doubleLenders[lender]) {
+        doubleLenders[lender] = {}
+      }
+
+      Array.from(
+        { length: _event.endEpoch.toNumber() - _event.startEpoch.toNumber() + 1 },
+        (_, i) => i + _event.startEpoch.toNumber()
+      ).forEach((_epoch) => {
+        if (!_acc[_epoch]) {
+          _acc[_epoch] = 0
+        }
+
+        if (doubleLenders[lender][_epoch]) return
+        doubleLenders[lender][_epoch] = true
+        _acc[_epoch] += 1
+      })
+
+      return _acc
+    }, {})
+  }, [decodedEvents])
+}
+
+const useTotalNumberOfBorrowersInEpochs = () => {
+  const { borrowedEvents } = useContext(EventsContext)
+  const decodedEvents = useMemo(
+    () => borrowedEvents.map(({ decode, data, topics }) => decode(data, topics)),
+    [borrowedEvents]
+  )
+
+  return useMemo(() => {
+    const doubleBorrowers = {}
+    return decodedEvents.reduce((_acc, _event) => {
+      const borrower = _event.borrower
+      const epoch = _event.epoch
+
+      if (!doubleBorrowers[borrower]) {
+        doubleBorrowers[borrower] = {}
+      }
+
+      if (!_acc[epoch]) {
+        _acc[epoch] = 0
+      }
+
+      if (doubleBorrowers[borrower][epoch]) return _acc
+      doubleBorrowers[borrower][epoch] = true
+      _acc[epoch] += 1
+
+      return _acc
+    }, {})
+  }, [decodedEvents])
+}
+
 export {
   useAccountLoanEndEpoch,
   useAccountLoanStartEpoch,
@@ -963,6 +1026,8 @@ export {
   useTotalBorrowedAmountByEpoch,
   useTotalLendedAmountByEpoch,
   useTotalLendedAmountByStartAndEndEpochs,
+  useTotalNumberOfBorrowersInEpochs,
+  useTotalNumberOfLendersInEpochs,
   useUtilizationRatio,
   useUtilizationRatioInTheCurrentEpoch
 }

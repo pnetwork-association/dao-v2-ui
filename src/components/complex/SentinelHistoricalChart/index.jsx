@@ -2,8 +2,8 @@ import BigNumber from 'bignumber.js'
 import { useContext, useMemo } from 'react'
 import { Chart } from 'react-chartjs-2'
 import { ThemeContext } from 'styled-components'
-import { formatAssetAmount } from '../../../utils/amount'
 
+import { formatAssetAmount } from '../../../utils/amount'
 import { useSentinelsHistoricalData } from '../../../hooks/use-sentinels-historical-data'
 
 const options = {
@@ -19,7 +19,7 @@ const options = {
       callbacks: {
         label: (_context) => {
           const label = _context.dataset.label || ''
-          if (label === 'Number of nodes') {
+          if (label === 'nodes' || label === 'borrowers' || label === 'lenders') {
             return `${label} ${_context.parsed.y}`
           }
           if (label === 'APY') {
@@ -30,15 +30,9 @@ const options = {
       }
     }
   },
-  scale: {
-    y: {
-      ticks: {
-        display: false
-      }
-    }
-  },
   scales: {
-    totalEarnedFees: {
+    totalAccruedFees: {
+      stacked: true,
       display: true,
       min: 0,
       position: 'left',
@@ -50,7 +44,7 @@ const options = {
         display: false
       }
     },
-    totalNumberOfNodes: {
+    y: {
       display: true,
       position: 'right',
       min: 0,
@@ -62,7 +56,7 @@ const options = {
       },
       title: {
         display: true,
-        text: 'Total number of nodes'
+        text: ''
       }
     },
     /*apy: {
@@ -87,7 +81,16 @@ const options = {
 
 const SentinelHistoricalChart = () => {
   const theme = useContext(ThemeContext)
-  const { accruedFees, epochs, numberOfNodes } = useSentinelsHistoricalData()
+
+  const {
+    accruedBorrowersFees,
+    accruedNodesFees,
+    accruedLendersFees,
+    epochs,
+    numberOfBorrowers,
+    numberOfLenders,
+    numberOfNodes
+  } = useSentinelsHistoricalData()
 
   const data = useMemo(() => {
     return {
@@ -102,23 +105,68 @@ const SentinelHistoricalChart = () => {
           label: 'APY'
         },*/
         {
-          type: 'bar',
-          backgroundColor: theme.text4,
-          fill: false,
-          data: accruedFees.slice(-10),
-          yAxisID: 'totalEarnedFees',
-          label: 'Accrued fees'
+          type: 'line',
+          backgroundColor: theme.green,
+          data: accruedNodesFees.slice(-10),
+          yAxisID: 'totalAccruedFees',
+          label: 'nodes rewards',
+          pointRadius: 7,
+          borderColor: theme.green
+        },
+        {
+          type: 'line',
+          backgroundColor: theme.primary1,
+          data: accruedBorrowersFees.slice(-10),
+          yAxisID: 'totalAccruedFees',
+          label: 'borrowers rewards',
+          pointRadius: 7,
+          borderColor: theme.primary1
+        },
+        {
+          type: 'line',
+          backgroundColor: theme.orange,
+          data: accruedLendersFees.slice(-10),
+          yAxisID: 'totalAccruedFees',
+          label: 'lenders rewards',
+          pointRadius: 7,
+          borderColor: theme.orange
         },
         {
           type: 'bar',
-          backgroundColor: theme.primary1,
+          backgroundColor: theme.blue,
           data: numberOfNodes.slice(-10),
-          yAxisID: 'totalNumberOfNodes',
-          label: 'Number of nodes'
+          yAxisID: 'y',
+          label: '# nodes',
+          stack: '0'
+        },
+        {
+          type: 'bar',
+          backgroundColor: theme.yellow,
+          data: numberOfBorrowers.slice(-10),
+          yAxisID: 'y',
+          label: '# borrowers',
+          stack: '0'
+        },
+        {
+          type: 'bar',
+          backgroundColor: theme.secondary1,
+          data: numberOfLenders.slice(-10),
+          yAxisID: 'y',
+          label: '# lenders',
+          stack: '1'
         }
       ]
     }
-  }, [accruedFees, epochs, numberOfNodes, theme])
+  }, [
+    accruedNodesFees,
+    accruedBorrowersFees,
+    accruedLendersFees,
+    epochs,
+    numberOfNodes,
+    numberOfLenders,
+    numberOfBorrowers,
+    theme
+  ])
 
   return <Chart id="sentinelHistoricalChart" data={data} options={options} />
 }
