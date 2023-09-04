@@ -32,21 +32,12 @@ const options = {
         display: true
       },
       grid: {
-        display: true
-      }
-    },
-    /*y1: {
-      type: 'linear',
-      display: true,
-      position: 'right',
-      min: 0,
-      grid: {
         display: false
       }
-    },*/
+    },
     x: {
       grid: {
-        display: true
+        display: false
       },
       ticks: {
         autoSkip: true,

@@ -62,7 +62,7 @@ const BorrowingSentinelRevenuesChart = () => {
       datasets: [
         {
           type: 'bar',
-          backgroundColor: theme.text4,
+          backgroundColor: theme.secondary1,
           data: revenues,
           yAxisID: 'earnedFees',
           label: 'Estimated earned fees'

@@ -16,7 +16,7 @@ const ButtonSecondary = styled.button`
   padding: 2px 5px;
   height: auto;
   border-radius: 4px;
-  border: 1px solid ${({ theme }) => theme.text4};
+  border: 1px solid ${({ theme }) => theme.secondary1};
   background: ${({ theme }) => theme.bg1};
   &:hover {
     opacity: 0.5;

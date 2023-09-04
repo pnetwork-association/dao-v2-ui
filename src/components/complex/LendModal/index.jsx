@@ -149,20 +149,20 @@ const LendModal = ({ show, onClose = () => null }) => {
       labels: chartEpochs.map((_epoch) => `Epoch #${_epoch}`),
       datasets: [
         {
-          label: 'Pool Weight',
-          data: effectiveUserWeightPercentages.map((_val) => _val * 100),
-          backgroundColor: theme.lightBlue,
-          type: 'bar',
-          spanGaps: true,
-          yAxisID: 'poolWeight'
-        },
-        {
           type: 'line',
           label: 'Avg APY',
           borderColor: theme.primary1,
           yAxisID: 'avgApy',
           data: !BigNumber(apy?.value).isNaN() ? Array(chartEpochs.length).fill(apy?.value) : null,
           borderDash: [6, 6]
+        },
+        {
+          label: 'Pool Weight',
+          data: effectiveUserWeightPercentages.map((_val) => _val * 100),
+          backgroundColor: theme.blue,
+          type: 'bar',
+          spanGaps: true,
+          yAxisID: 'poolWeight'
         }
       ]
     }

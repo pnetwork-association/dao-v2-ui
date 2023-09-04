@@ -38,7 +38,7 @@ const styleProposalHtml = (_html, _theme) => {
   const index = html.indexOf('</style>')
 
   const rules = `
-    a{color: ${_theme.text4} !important;}
+    a{color: ${_theme.secondary1} !important;}
   `
 
   return html.slice(0, index) + rules + html.slice(index, html.length)

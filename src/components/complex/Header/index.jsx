@@ -28,7 +28,7 @@ const Logo = styled.img`
 
 const StyledLink = styled(Link)`
   font-size: 18px;
-  color: ${({ active, theme }) => (active === 'true' ? theme.text4 : theme.text3)} !important;
+  color: ${({ active, theme }) => (active === 'true' ? theme.secondary1 : theme.text3)} !important;
   letter-spacing: 0px;
   @media (max-width: 767.98px) {
     font-size: 17px;
@@ -59,7 +59,7 @@ const HeaderContainer = styled(Container)`
 `
 
 const ConnectedButton = styled(Button)`
-  color: ${({ theme }) => theme.text4};
+  color: ${({ theme }) => theme.secondary1};
   height: 40px;
   width: auto;
   @media (max-width: 767.98px) {
@@ -72,7 +72,7 @@ const SelectChainButton = styled(Button)`
   display: flex;
   align-items: space-between;
   z-index: 1;
-  color: ${({ theme }) => theme.text4};
+  color: ${({ theme }) => theme.secondary1};
   height: 40px;
   width: auto;
   @media (max-width: 767.98px) {
@@ -235,7 +235,7 @@ const CustomConnectButton = () => {
         ? ` (${account.displayBalance})`
         : ''*/}
                         <StyledAvatar size={6} address={account.address} />
-                        <NicknameText variant="text4">{nickname}</NicknameText>
+                        <NicknameText variant="secondary1">{nickname}</NicknameText>
                       </ConnectedButton>
                     </div>
                   </ConnectButtonButtonsContainer>

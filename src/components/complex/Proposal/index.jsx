@@ -36,7 +36,7 @@ const StatusLine = styled.div`
         return theme.primary1
       case 'passed':
       default:
-        return theme.text4
+        return theme.secondary1
     }
   }};
   border-radius: 3px;
@@ -59,7 +59,7 @@ const ProposalResultText = styled(Text)`
         return theme.primary1
       case 'passed':
       default:
-        return theme.text4
+        return theme.secondary1
     }
   }};
   font-size: 17px;
@@ -78,11 +78,11 @@ const VoteText = styled(ProposalResultText)`
       case 'NOT VOTED':
         return theme.text1
       case 'YES':
-        return theme.text4
+        return theme.secondary1
       case 'NO':
         return theme.primary1
       default:
-        return theme.text4
+        return theme.secondary1
     }
   }};
   font-size: 13px;
@@ -118,11 +118,11 @@ const VoteButton = styled(ButtonSecondary)`
     ${({ theme, vote }) => {
       switch (vote) {
         case 'YES':
-          return theme.text4
+          return theme.secondary1
         case 'NO':
           return theme.primary1
         default:
-          return theme.text4
+          return theme.secondary1
       }
     }};
   margin-right: ${({ vote }) => (vote === 'YES' ? 5 : 0)}px;

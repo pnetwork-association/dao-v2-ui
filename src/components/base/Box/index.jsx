@@ -44,7 +44,7 @@ const Box = ({ headerTitle, headerTitleSize = 'md', children, bodyStyle, ..._pro
           <Header>
             <Row>
               <Col>
-                <HeaderTitle variant="text4" size={headerTitleSize}>
+                <HeaderTitle variant="secondary1" size={headerTitleSize}>
                   {headerTitle}
                 </HeaderTitle>
               </Col>

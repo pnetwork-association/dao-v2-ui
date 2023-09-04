@@ -99,8 +99,8 @@ const UtilizationRatioChart = () => {
           type: 'bar',
           label: 'Utilization Ratio',
           data: utilizationRatioByEpochsRangeValues.map(({ value }) => value),
-          backgroundColor: theme.text4,
-          borderColor: theme.text4,
+          backgroundColor: theme.blue,
+          borderColor: theme.blue,
           yAxisID: 'utilizationRatio'
         }
       ]

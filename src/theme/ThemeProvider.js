@@ -8,30 +8,30 @@ export const colors = (_darkMode) => ({
   text1: _darkMode ? '#FFFFFF' : '#A4AEAD',
   text2: _darkMode ? '#c3c5cb' : 'rgb(71, 89, 101)',
   text3: _darkMode ? '#6c7284' : '#475965ab',
-  text4: _darkMode ? '#FFFFFF' : '#016273',
 
-  bg1: _darkMode ? '#2C313B' : '#e5e5e529',
-  bg2: _darkMode ? '#a7aaaf42' : '#ececec7a',
+  bg1: _darkMode ? '#2C313B' : '#FAFAFA',
+  bg2: _darkMode ? '#a7aaaf42' : '#F5F5F5',
   bg3: _darkMode ? '#a7aaaf42' : '#FFFFFF',
 
   primary1: _darkMode ? '#32b1f5' : '#ff6666',
-  secondary1: _darkMode ? '#FFFFFF' : '#475965',
+  secondary1: _darkMode ? '#FFFFFF' : '#016273',
 
   secondary2: _darkMode ? '#40444f' : '#eaeaea',
   secondary2Hovered: _darkMode ? '#6f768a' : '#c1bfbf',
 
   lightGray: '#4759654d',
   superLightGray: 'rgba(0, 0, 0, 0.1)',
-  green: '#5FD788',
+  green: '#0CCE6B',
   lightGreen: '#8cf7b0',
-  yellow: '#E3B203',
+  yellow: '#F9C80E',
   red: '#E4383A',
   lightRed: '#f98181',
-  blue: '#66B8FF',
+  blue: '#5BC3EB',
   lightBlue: '#66b8ff40',
-  orange: '#FBA21D',
+  orange: '#F49F0A',
   lightOrange: '#FBA21D33',
-  danger: _darkMode ? '#E86062' : '#E86062'
+  danger: _darkMode ? '#E86062' : '#E86062',
+  transparent: 'transparent'
 })
 
 export const theme = (_darkMode) => ({
@@ -72,17 +72,17 @@ label:focus,
 }
 
 input[type="range"]::-webkit-slider-thumb {
-  background: ${({ theme }) => theme.text4} !important;
+  background: ${({ theme }) => theme.secondary1} !important;
 }
 
 /* All the same stuff for Firefox */
 input[type="range"]::-moz-range-thumb {
-  background:  ${({ theme }) => theme.text4} !important;
+  background:  ${({ theme }) => theme.secondary1} !important;
 }
 
 /* All the same stuff for IE */
 input[type="range"]::-ms-thumb {
-  background:  ${({ theme }) => theme.text4} !important;
+  background:  ${({ theme }) => theme.secondary1} !important;
 }
 
 body {

@@ -17,7 +17,7 @@ const Lenders = ({ ..._props }) => {
     <div {..._props}>
       <Row>
         <Col>
-          <Text variant="text4" weight="bold" size="lg">
+          <Text variant="secondary1" weight="bold" size="lg">
             List of lenders
           </Text>
         </Col>

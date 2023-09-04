@@ -165,7 +165,7 @@ const StakeModal = ({ show, onClose }) => {
       </Row>
       <Row className="mt-2">
         <Col className="text-center">
-          <AdvancedOptionsText variant={'text4'} onClick={onShowOrHideAdvancedOptions}>
+          <AdvancedOptionsText variant={'secondary1'} onClick={onShowOrHideAdvancedOptions}>
             {showAdvancedOptions ? 'Hide' : 'Show'} advanced Options
           </AdvancedOptionsText>
         </Col>

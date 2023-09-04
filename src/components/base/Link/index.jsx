@@ -7,7 +7,7 @@ const StyledLink = styled(Link)`
   line-height: 12px;
   text-align: center;
   letter-spacing: 0px;
-  color: ${({ theme }) => theme.text4};
+  color: ${({ theme }) => theme.secondary1};
   text-decoration: none;
 
   @media (max-width: 767.98px) {
@@ -15,7 +15,7 @@ const StyledLink = styled(Link)`
   }
 
   &:hover {
-    color: ${({ theme }) => theme.text4};
+    color: ${({ theme }) => theme.secondary1};
   }
 `
 
