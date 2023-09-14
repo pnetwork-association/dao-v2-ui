@@ -355,7 +355,7 @@ const useStakingSentinelEstimatedRevenues = () => {
 
             const numberOfSentinels = numberOfSentinelsInEpoch
             const stakingFeePercentage =
-              !numberOfSentinels || numberOfSentinels.isNaN() || numberOfSentinels.isEqualTo(0)
+              !numberOfSentinels || BigNumber(numberOfSentinels).isNaN() || BigNumber(numberOfSentinels).isEqualTo(0)
                 ? new BigNumber(0)
                 : BigNumber(1).dividedBy(numberOfSentinels)
 
@@ -426,7 +426,7 @@ const useBorrowingSentinelEstimatedRevenues = () => {
             const numberOfSentinels = numberOfSentinelsInEpoch[_index]
 
             const borrowingFeePercentage =
-              !numberOfSentinels || numberOfSentinels.isNaN() || numberOfSentinels.isEqualTo(0)
+              !numberOfSentinels || BigNumber(numberOfSentinels).isNaN() || BigNumber(numberOfSentinels).isEqualTo(0)
                 ? new BigNumber(0)
                 : BigNumber(1).dividedBy(numberOfSentinels)
 
