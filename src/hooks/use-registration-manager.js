@@ -304,7 +304,7 @@ const useBorrowingSentinelProspectus = () => {
 
             const numberOfSentinels = numberOfSentinelsInEpoch[_epoch]
             const borrowingFeePercentage =
-              !numberOfSentinels || numberOfSentinels.isNaN() || numberOfSentinels.isEqualTo(0)
+              !numberOfSentinels || BigNumber(numberOfSentinels).isNaN() || BigNumber(numberOfSentinels).isEqualTo(0)
                 ? new BigNumber(1)
                 : BigNumber(1).dividedBy(numberOfSentinels)
 
