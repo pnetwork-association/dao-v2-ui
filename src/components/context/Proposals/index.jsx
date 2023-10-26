@@ -4,6 +4,7 @@ import moment from 'moment'
 import { mainnet, polygon } from 'wagmi/chains'
 import { ethers } from 'ethers'
 import BigNumber from 'bignumber.js'
+import { getWeb3Settings } from 'react-web3-settings'
 
 import { prepareNewProposal, prepareOldProposal } from '../../../utils/proposals'
 import { hexToAscii } from '../../../utils/format'
@@ -14,8 +15,16 @@ import DandelionVotingOldABI from '../../../utils/abis/DandelionVotingOld.json'
 import DandelionVotingABI from '../../../utils/abis/DandelionVoting.json'
 
 const fetchProposals = async ({ setProposals }) => {
-  const mainnetProvider = new ethers.providers.AlchemyProvider(mainnet.id, process.env.REACT_APP_ALCHEMY_ID)
-  const polygonProvider = new ethers.providers.AlchemyProvider(polygon.id, process.env.REACT_APP_ALCHEMY_ID)
+  const rpcSettings = getWeb3Settings()
+  const mainnetProvider =
+    rpcSettings.rpcEndpoints && rpcSettings.rpcEndpoints[0] !== ''
+      ? new ethers.providers.JsonRpcProvider(rpcSettings.rpcEndpoints[0], mainnet.id)
+      : new ethers.providers.AlchemyProvider(mainnet.id, process.env.REACT_APP_ALCHEMY_ID)
+
+  const polygonProvider =
+    rpcSettings.rpcEndpoints && rpcSettings.rpcEndpoints[1] !== ''
+      ? new ethers.providers.JsonRpcProvider(rpcSettings.rpcEndpoints[1], polygon.id)
+      : new ethers.providers.AlchemyProvider(polygon.id, process.env.REACT_APP_ALCHEMY_ID)
 
   const fetchEtherscanAndPolygonscanProposals = async () => {
     try {

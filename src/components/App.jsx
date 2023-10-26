@@ -4,8 +4,8 @@ import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { configureChains, createClient, WagmiConfig, createStorage } from 'wagmi'
 import { mainnet, polygon, bsc } from 'wagmi/chains'
-import { alchemyProvider } from 'wagmi/providers/alchemy'
-import { publicProvider } from 'wagmi/providers/public'
+import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
+import { getWeb3Settings } from 'react-web3-settings'
 
 import { styleRainbowKit } from '../theme/rainbow-configs'
 
@@ -19,6 +19,7 @@ import Lending from './pages/Lending'
 import Nodes from './pages/Nodes'
 import Staking from './pages/Staking'
 import Disclaimer from './complex/Disclaimer'
+import SettingsDrawer from './complex/Settings'
 
 const router = createHashRouter([
   {
@@ -39,9 +40,30 @@ const router = createHashRouter([
   }
 ])
 
+const settings = getWeb3Settings()
+
 const { chains, provider } = configureChains(
   [mainnet, polygon, bsc],
-  [alchemyProvider({ apiKey: process.env.REACT_APP_ALCHEMY_ID }), publicProvider()]
+  [
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http:
+          chain.id === mainnet.id
+            ? settings.rpcEndpoints && settings.rpcEndpoints[0] !== ''
+              ? settings.rpcEndpoints[0]
+              : `https://eth-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+            : chain.id === polygon.id
+            ? settings.rpcEndpoints && settings.rpcEndpoints[1] !== ''
+              ? settings.rpcEndpoints[1]
+              : `https://eth-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+            : chain.id === bsc.id
+            ? settings.rpcEndpoints && settings.rpcEndpoints[2] !== ''
+              ? settings.rpcEndpoints[2]
+              : `https://eth-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+            : 'Unsupported Chain'
+      })
+    })
+  ]
 )
 
 const { connectors } = getDefaultWallets({
@@ -69,7 +91,9 @@ const App = () => {
           <ActivitiesProvider>
             <ProposalsProvider>
               <EventsProvider>
-                <RouterProvider router={router} />
+                <SettingsDrawer>
+                  <RouterProvider router={router} />
+                </SettingsDrawer>
               </EventsProvider>
               <Disclaimer />
             </ProposalsProvider>
