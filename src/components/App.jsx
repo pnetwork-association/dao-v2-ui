@@ -3,12 +3,11 @@ import { ThemeContext } from 'styled-components'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { configureChains, createClient, WagmiConfig } from 'wagmi'
-import { mainnet, polygon, optimism, arbitrum } from 'wagmi/chains'
-import { alchemyProvider } from 'wagmi/providers/alchemy'
-import { publicProvider } from 'wagmi/providers/public'
+import { mainnet } from 'wagmi/chains'
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
+import { getWeb3Settings } from 'react-web3-settings'
 
 import { styleRainbowKit } from '../theme/rainbow-configs'
-
 import ActivitiesProvider from './context/Activities'
 import CryptoCompareProvider from './context/CryptoCompare'
 import ProposalsProvider from './context/Proposals'
@@ -17,6 +16,7 @@ import Overview from './pages/Overview'
 // import Lending from './pages/Lending'
 // import Nodes from './pages/Nodes'
 import Staking from './pages/Staking'
+import SettingsDrawer from './complex/Settings/Settings'
 
 const router = createHashRouter([
   {
@@ -37,9 +37,20 @@ const router = createHashRouter([
   }
 ])
 
+const settings = getWeb3Settings()
+
 const { chains, provider } = configureChains(
-  [mainnet, polygon, optimism, arbitrum],
-  [alchemyProvider({ apiKey: process.env.REACT_APP_ALCHEMY_ID }), publicProvider()]
+  [mainnet],
+  [
+    jsonRpcProvider({
+      rpc: () => ({
+        http:
+          settings.rpcEndpoints && settings.rpcEndpoints[0] !== ''
+            ? settings.rpcEndpoints[0]
+            : `https://eth-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+      })
+    })
+  ]
 )
 
 const { connectors } = getDefaultWallets({
@@ -64,7 +75,9 @@ const App = () => {
         <CryptoCompareProvider apiKey={process.env.REACT_APP_CRYPTO_COMPARE_API_KEY}>
           <ActivitiesProvider>
             <ProposalsProvider>
-              <RouterProvider router={router} />
+              <SettingsDrawer>
+                <RouterProvider router={router} />
+              </SettingsDrawer>
             </ProposalsProvider>
           </ActivitiesProvider>
         </CryptoCompareProvider>
