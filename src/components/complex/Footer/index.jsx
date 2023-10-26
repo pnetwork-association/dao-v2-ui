@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import Version from '../Version'
 import Socials from '../Socials'
+import RpcErrorToast from '../RpcErrorToast/RpcErrorToast'
 
 const FooterContainer = styled.footer`
   @media (max-width: 1400px) {
@@ -36,6 +37,7 @@ const Footer = () => {
     <FooterContainer>
       <StyledSocials />
       <StyledVersion />
+      <RpcErrorToast />
     </FooterContainer>
   )
 }

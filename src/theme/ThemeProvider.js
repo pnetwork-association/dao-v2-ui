@@ -119,6 +119,28 @@ label:focus,
   }
 }
 
+.api-button-toast {
+  width: 80px;
+  color: white;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 300;
+  height: 25px;
+  border: 0;
+  margin-right: 10px;
+  margin-bottom: 5px;
+  font-weight: 500;
+  overflow: hidden;
+  outline: none !important;
+  background: ${({ theme }) => theme.secondary4};
+  &:hover {
+    background: ${({ theme }) => theme.secondary4Hovered};
+  }
+  color: ${({ theme }) => theme.text2};
+  @media (max-width: 767.98px) {
+    height: 35px;
+  }
+}
 
 input[type="range"]::-webkit-slider-thumb {
   background: ${({ theme }) => theme.text4} !important;
