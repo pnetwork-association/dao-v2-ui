@@ -40,9 +40,9 @@ const useSentinelsHistoricalData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: rawData } = await axios.get('https://pnetwork.watch/api/datasources/proxy/3')
-        const correctedData = rawData.replace(/: ,/g, ': "NaN",').replace(/: }/g, ': "NaN"}')
-        const { epochs: data } = JSON.parse(correctedData)
+        const {
+          data: { epochs: data }
+        } = await axios.get('https://pnetwork.watch/static/epoch-dash.json')
         const epochs = Object.keys(data).filter((_epoch) => !_epoch.includes('-'))
         setEpochs(epochs)
 
