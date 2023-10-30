@@ -55,11 +55,11 @@ const { chains, provider } = configureChains(
             : chain.id === polygon.id
             ? settings.rpcEndpoints && settings.rpcEndpoints[1] !== ''
               ? settings.rpcEndpoints[1]
-              : `https://eth-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+              : `https://polygon-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
             : chain.id === bsc.id
             ? settings.rpcEndpoints && settings.rpcEndpoints[2] !== ''
               ? settings.rpcEndpoints[2]
-              : `https://eth-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+              : `https://bsc-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
             : 'Unsupported Chain'
       })
     })
