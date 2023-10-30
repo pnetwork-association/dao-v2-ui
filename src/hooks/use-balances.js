@@ -25,7 +25,7 @@ const usePntBalance = () => {
   )
 
   return {
-    amount: pntBalance.isNaN() ? null : removeUselessDecimals(pntBalance),
+    amount: pntBalance.isNaN() ? null : pntBalance.toString(),
     formattedAmount: formatAssetAmount(pntBalance, 'PNT')
   }
 }
@@ -46,7 +46,7 @@ const useDaoPntBalance = () => {
   )
 
   return {
-    amount: daoPntBalance.isNaN() ? null : removeUselessDecimals(daoPntBalance),
+    amount: daoPntBalance.isNaN() ? null : daoPntBalance.toString(),
     formattedAmount: formatAssetAmount(daoPntBalance, 'daoPNT')
   }
 }
