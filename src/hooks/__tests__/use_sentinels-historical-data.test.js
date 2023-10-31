@@ -1,5 +1,8 @@
-import { handlePartialData } from '../use-sentinels-historical-data'
+import { handlePartialData, getEpochsFromRawData } from '../use-sentinels-historical-data'
 import { completeData, partialData } from './api.data'
+import axios from 'axios'
+
+jest.mock('axios')
 
 it('should elaborate data', () => {
   const pData = handlePartialData(partialData)
@@ -10,4 +13,18 @@ it('should elaborate data', () => {
   expect(nData).toBe(null)
   expect(pData['epochs']['45']['fees']['pBTC']['amount']).toBe('NaN')
   expect(pData['epochs']['18']).toEqual(cData['epochs']['18'])
+})
+
+it('should retreive partial data', async () => {
+  axios.get.mockResolvedValue({ data: partialData })
+  const { epochs: expectedData } = handlePartialData(partialData)
+  const data = await getEpochsFromRawData()
+  expect(data).toEqual(expectedData)
+})
+
+it('should retreive data', async () => {
+  axios.get.mockResolvedValue({ data: completeData })
+  const { epochs: expectedData } = handlePartialData(completeData)
+  const data = await getEpochsFromRawData()
+  expect(data).toEqual(expectedData)
 })
