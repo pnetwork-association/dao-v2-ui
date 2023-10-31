@@ -39,8 +39,10 @@ export const handlePartialData = (data) =>
 
 export const getEpochsFromRawData = async () => {
   const { data: rawData } = await axios.get(EPOCHS_ENDPOINT)
-  const { epochs: data } = handlePartialData(rawData)
-  return data
+  const data = handlePartialData(rawData)
+  if (data === null) throw new Error('Unrecongnized data type')
+  if (!data['epochs']) throw new Error('Data do not contain epochs information')
+  return data['epochs']
 }
 
 const useSentinelsHistoricalData = () => {
@@ -52,7 +54,6 @@ const useSentinelsHistoricalData = () => {
     const fetchData = async () => {
       try {
         const data = await getEpochsFromRawData()
-        if (data === null) throw new Error('Unrecongnized data type')
         const epochs = Object.keys(data).filter((_epoch) => !_epoch.includes('-'))
         setEpochs(epochs)
 
