@@ -52,6 +52,7 @@
     "node-ssh": "^13.0.0",
     "patch-package": "^6.5.0",
     "prettier": "^2.4.1",
+    "react-test-renderer": "^18.2.0",
     "ssh2-sftp-client": "^9.0.4"
   },
   "lint-staged": {
@@ -66,7 +67,8 @@
     "analyze:bundle": "node ./scripts/bundle-analyzer.js",
     "build-and-deploy": "npm run build && npm run deploy",
     "deploy": "node ./scripts/deploy.js",
-    "postinstall": "./scripts/postinstall.sh"
+    "postinstall": "./scripts/postinstall.sh",
+    "test": "react-scripts test --transformIgnorePatterns --testPathIgnorePatterns=.data.js"
   },
   "eslintConfig": {
     "extends": [
