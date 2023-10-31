@@ -1,0 +1,17 @@
+{
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 13
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.js",
+        "**/*.test.jsx"
+      ],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
+}
