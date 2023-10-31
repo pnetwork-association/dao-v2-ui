@@ -28,3 +28,23 @@ it('should retreive data', async () => {
   const data = await getEpochsFromRawData()
   expect(data).toEqual(expectedData)
 })
+
+it('should throw if data is neither a object or a string', async () => {
+  try {
+    axios.get.mockResolvedValue({ data: 0 })
+    void (await getEpochsFromRawData())
+    fail()
+  } catch (_err) {
+    expect(_err.message).toBe('Unrecongnized data type')
+  }
+})
+
+it('should throw if epochs field is missing', async () => {
+  try {
+    axios.get.mockResolvedValue({ data: { files: 2 } })
+    void (await getEpochsFromRawData())
+    fail()
+  } catch (_err) {
+    expect(_err.message).toBe('Data do not contain epochs information')
+  }
+})
