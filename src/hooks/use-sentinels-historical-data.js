@@ -37,6 +37,12 @@ export const handlePartialData = (data) =>
     ? JSON.parse(data.replace(/: ,/g, ': "NaN",').replace(/: }/g, ': "NaN"}'))
     : null
 
+export const getEpochsFromRawData = async () => {
+  const { data: rawData } = await axios.get(EPOCHS_ENDPOINT)
+  const { epochs: data } = handlePartialData(rawData)
+  return data
+}
+
 const useSentinelsHistoricalData = () => {
   const [numberOfNodes, setNumberOfNodes] = useState([])
   const [epochs, setEpochs] = useState([])
@@ -45,8 +51,7 @@ const useSentinelsHistoricalData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: rawData } = await axios.get(EPOCHS_ENDPOINT)
-        const { epochs: data } = handlePartialData(rawData)
+        const data = await getEpochsFromRawData()
         if (data === null) throw new Error('Unrecongnized data type')
         const epochs = Object.keys(data).filter((_epoch) => !_epoch.includes('-'))
         setEpochs(epochs)
