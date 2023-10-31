@@ -65,14 +65,6 @@ const options = {
         text: 'Total number of nodes'
       }
     },
-    /*apy: {
-      display: true,
-      min: 0,
-      position: 'right',
-      grid: {
-        display: false
-      }
-    },*/
     x: {
       grid: {
         display: false
@@ -87,38 +79,33 @@ const options = {
 
 const SentinelHistoricalChart = () => {
   const theme = useContext(ThemeContext)
-  const { accruedFees, epochs, numberOfNodes } = useSentinelsHistoricalData()
+
+  const { accruedNodesFees, epochs, numberOfNodes } = useSentinelsHistoricalData()
 
   const data = useMemo(() => {
     return {
       labels: epochs.slice(-10).map((_epoch) => `Epoch ${_epoch}`),
       datasets: [
-        /*{
-          type: 'line',
-          backgroundColor: theme.yellow,
-          borderColor: theme.yellow,
-          data: [25, 27, 27, 24, 23, 18],
-          yAxisID: 'apy',
-          label: 'APY'
-        },*/
         {
-          type: 'bar',
-          backgroundColor: theme.text4,
-          fill: false,
-          data: accruedFees.slice(-10),
-          yAxisID: 'totalEarnedFees',
-          label: 'Accrued fees'
+          type: 'line',
+          backgroundColor: theme.green,
+          data: accruedNodesFees.slice(-10),
+          yAxisID: 'totalAccruedFees',
+          label: 'nodes rewards',
+          pointRadius: 7,
+          borderColor: theme.green
         },
         {
           type: 'bar',
-          backgroundColor: theme.primary1,
+          backgroundColor: theme.blue,
           data: numberOfNodes.slice(-10),
-          yAxisID: 'totalNumberOfNodes',
-          label: 'Number of nodes'
+          yAxisID: 'y',
+          label: '# nodes',
+          stack: '0'
         }
       ]
     }
-  }, [accruedFees, epochs, numberOfNodes, theme])
+  }, [accruedNodesFees, epochs, numberOfNodes, theme])
 
   return <Chart id="sentinelHistoricalChart" data={data} options={options} />
 }
