@@ -6,6 +6,8 @@ import { groupBy } from 'lodash'
 import { formatCurrency } from '../utils/amount'
 import { useTotalNumberOfBorrowersInEpochs, useTotalNumberOfLendersInEpochs } from './use-lending-manager'
 
+const EPOCHS_ENDPOINT = 'https://pnetwork.watch/static/epoch-dash.json'
+
 const calculateFee = ({ epochs, data, keyAppender = '' }, _isValid) => {
   let sum = []
   for (const epoch of epochs) {
@@ -26,6 +28,27 @@ const calculateFee = ({ epochs, data, keyAppender = '' }, _isValid) => {
   return sum
 }
 
+/* In case the API is not updated to the current epoch it returns a corrupted JSON where the missing data
+ * is reported as a space which prevents axios to decode the JSON directly.
+ * This function detects that (the data is a string and not a object) replace the space with a NaN which is
+ * interpreted by charts.js as null data.
+ * In case the data is not string nor object returns null
+ */
+export const handlePartialData = (data) =>
+  typeof data === 'object'
+    ? data
+    : typeof data === 'string'
+    ? JSON.parse(data.replace(/: ,/g, ': "NaN",').replace(/: }/g, ': "NaN"}'))
+    : null
+
+export const getEpochsFromRawData = async () => {
+  const { data: rawData } = await axios.get(EPOCHS_ENDPOINT)
+  const data = handlePartialData(rawData)
+  if (data === null) throw new Error('Unrecongnized data type')
+  if (!data['epochs']) throw new Error('Data do not contain epochs information')
+  return data['epochs']
+}
+
 const useSentinelsHistoricalData = () => {
   const totalNumberOfLendersInEpochs = useTotalNumberOfLendersInEpochs()
   const totalNumberOfBorrowersInEpochs = useTotalNumberOfBorrowersInEpochs()
@@ -40,9 +63,7 @@ const useSentinelsHistoricalData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: rawData } = await axios.get('https://pnetwork.watch/api/datasources/proxy/3')
-        const correctedData = rawData.replace(/: ,/g, ': "NaN",').replace(/: }/g, ': "NaN"}')
-        const { epochs: data } = JSON.parse(correctedData)
+        const data = await getEpochsFromRawData()
         const epochs = Object.keys(data).filter((_epoch) => !_epoch.includes('-'))
         setEpochs(epochs)
 

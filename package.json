@@ -35,10 +35,12 @@
     "react-scripts": "5.0.1",
     "react-svg": "^15.1.15",
     "react-switch": "^7.0.0",
+    "react-test-renderer": "^18.2.0",
     "react-toastify": "^9.1.1",
     "react-web3-settings": "^1.1.0",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.2",
+    "save-dev": "^0.0.1-security",
     "stream": "^0.0.2",
     "styled-components": "^5.3.6",
     "unique-names-generator": "^4.7.1",
@@ -68,7 +70,8 @@
     "analyze:bundle": "node ./scripts/bundle-analyzer.js",
     "build-and-deploy": "npm run build && npm run deploy",
     "deploy": "node ./scripts/deploy.js",
-    "postinstall": "./scripts/postinstall.sh"
+    "postinstall": "./scripts/postinstall.sh",
+    "test": "react-scripts test --transformIgnorePatterns --testPathIgnorePatterns=.data.js"
   },
   "eslintConfig": {
     "extends": [
