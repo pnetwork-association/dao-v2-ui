@@ -34,7 +34,7 @@ const VersionButton = styled.button`
 `
 
 export default function Version({ ..._props }) {
-  const githubLink = 'https://github.com/pnetwork-association/dao-v2-ui/tree/feat/multichain'
+  const githubLink = 'https://github.com/pnetwork-association/dao-v2-ui/tree/v2'
   return (
     <VersionDiv {..._props}>
       <ContainerOptions>
