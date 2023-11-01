@@ -34,7 +34,7 @@ const VersionButton = styled.button`
 `
 
 export default function Version({ ..._props }) {
-  const githubLink = 'https://github.com/pnetwork-association/dao-v2-ui/tree/v2'
+  const githubLink = `https://github.com/pnetwork-association/dao-v2-ui/tree/${process.env.REACT_APP_GIT_SHA}`
   return (
     <VersionDiv {..._props}>
       <ContainerOptions>
