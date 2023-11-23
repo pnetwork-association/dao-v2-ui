@@ -103,7 +103,7 @@ const prepareOldProposal = (
     id: _proposal.id + _idStart,
     minAcceptQuorum: minAcceptQuorum.toFixed(),
     multihash: url.slice(url.length - 46, url.length),
-    no: no.toFixed(),
+    no: no,
     open,
     passed,
     quorum: quorum.toFixed(),
@@ -113,8 +113,8 @@ const prepareOldProposal = (
     startBlock: startBlock.toNumber(),
     url,
     votingPnt,
-    votingPower: votingPower.toFixed(),
-    yes: yes.toFixed()
+    votingPower: votingPower,
+    yes: yes
   }
 }
 
@@ -124,7 +124,6 @@ const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idSta
   const votingPower = BigNumber(_voteData.votingPower.toString()).dividedBy(10 ** 18)
   const no = BigNumber(_voteData.nay.toString()).dividedBy(10 ** 18)
   const yes = BigNumber(_voteData.yea.toString()).dividedBy(10 ** 18)
-
   const votingPnt = yes.plus(no)
   const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
   const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
@@ -165,7 +164,7 @@ const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idSta
     id: _proposal.id + _idStart,
     minAcceptQuorum: minAcceptQuorum.toFixed(),
     multihash: url.slice(url.length - 46, url.length),
-    no: no.toFixed(),
+    no: no,
     open,
     passed,
     quorum: quorum.toFixed(),
@@ -175,8 +174,8 @@ const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idSta
     startDate: startDate.toNumber(),
     url,
     votingPnt,
-    votingPower: votingPower.toFixed(),
-    yes: yes.toFixed()
+    votingPower: votingPower,
+    yes: yes
   }
 }
 

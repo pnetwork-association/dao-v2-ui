@@ -11,6 +11,7 @@ import { getRole } from '../utils/role'
 import { isValidHexString, isValidMultiHash } from '../utils/format'
 
 import { ProposalsContext } from '../components/context/Proposals'
+import { formatAssetAmount } from '../utils/amount'
 
 const useProposals = () => {
   const { proposals } = useContext(ProposalsContext)
@@ -97,9 +98,36 @@ const useProposals = () => {
 
       if (!oldProposal) return _proposal
 
+      const totalVotingPnt = _proposal.yes.plus(_proposal.no).plus(oldProposal.yes).plus(oldProposal.no)
+      const totalYes = _proposal.yes.plus(oldProposal.yes)
+      const totalNo = _proposal.no.plus(oldProposal.no)
+      const percentageYea = totalYes.dividedBy(totalVotingPnt).multipliedBy(100)
+      const percentageNay = totalNo.dividedBy(totalVotingPnt).multipliedBy(100)
+      const totalYesPercentage = formatAssetAmount(percentageYea, '%', { decimals: 2 })
+      const totalNoPercentage = formatAssetAmount(percentageNay, '%', { decimals: 2 })
+
+      const minAcceptQuorum =
+        _proposal.minAcceptQuorum > oldProposal.minAcceptQuorum
+          ? _proposal.minAcceptQuorum
+          : oldProposal.minAcceptQuorum
+
+      const totalVotingPower = _proposal.votingPower.plus(oldProposal.votingPower)
+      const totalQuorum = _proposal.yes.plus(oldProposal.yes).dividedBy(totalVotingPower)
+      const biggestMinQuorum = minAcceptQuorum
+      const totalQuorumReached = totalQuorum.isGreaterThan(biggestMinQuorum)
+      const totalPassed = percentageYea.isGreaterThan(51) && totalQuorumReached
+      const totalOpen = _proposal.open || oldProposal.open
+
       return {
+        ..._proposal, // Copy properties from the original object
+        formattedPercentageYea: totalYesPercentage,
+        formattedPercentageNay: totalNoPercentage,
+        quorumReached: totalQuorumReached,
+        passed: totalPassed,
+        open: totalOpen,
         idTextDouble: oldProposal.idText,
-        ..._proposal
+        votingPntDouble: oldProposal.votingPnt,
+        formattedVotingPntDouble: oldProposal.formattedVotingPnt
       }
     })
 
