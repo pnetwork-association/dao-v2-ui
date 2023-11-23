@@ -322,7 +322,7 @@ const Proposal = ({
       </DataContainer>
       <Modal show={Boolean(readMoreContent)} title={`#${id}`} onClose={() => setReadMoreContent(null)} size="xl">
         <ReadMoreContent>
-          <StyledIframe src={readMoreContent} title="vote" sandbox="" />
+          <StyledIframe src={readMoreContent} title="vote" sandbox="allow-scripts" />
         </ReadMoreContent>
       </Modal>
       <Modal show={showScript} title={'Script'} onClose={() => setShowScript(false)}>
