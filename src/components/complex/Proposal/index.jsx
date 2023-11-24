@@ -1,7 +1,5 @@
 import React, { Fragment, useCallback, useMemo, useState, useEffect } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
-import Tooltip from 'react-bootstrap/Tooltip'
 import styled from 'styled-components'
 import { usePrepareContractWrite, useContractWrite, useChainId, useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
@@ -19,7 +17,6 @@ import Action from '../Action'
 import Line from '../../base/Line'
 import Spinner from '../../base/Spinner'
 import Badge from '../../base/Badge'
-import { formatAssetAmount } from '../../../utils/amount'
 
 const ProposalContainer = styled.div`
   display: flex;
@@ -107,10 +104,6 @@ const QuorumText = styled(Text)`
   color: ${({ theme, quorumreached }) => (quorumreached ? theme.yellow : theme.red)};
 `
 
-const QuorumContainer = styled.div`
-  margin-left: 7px;
-`
-
 const StyledIcon = styled(Icon)`
   margin-right: 5px;
 `
@@ -164,10 +157,7 @@ const Proposal = ({
   formattedPercentageNay,
   formattedPercentageYea,
   formattedVote,
-  votingPnt,
   formattedVotingPnt,
-  votingPntDouble,
-  formattedVotingPntDouble,
   id,
   idText,
   open,
@@ -239,14 +229,6 @@ const Proposal = ({
     }
   }, [noData, activeChainId])
 
-  const renderTooltip = (props) => (
-    <Tooltip id="button-tooltip" {...props}>
-      <Text>
-        {formattedVotingPntDouble ? `${formattedVotingPnt} on DAO-v2 and ${formattedVotingPntDouble} on DAO-v1` : null}
-      </Text>
-    </Tooltip>
-  )
-
   return (
     <ProposalContainer disabled={disabled}>
       <StatusLine type={type} />
@@ -278,7 +260,7 @@ const Proposal = ({
         </Row>
         <Row className="mt-2">
           <Col>
-            <QuorumText quorumreached={quorumReached}>
+            <QuorumText quorumreached={quorumReached.toString()}>
               {quorumReached ? 'The quorum has been reached' : "The quorum hasn't been reached"}
             </QuorumText>
           </Col>
@@ -286,17 +268,9 @@ const Proposal = ({
         <Row className="mt-2">
           <Col className="d-flex align-items-center">
             <StyledIcon icon="people" />
-            {votingPntDouble ? (
-              <OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }} overlay={renderTooltip}>
-                <Text>
-                  Voted by <Text variant="text2"> {formatAssetAmount(votingPnt.plus(votingPntDouble), 'PNT')}</Text>
-                </Text>
-              </OverlayTrigger>
-            ) : (
-              <Text>
-                Voted by <Text variant="text2">{formattedVotingPnt}</Text>
-              </Text>
-            )}
+            <Text>
+              Voted by <Text variant="text2">{formattedVotingPnt}</Text>
+            </Text>
           </Col>
         </Row>
         <Row className="mt-2">
