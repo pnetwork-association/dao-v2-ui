@@ -1,7 +1,7 @@
 import { Fragment, useState, useEffect, useCallback } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import { useChainId, useSwitchNetwork, useAccount } from 'wagmi'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 import styled from 'styled-components'
 import { FaInfoCircle } from 'react-icons/fa'
 
@@ -113,12 +113,12 @@ const ChainModal = ({ show, onClose }) => {
                     <div className="d-flex align-items-center">
                       <Text>{_chain.name}</Text>
                       <Text size="sm">
-                        &nbsp;&nbsp;({_chain.id === polygon.id ? 'Native' : 'Compatibility'}&nbsp;mode)&nbsp;&nbsp;
+                        &nbsp;&nbsp;({_chain.id === gnosis.id ? 'Native' : 'Compatibility'}&nbsp;mode)&nbsp;&nbsp;
                       </Text>
                       <Tooltip
                         placement="bottom"
                         overlayType="popover"
-                        text="The pNetwork DAO v2 is available natively on the Polygon chain, but can be used on other chains in compatibility mode.
+                        text="The pNetwork DAO v3 is available natively on the Gnosis chain, but can be used on other chains in compatibility mode.
                         Compatibility mode is currently available on the BNB chain and Ethereum."
                       >
                         <div>
