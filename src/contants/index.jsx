@@ -1,4 +1,4 @@
-import { mainnet, bsc, polygon } from 'wagmi/chains'
+import { mainnet, bsc, polygon, gnosis } from 'wagmi/chains'
 
 export const STAKING_SENTINEL = '0x01'
 export const BORROWING_SENTINEL = '0x02'
@@ -6,7 +6,8 @@ export const BORROWING_SENTINEL = '0x02'
 export const chainIdToIcon = {
   1: 'ethereum.svg',
   56: 'bsc.svg',
-  137: 'polygon.svg'
+  137: 'polygon.svg',
+  100: 'gnosis.svg'
 }
 
 export const chainIdToPnetworkChainId = {
@@ -30,5 +31,6 @@ export const chainIdToPNetworkNetworkId = {
 export const chainIdToNetworkName = {
   1: mainnet.name,
   56: bsc.name,
-  137: polygon.name
+  137: polygon.name,
+  100: gnosis.name
 }

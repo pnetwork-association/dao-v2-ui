@@ -3,7 +3,7 @@ import React, { Fragment, useState } from 'react'
 import { Container, Nav, Navbar } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { bsc, polygon } from 'wagmi/chains'
+import { bsc, polygon, gnosis } from 'wagmi/chains'
 import { FaInfoCircle } from 'react-icons/fa'
 
 import { useNickname } from '../../../hooks/use-nickname'
@@ -205,22 +205,25 @@ const CustomConnectButton = () => {
                             id="network-mode-tooltip"
                             placement="bottom"
                             overlayType="popover"
-                            text="The pNetwork DAO v2 is available natively on the Polygon chain, but can be used on other chains in compatibility mode.
+                            text="The pNetwork DAO v3 is available natively on the Gnosis chain, but can be used on other chains in compatibility mode.
                             Compatibility mode is currently available on the BNB chain and Ethereum."
                           >
                             <div>
                               <StyledFaInfoCircle />
                             </div>
                           </Tooltip>
-                          <Text variant="text2">{chain.id === polygon.id ? 'Native mode' : 'Compatibility mode'}</Text>
+                          <Text variant="text2">{chain.id === gnosis.id ? 'Native mode' : 'Compatibility mode'}</Text>
                         </ModeContainer>
                         <SelectChainButton onClick={() => setShowChainModal(true)}>
-                          {(chain.hasIcon || chain.id === bsc.id) && (
+                          {(chain.hasIcon || chain.id === bsc.id || chain.id === gnosis.id) && (
                             <div>
                               {chain.id === bsc.id && (
                                 <ChainImg alt={chain.name ?? 'Chain icon'} src={'./assets/svg/bsc.svg'} />
                               )}
-                              {chain.iconUrl && chain.id !== bsc.id && (
+                              {chain.id === gnosis.id && (
+                                <ChainImg alt={chain.name ?? 'Chain icon'} src={'./assets/svg/gnosis.svg'} />
+                              )}
+                              {chain.iconUrl && chain.id !== bsc.id && chain.id !== gnosis.id && (
                                 <ChainImg alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} />
                               )}
                             </div>
