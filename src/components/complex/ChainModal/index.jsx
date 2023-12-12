@@ -1,6 +1,6 @@
 import { Fragment, useState, useEffect, useCallback } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import { useChainId, useSwitchNetwork, useAccount } from 'wagmi'
+import { useNetwork, useSwitchNetwork, useAccount } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import styled from 'styled-components'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -49,7 +49,7 @@ const StyledFaInfoCircle = styled(FaInfoCircle)`
 `
 
 const ChainModal = ({ show, onClose }) => {
-  const activeChainId = useChainId()
+  const activeNetwork = useNetwork()
   const { chains, error: networkError, switchNetwork } = useSwitchNetwork()
   const { connector: activeConnector } = useAccount()
   const [switchingToChain, setSwitchingToChain] = useState(false)
@@ -91,7 +91,7 @@ const ChainModal = ({ show, onClose }) => {
       <div className="p-1">
         {switchNetwork ? (
           chains.map((_chain) => {
-            const isCurrentChain = _chain.id === activeChainId
+            const isCurrentChain = _chain.id === activeNetwork.chain.id
             const switching = _chain.id === switchingToChain
 
             return (
@@ -118,8 +118,7 @@ const ChainModal = ({ show, onClose }) => {
                       <Tooltip
                         placement="bottom"
                         overlayType="popover"
-                        text="The pNetwork DAO v2 is available natively on the Polygon chain, but can be used on other chains in compatibility mode.
-                        Compatibility mode is currently available on the BNB chain and Ethereum."
+                        text="The pNetwork DAO v2 is currently only available on the Polygon chain"
                       >
                         <div>
                           <StyledFaInfoCircle />
