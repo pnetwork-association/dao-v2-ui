@@ -191,7 +191,7 @@ const CustomConnectButton = () => {
                 if (chain.unsupported) {
                   return (
                     <Button onClick={() => setShowChainModal(true)} type="button">
-                      Wrong network
+                      Switch to Polygon
                     </Button>
                   )
                 }
