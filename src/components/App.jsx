@@ -3,7 +3,7 @@ import { ThemeContext } from 'styled-components'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { configureChains, createClient, WagmiConfig, createStorage } from 'wagmi'
-import { mainnet, polygon, bsc } from 'wagmi/chains'
+import { polygon } from 'wagmi/chains'
 import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
 import { getWeb3Settings } from 'react-web3-settings'
 
@@ -43,23 +43,15 @@ const router = createHashRouter([
 const settings = getWeb3Settings()
 
 const { chains, provider } = configureChains(
-  [mainnet, polygon, bsc],
+  [polygon],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
         http:
-          chain.id === mainnet.id
-            ? settings.rpcEndpoints && settings.rpcEndpoints[0] !== ''
-              ? settings.rpcEndpoints[0]
-              : `https://eth-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
-            : chain.id === polygon.id
+          chain.id === polygon.id
             ? settings.rpcEndpoints && settings.rpcEndpoints[1] !== ''
               ? settings.rpcEndpoints[1]
               : `https://polygon-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
-            : chain.id === bsc.id
-            ? settings.rpcEndpoints && settings.rpcEndpoints[2] !== ''
-              ? settings.rpcEndpoints[2]
-              : `https://bsc-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
             : 'Unsupported Chain'
       })
     })
