@@ -3,6 +3,8 @@ import { Modal } from 'react-bootstrap'
 import styled from 'styled-components'
 
 import Text from '../Text'
+import Button from '../Button'
+import Icon from '../Icon'
 
 const StyledModalTitle = styled(Text)`
   font-size: 20px;
@@ -33,10 +35,20 @@ const StyledHeader = styled(Modal.Header)`
   }
 `
 
-const MyModal = ({ show, title, children, size = 'lg', bodyStyle, onClose }) => {
+const StyledButton = styled(Button)`
+  width: 50px;
+  margin-right: 10px;
+`
+
+const MyModal = ({ show, title, children, size = 'lg', bodyStyle, onClose, onClick, hasButton = false }) => {
   return (
     <Modal show={show} aria-labelledby="modal" size={size} centered onHide={onClose}>
       <StyledHeader closeButton={Boolean(onClose)}>
+        {hasButton ? (
+          <StyledButton onClick={onClick}>
+            <Icon icon="left-arrow" />
+          </StyledButton>
+        ) : null}
         <StyledModalTitle>{title}</StyledModalTitle>
       </StyledHeader>
       <StyledBody style={bodyStyle}>{children}</StyledBody>
