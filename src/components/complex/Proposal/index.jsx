@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useMemo, useState, useEffect } from 'react'
+import React, { Fragment, useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
@@ -178,7 +178,10 @@ const Proposal = ({
   vote
 }) => {
   const [readMoreContent, setReadMoreContent] = useState(null)
+  const [readMoreContentHTML, setReadMoreContentHTML] = useState(null)
   const [showScript, setShowScript] = useState(null)
+  const [location, setLocation] = useState({ current: url, old: null })
+  const iframeRef = useRef(null)
   const activeChainId = useChainId()
   const { address } = useAccount()
   const type = useMemo(() => (open ? 'open' : passed ? 'passed' : 'notPassed'), [open, passed])
@@ -238,6 +241,87 @@ const Proposal = ({
       toastifyTransaction(noData, { chainId: activeChainId })
     }
   }, [noData, activeChainId])
+
+  const handleMessageFromIframe = (event) => {
+    // Check the origin of the message for security
+    if (event.origin !== window.location.origin) {
+      console.error('Received an untrusted message from:', event.origin)
+      return
+    }
+
+    // Log or handle the received message
+    if (event.data.type === 'linkClick') {
+      if (event.data.id !== id) return
+      setReadMoreContent(event.data.href)
+      setLocation({ current: event.data.href, old: location.current })
+    }
+  }
+
+  const goBack = () => {
+    setReadMoreContent(location.old)
+    setLocation({ current: location.old, old: url })
+  }
+
+  useEffect(() => {
+    window.addEventListener('message', handleMessageFromIframe)
+
+    return () => {
+      window.removeEventListener('message', handleMessageFromIframe)
+    }
+  }, [])
+
+  useEffect(() => {
+    // // Function to perform search and replace within the iframe
+    const performSearchAndReplace = async () => {
+      if (readMoreContent && readMoreContent != 'isLoading') {
+        const html = await (await fetch(readMoreContent)).text()
+        const restoredPoundHTML = html.replace(/%23/g, '#')
+        const googleLinksRegex = /https:\/\/www\.google\.com\/url\?q=([^&]+)(&sa=|&amp;)[^"]*/g
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(restoredPoundHTML, 'text/html')
+        const ipfsLinks = Array.from(doc.querySelectorAll('a')).filter(
+          (link) => link.getAttribute('href') && link.getAttribute('href').includes('/ipfs/')
+        )
+        ipfsLinks.map((link) => {
+          const href = link.getAttribute('href')
+          if (googleLinksRegex.test(href)) {
+            link.setAttribute(
+              'href',
+              href.replace(googleLinksRegex, (match, url) => url)
+            )
+          }
+          link.setAttribute(
+            'onClick',
+            '{ ' +
+              'var event = window.event || arguments[0]; ' +
+              'event.preventDefault(); ' +
+              'window.parent.postMessage({ ' +
+              `id: ${id.toString()}, ` +
+              'type: "linkClick", ' +
+              'href: event.target.href, ' +
+              'text: event.target.innerText ' +
+              '}, "*");}'
+          )
+        })
+        const links = Array.from(doc.querySelectorAll('a')).filter(
+          (link) => link.getAttribute('href') && !link.getAttribute('href').includes('/ipfs/')
+        )
+        links.map((link) => {
+          const href = link.getAttribute('href')
+          if (googleLinksRegex.test(href))
+            link.setAttribute(
+              'href',
+              href.replace(googleLinksRegex, (match, url) => url)
+            )
+          link.setAttribute('target', '_blank')
+          link.setAttribute('rel', 'noreferrer noopener')
+        })
+        const fixedHTML = new XMLSerializer().serializeToString(doc)
+        setReadMoreContentHTML(fixedHTML)
+      } else setReadMoreContentHTML(null)
+    }
+    performSearchAndReplace()
+  }, [readMoreContent])
 
   const renderTooltip = (props) => (
     <Tooltip id="button-tooltip" {...props}>
@@ -356,7 +440,14 @@ const Proposal = ({
           </Row>
         )*/}
       </DataContainer>
-      <Modal show={readMoreContent} title={`#${id}`} onClose={() => setReadMoreContent(null)} size="xl">
+      <Modal
+        hasButton={location.current !== url}
+        onClick={goBack}
+        show={readMoreContent}
+        title={`#${id}`}
+        onClose={() => setReadMoreContent(null)}
+        size="xl"
+      >
         {readMoreContent === 'loading' ? (
           <SpinnerView>
             {' '}
@@ -364,7 +455,13 @@ const Proposal = ({
           </SpinnerView>
         ) : (
           <ReadMoreContent>
-            <ProposalIframe src={readMoreContent} title="vote" sandbox="" />
+            <ProposalIframe
+              ref={iframeRef}
+              id="proposal-iframe"
+              srcDoc={readMoreContentHTML}
+              title="vote"
+              sandbox="allow-same-origin allow-scripts allow-popups"
+            />
           </ReadMoreContent>
         )}
       </Modal>
