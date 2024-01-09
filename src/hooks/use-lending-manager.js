@@ -11,7 +11,7 @@ import {
   useSimulateContract,
   useWaitForTransactionReceipt
 } from 'wagmi'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 import moment from 'moment'
 
 import settings from '../settings'
@@ -150,7 +150,7 @@ const useAccountLoanEndEpoch = () => {
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 24],
     enabled: (currentEpoch || currentEpoch === 0) && address,
-    chainId: polygon.id,
+    chainId: gnosis.id,
     watch: true
   })
 
@@ -175,7 +175,7 @@ const useAccountLoanStartEpoch = () => {
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 24],
     enabled: (currentEpoch || currentEpoch === 0) && address,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const startEpoch = useMemo(() => {
@@ -207,7 +207,7 @@ const useTotalLendedAmountByEpoch = (_epoch) => {
     abi: LendingManagerABI,
     functionName: 'totalLendedAmountByEpoch',
     args: [_epoch],
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const amount = useMemo(() => (data ? BigNumber(data.toString()).dividedBy(10 ** 18) : BigNumber(null)), [data])
@@ -224,7 +224,7 @@ const useTotalBorrowedAmountByEpoch = (_epoch) => {
     abi: LendingManagerABI,
     functionName: 'totaBorrowedAmountByEpoch',
     args: [_epoch],
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const amount = useMemo(() => (data ? BigNumber(data.toString()).dividedBy(10 ** 18) : BigNumber(null)), [data])
@@ -245,7 +245,7 @@ const useTotalLendedAmountByStartAndEndEpochs = () => {
     functionName: 'totalLendedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
     enabled: startEpoch && endEpoch,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const lendedAmount = useMemo(() => {
@@ -275,7 +275,7 @@ const useUtilizationRatio = () => {
     functionName: 'utilizationRatioByEpochsRange',
     args: [currentEpoch, currentEpoch + 12],
     enabled: currentEpoch || currentEpoch === 0,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   return data?.reduce((_acc, _amount, _index) => {
@@ -299,7 +299,7 @@ const useUtilizationRatioInTheCurrentEpoch = () => {
     functionName: 'utilizationRatioByEpoch',
     args: [currentEpoch],
     enabled: currentEpoch || currentEpoch === 0,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const ratio = BigNumber(data?.toString()).dividedBy(10 ** 4)
@@ -321,7 +321,7 @@ const useAccountUtilizationRatio = () => {
     functionName: 'utilizationRatioOf',
     args: [address, startEpoch, endEpoch],
     enabled: startEpoch && endEpoch && address,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   return data?.reduce((_acc, _amount, _index) => {
@@ -353,7 +353,7 @@ const useClaimableRewardsAssetsByEpochs = () => {
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
     args: [address, assets.map(({ address }) => address), 0, currentEpoch],
     enabled: address && (currentEpoch || currentEpoch === 0),
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   return useMemo(() => {
@@ -505,7 +505,7 @@ const useEstimateApy = () => {
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
         enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.lendingManager,
@@ -513,7 +513,7 @@ const useEstimateApy = () => {
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
         enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     ]
   })
@@ -622,7 +622,7 @@ const useEstimateApyIncreaseDuration = () => {
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
         enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.lendingManager,
@@ -630,7 +630,7 @@ const useEstimateApyIncreaseDuration = () => {
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
         enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.stakingManagerLM,
@@ -638,7 +638,7 @@ const useEstimateApyIncreaseDuration = () => {
         functionName: 'stakeOf',
         args: [address],
         enabled: address,
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     ]
   })
@@ -748,7 +748,7 @@ const useApy = () => {
         functionName: 'stakeOf',
         args: [address],
         enabled: address,
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.lendingManager,
@@ -756,7 +756,7 @@ const useApy = () => {
         functionName: 'totalWeightByEpochsRange',
         args: [startEpoch, endEpoch],
         enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.lendingManager,
@@ -764,7 +764,7 @@ const useApy = () => {
         functionName: 'weightByEpochsRangeOf',
         args: [address, startEpoch, endEpoch],
         enabled: address && (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     ]
   })
@@ -844,7 +844,7 @@ const useEpochsBorrowableAmount = () => {
         functionName: 'totalLendedAmountByEpochsRange',
         args: [0, 24],
         enabled: true,
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.lendingManager,
@@ -852,7 +852,7 @@ const useEpochsBorrowableAmount = () => {
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [0, 24],
         enabled: true,
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     ]
   })

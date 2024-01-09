@@ -10,7 +10,7 @@ import {
   useSimulateContract,
   useWaitForTransactionReceipt
 } from 'wagmi'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 import axios from 'axios'
 
 import settings from '../settings'
@@ -186,7 +186,7 @@ const useUserStake = (_opts = {}) => {
     args: [address],
     enabled: address,
     watch: true,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const availableToUnstakePntAmount = useMemo(() => {

@@ -1,4 +1,4 @@
-import { bsc, mainnet, polygon } from 'wagmi/chains'
+import { bsc, gnosis, mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 
@@ -8,6 +8,8 @@ const getExplorerUrlByChainId = (_chainId) => {
       return settings.explorers.polygon
     case bsc.id:
       return settings.explorers.bsc
+    case gnosis.id:
+      return settings.explorers.gnosis
     default:
       return settings.explorers.mainnet
   }

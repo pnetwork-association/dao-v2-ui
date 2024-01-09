@@ -37,13 +37,14 @@ const Proposals = () => {
   const proposals = useProposals()
   const { amount: daoPntBalance } = useDaoPntBalance()
 
-  const { newProposals, pastProposals } = useMemo(() => {
-    const newp = proposals.filter(({ open }) => open)
-    const pastp = proposals.filter(({ open }) => !open)
+  const { openProposals, closedProposals } = useMemo(() => {
+    const openProposals = proposals.filter(({ open }) => open)
+    const closedProposals = proposals.filter(({ open }) => !open)
 
     return {
-      newProposals: newp.length === 0 && proposals.length > 0 ? [proposals[0]] : newp,
-      pastProposals: proposals.length > 0 && pastp.length === proposals.length ? proposals.slice(1) : pastp
+      openProposals: openProposals.length === 0 && proposals.length > 0 ? [proposals[0]] : openProposals,
+      closedProposals:
+        proposals.length > 0 && closedProposals.length === proposals.length ? proposals.slice(1) : closedProposals
     }
   }, [proposals])
 
@@ -51,7 +52,7 @@ const Proposals = () => {
     <Fragment>
       <Tabs defaultActiveKey="new" fill>
         <Tab eventKey="new" title="New proposals">
-          {newProposals.map((_proposal) => (
+          {openProposals.map((_proposal) => (
             <div className="mt-2" key={`proposal_${_proposal.id}`}>
               <Proposal daoPntBalance={daoPntBalance} disabled={_proposal.chainId === mainnet.id} {..._proposal} />
               <StyledLine />
@@ -65,7 +66,7 @@ const Proposals = () => {
           </NewProposalContainer>
         </Tab>
         <Tab eventKey="past" title="Past proposals">
-          {pastProposals.map((_proposal) => (
+          {closedProposals.map((_proposal) => (
             <div key={`proposal_${_proposal.id}`} className="mt-2">
               <Proposal daoPntBalance={daoPntBalance} disabled={_proposal.chainId === mainnet.id} {..._proposal} />
               <StyledLine />

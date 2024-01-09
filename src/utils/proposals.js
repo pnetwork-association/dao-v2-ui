@@ -67,8 +67,6 @@ const prepareOldProposal = (
     script
   ] = _voteData
 
-  console.log('_voteData', executed, executionBlock, open, script, snapshotBlock, startBlock)
-
   const votingPower = BigNumber(rawVotingPower.toString()).dividedBy(10 ** 18)
   const no = BigNumber(nay.toString()).dividedBy(10 ** 18)
   const yes = BigNumber(yea.toString()).dividedBy(10 ** 18)
@@ -88,8 +86,6 @@ const prepareOldProposal = (
   // No need to calculate the countdown on old votes on eth since are all closed and the new ones will be only on Polygon
   // TODO: What does it happen if keep creating vote on ethereum?
   const countdown = -1
-
-  console.log('_executionBlockNumberTimestamp', _executionBlockNumberTimestamp)
 
   const formattedCloseDate =
     countdown > 0
@@ -135,29 +131,38 @@ const prepareOldProposal = (
 }
 
 const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idStart = 0, _duration) => {
-  const { executed, executionDate, open, script, snapshotBlock, startDate } = _voteData
-
-  const votingPower = BigNumber(_voteData.votingPower.toString()).dividedBy(10 ** 18)
-  const no = BigNumber(_voteData.nay.toString()).dividedBy(10 ** 18)
-  const yes = BigNumber(_voteData.yea.toString()).dividedBy(10 ** 18)
+  const [
+    open,
+    executed,
+    startDate,
+    executionDate,
+    snapshotBlock,
+    ,
+    rawMinAcceptQuorum,
+    rawVotingPower,
+    yea,
+    nay,
+    script
+  ] = _voteData
+  const votingPower = BigNumber(rawVotingPower.toString()).dividedBy(10 ** 18)
+  const no = BigNumber(nay.toString()).dividedBy(10 ** 18)
+  const yes = BigNumber(yea.toString()).dividedBy(10 ** 18)
   const votingPnt = yes.plus(no)
   const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
   const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
 
   const quorum = yes.dividedBy(votingPower)
-  const minAcceptQuorum = BigNumber(_voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
+  const minAcceptQuorum = BigNumber(rawMinAcceptQuorum.toString()).dividedBy(10 ** 18)
 
   const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
   const passed = percentageYea.isGreaterThan(51) && quorumReached
-
-  const endDate = startDate.add(_duration)
-
-  const countdown = now < endDate.toNumber() ? endDate.toNumber() - now : -1
+  const endDate = startDate + _duration
+  const countdown = now < endDate ? endDate - now : -1
 
   const formattedCloseDate =
     countdown > 0
-      ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
-      : moment.unix(endDate).format('MMM DD YYYY - HH:mm:ss')
+      ? `~${moment.unix(Number(now + countdown)).format('MMM DD YYYY - HH:mm:ss')}`
+      : moment.unix(Number(endDate)).format('MMM DD YYYY - HH:mm:ss')
 
   const url = escapeUrl(_proposal.url)
 
@@ -166,9 +171,9 @@ const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idSta
     actions: _voteActions,
     chainId: _chainId,
     effectiveId: _proposal.id,
-    endDate: endDate.toNumber(),
+    endDate: endDate,
     executed,
-    executionDate: executionDate.toNumber(),
+    executionDate: executionDate,
     formattedCloseDate,
     formattedPercentageNay: formatAssetAmount(percentageNay, '%', {
       decimals: 2
@@ -183,11 +188,11 @@ const prepareNewProposal = (_proposal, _voteData, _voteActions, _chainId, _idSta
     no: no,
     open,
     passed,
-    quorum: quorum.toFixed(),
+    quorum: quorum,
     quorumReached,
     script,
-    snapshotBlock: snapshotBlock.toNumber(),
-    startDate: startDate.toNumber(),
+    snapshotBlock: snapshotBlock,
+    startDate: startDate,
     url,
     votingPnt,
     votingPower: votingPower,

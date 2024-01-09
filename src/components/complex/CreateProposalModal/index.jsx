@@ -4,7 +4,7 @@ import styled, { ThemeContext } from 'styled-components'
 import { toast } from 'react-toastify'
 import { formatEther } from 'viem'
 import { useClient } from 'wagmi'
-import { mainnet } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { GoVerified } from 'react-icons/go'
 
@@ -40,7 +40,7 @@ const CreateProposalModal = ({ show, onClose }) => {
   const [selectedPreset, setSelectedPreset] = useState('paymentFromTreasury')
   const [presetParams, setPresetParams] = useState({})
   const [showEncodedScript, setShowEncodedScript] = useState(false)
-  const client = useClient({ chainId: mainnet.id })
+  const client = useClient({ chainId: gnosis.id })
 
   const {
     canCreateProposal,

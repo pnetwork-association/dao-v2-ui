@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import BigNumber from 'bignumber.js'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 
 import { toastifyTransaction } from '../../../utils/transaction'
 
@@ -15,7 +15,7 @@ const ClaimByAssets = ({ assets, claim }) => {
     async (_address) => {
       try {
         setLoading(_address)
-        toastifyTransaction(await claim(_address), { chainId: polygon.id }, () => {
+        toastifyTransaction(await claim(_address), { chainId: gnosis.id }, () => {
           setLoading(null)
           setClaimed(_address)
         })

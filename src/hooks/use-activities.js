@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useContext } from 'react'
 import { useBlockNumber, useClient } from 'wagmi'
 import { getContract } from 'viem'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 import retry from 'async-retry'
 
 import settings from '../settings'
@@ -54,9 +54,9 @@ const useActivities = () => {
   const [dandelionVotingActivities, setDandelionVotingActivities] = useState(null)
   const { data: blockNumber } = useBlockNumber({
     watch: false, // NOTE: keep it false becase of rate limiting
-    chainId: polygon.id
+    chainId: gnosis.id
   })
-  const client = useClient({ chainId: polygon.id })
+  const client = useClient({ chainId: gnosis.id })
 
   const stakingManager = getContract({
     address: settings.contracts.stakingManager,
@@ -76,8 +76,8 @@ const useActivities = () => {
     client: client,
   })
 
-  const dandelionVoting = getContract({
-    address: settings.contracts.dandelionVoting,
+  const dandelionVotingV3 = getContract({
+    address: settings.contracts.dandelionVotingV3,
     abi: DandelionVotingABI,
     client: client,
   })
@@ -97,7 +97,7 @@ const useActivities = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        // S T A K I N G   M A N A G E
+        // S T A K I N G   M A N A G E R
         try {
           const [stakeEvents, unstakeEvents] = await fetchWithRecursion(
             fromBlock,
@@ -167,14 +167,13 @@ const useActivities = () => {
             toBlock,
             recursiveMode.current.DandelionVoting,
             {
-              limitBlock: 42023192, // no votes until now
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
-                  retry(() => dandelionVoting.getEvents.CastVote({fromBlock: _fromBlock, toBlock: _toBlock}), {
+                  retry(() => dandelionVotingV3.getEvents.CastVote({fromBlock: _fromBlock, toBlock: _toBlock}), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   }),
-                  retry(() => dandelionVoting.getEvents.StartVote({fromBlock: _fromBlock, toBlock: _toBlock}), {
+                  retry(() => dandelionVotingV3.getEvents.StartVote({fromBlock: _fromBlock, toBlock: _toBlock}), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   })
@@ -198,7 +197,6 @@ const useActivities = () => {
             toBlock,
             recursiveMode.current.RegistrationManager,
             {
-              limitBlock: 42023192, // no votes until now
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
                   retry(() => registrationManager.getEvents.SentinelRegistrationUpdated({fromBlock: _fromBlock, toBlock: _toBlock}), {
@@ -225,7 +223,7 @@ const useActivities = () => {
     if (
       stakingManager?.getEvents &&
       lendingManager?.getEvents &&
-      dandelionVoting?.getEvents &&
+      dandelionVotingV3?.getEvents &&
       fromBlock &&
       toBlock &&
       toBlock > cachedLastBlock &&
@@ -241,7 +239,7 @@ const useActivities = () => {
     stakingManager,
     lendingManager,
     registrationManager,
-    dandelionVoting,
+    dandelionVotingV3,
     fromBlock,
     toBlock,
     cachedLastBlock,

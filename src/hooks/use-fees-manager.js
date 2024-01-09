@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 import { useWriteContract, useReadContract, useReadContracts, useSwitchChain, useChainId } from 'wagmi'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 import { groupBy } from 'lodash'
 
 import settings from '../settings'
@@ -31,28 +31,28 @@ const useFeesDistributionByMonthlyRevenues = ({
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [0, 24],
 
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.registrationManager,
         abi: RegistrationManagerABI,
         functionName: 'totalSentinelStakedAmountByEpochsRange',
         args: [0, 24],
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'totalLendedAmountByEpochsRange',
         args: [0, 24],
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.feesManager,
         abi: FeesManagerABI,
         functionName: 'minimumBorrowingFee',
         args: [],
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     ]
   })
@@ -164,7 +164,7 @@ const useClaimableFeesAssetsByEpochs = (_opts = {}) => {
     functionName: 'claimableFeesByEpochsRangeOf',
     args: [sentinelAddress, assets.map(({ address }) => address), 0, currentEpoch],
     enabled,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   return useMemo(() => {
@@ -248,14 +248,14 @@ const useClaimableFeesAssetsByAssets = (_opts) => {
 }
 
 const useClaimFeeByEpoch = () => {
-  const { switchChain } = useSwitchChain({ chainId: polygon.id })
+  const { switchChain } = useSwitchChain({ chainId: gnosis.id })
   const activeChainId = useChainId()
   const { error, data, writeAsync } = useWriteContract({
     address: settings.contracts.feesManager,
     abi: FeesManagerABI,
     functionName: 'claimFeeByEpoch',
     mode: 'recklesslyUnprepared',
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const onClaim = useCallback(
@@ -267,7 +267,7 @@ const useClaimFeeByEpoch = () => {
   )
 
   return {
-    claim: activeChainId !== polygon.id && switchChain ? switchChain : onClaim,
+    claim: activeChainId !== gnosis.id && switchChain ? switchChain : onClaim,
     error,
     data
   }
@@ -275,14 +275,14 @@ const useClaimFeeByEpoch = () => {
 
 const useClaimFeeByEpochsRange = () => {
   const { currentEpoch } = useEpochs()
-  const { switchChain } = useSwitchChain({ chainId: polygon.id })
+  const { switchChain } = useSwitchChain({ chainId: gnosis.id })
   const activeChainId = useChainId()
   const { error, data, writeAsync } = useWriteContract({
     address: settings.contracts.feesManager,
     abi: FeesManagerABI,
     functionName: 'claimFeeByEpochsRange',
     mode: 'recklesslyUnprepared',
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   // TODO: choose better startEpoch and endEpoch
@@ -296,7 +296,7 @@ const useClaimFeeByEpochsRange = () => {
   )
 
   return {
-    claim: activeChainId !== polygon.id && switchChain ? switchChain : onClaim,
+    claim: activeChainId !== gnosis.id && switchChain ? switchChain : onClaim,
     error,
     data
   }
@@ -327,7 +327,7 @@ const useStakingSentinelEstimatedRevenues = () => {
     functionName: 'totalBorrowedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
     enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const borrowedAmount = settings.registrationManager.borrowAmount
@@ -396,7 +396,7 @@ const useBorrowingSentinelEstimatedRevenues = () => {
     functionName: 'totalBorrowedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
     enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const borrowedAmount = settings.registrationManager.borrowAmount

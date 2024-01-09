@@ -1,7 +1,7 @@
 import { useMemo, useState, useContext } from 'react'
 import { useAccount, useBalance, useReadContracts, useWriteContract, useSimulateContract } from 'wagmi'
 import BigNumber from 'bignumber.js'
-import { mainnet, polygon } from 'wagmi/chains'
+import { gnosis, mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
 import DandelionVotingABI from '../utils/abis/DandelionVoting'
@@ -17,12 +17,13 @@ const useProposals = () => {
   const { proposals } = useContext(ProposalsContext)
   const { address } = useAccount()
 
-  const oldProposals = useMemo(() => proposals.filter(({ chainId }) => chainId === mainnet.id), [proposals])
-  const newProposals = useMemo(() => proposals.filter(({ chainId }) => chainId === polygon.id), [proposals])
+  const daoV1Proposals = useMemo(() => proposals.filter(({ chainId }) => chainId === mainnet.id), [proposals])
+  const daoV2Proposals = useMemo(() => proposals.filter(({ chainId }) => chainId === polygon.id), [proposals])
+  const daoV3Proposals = useMemo(() => proposals.filter(({ chainId }) => chainId === gnosis.id), [proposals])
 
-  const { data: oldVoterStatesData } = useReadContracts({
-    contracts: oldProposals.map(({ effectiveId }) => ({
-      address: settings.contracts.dandelionVotingOld,
+  const { data: v1VoterStatesData } = useReadContracts({
+    contracts: daoV1Proposals.map(({ effectiveId }) => ({
+      address: settings.contracts.dandelionVotingV1,
       abi: DandelionVotingOldABI,
       functionName: 'getVoterState',
       args: [effectiveId, address],
@@ -30,13 +31,23 @@ const useProposals = () => {
     }))
   })
 
-  const { data: newVoterStatesData } = useReadContracts({
-    contracts: newProposals.map(({ effectiveId }) => ({
-      address: settings.contracts.dandelionVoting,
+  const { data: v2VoterStatesData } = useReadContracts({
+    contracts: daoV2Proposals.map(({ effectiveId }) => ({
+      address: settings.contracts.dandelionVotingV2,
       abi: DandelionVotingABI,
       functionName: 'getVoterState',
       args: [effectiveId, address],
       chainId: polygon.id
+    }))
+  })
+
+  const { data: v3VoterStatesData } = useReadContracts({
+    contracts: daoV3Proposals.map(({ effectiveId }) => ({
+      address: settings.contracts.dandelionVotingV3,
+      abi: DandelionVotingABI,
+      functionName: 'getVoterState',
+      args: [effectiveId, address],
+      chainId: gnosis.id
     }))
   })
 
@@ -63,36 +74,44 @@ const useProposals = () => {
     }
   }
 
-  const oldProposalsWithVote = useMemo(
+  const daoV1ProposalsWithVote = useMemo(
     () =>
-      oldProposals.map((_proposal, _index) =>
-        prepareVote(_proposal, oldVoterStatesData ? oldVoterStatesData[_index] : null)
+      daoV1Proposals.map((_proposal, _index) =>
+        prepareVote(_proposal, v1VoterStatesData ? v1VoterStatesData[_index] : null)
       ),
-    [oldProposals, oldVoterStatesData]
+    [daoV1Proposals, v1VoterStatesData]
   )
 
-  const newProposalsWithVote = useMemo(
+  const daoV2ProposalsWithVote = useMemo(
     () =>
-      newProposals.map((_proposal, _index) =>
-        prepareVote(_proposal, newVoterStatesData ? newVoterStatesData[_index] : null)
+      daoV2Proposals.map((_proposal, _index) =>
+        prepareVote(_proposal, v2VoterStatesData ? v2VoterStatesData[_index] : null)
       ),
-    [newProposals, newVoterStatesData]
+    [daoV2Proposals, v2VoterStatesData]
+  )
+
+  const daoV3ProposalsWithVote = useMemo(
+    () =>
+      daoV3Proposals.map((_proposal, _index) =>
+        prepareVote(_proposal, v3VoterStatesData ? v3VoterStatesData[_index] : null)
+      ),
+    [daoV3Proposals, v3VoterStatesData]
   )
 
   return useMemo(() => {
     // if a new proposal (on polygon) is equal to an old one (on eth) it means that
     // the proposal has been opened on both chains (daov1 & daov2) so we have to
     // keep only the polygon one
-    const effectiveOldProposals = oldProposalsWithVote.filter(
+    const effectiveDaoV1Proposals = daoV1ProposalsWithVote.filter(
       ({ multihash: oldMultihash }) =>
-        !newProposalsWithVote.find(({ multihash: newMultihash }) => {
+        !daoV2ProposalsWithVote.find(({ multihash: newMultihash }) => {
           return oldMultihash === newMultihash
         })
     )
 
     // If exists a PIP equal to a PGP, we have to indicate the exists also the PIP
-    const effectiveNewProposalVotes = newProposalsWithVote.map((_proposal) => {
-      const oldProposal = oldProposalsWithVote.find(({ multihash: oldMultihash }) => {
+    const effectiveDaoV2ProposalVotes = daoV2ProposalsWithVote.map((_proposal) => {
+      const oldProposal = daoV1ProposalsWithVote.find(({ multihash: oldMultihash }) => {
         return oldMultihash === _proposal.multihash
       })
 
@@ -131,8 +150,10 @@ const useProposals = () => {
       }
     })
 
-    return [...effectiveOldProposals, ...effectiveNewProposalVotes].sort((_a, _b) => _b.timestamp - _a.timestamp)
-  }, [oldProposalsWithVote, newProposalsWithVote])
+    return [...effectiveDaoV1Proposals, ...effectiveDaoV2ProposalVotes, ...daoV3ProposalsWithVote].sort(
+      (_a, _b) => _b.timestamp - _a.timestamp
+    )
+  }, [daoV1ProposalsWithVote, daoV2ProposalsWithVote])
 }
 
 const useCreateProposal = () => {
@@ -140,7 +161,7 @@ const useCreateProposal = () => {
   const { data: daoPntBalance } = useBalance({
     token: settings.contracts.daoPnt,
     address,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
   const [metadata, setMetadata] = useState('')
   const [script, setScript] = useState('')
@@ -154,15 +175,15 @@ const useCreateProposal = () => {
         address: settings.contracts.acl,
         abi: ACLAbi,
         functionName: 'hasPermission',
-        args: [address, settings.contracts.dandelionVoting, getRole('CREATE_VOTES_ROLE'), '0x'],
-        chainId: polygon.id
+        args: [address, settings.contracts.dandelionVotingV3, getRole('CREATE_VOTES_ROLE'), '0x'],
+        chainId: gnosis.id
       },
       {
-        address: settings.contracts.dandelionVoting,
+        address: settings.contracts.dandelionVotingV3,
         abi: DandelionVotingABI,
         functionName: 'minOpenVoteAmount',
         args: [],
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     ]
   })
@@ -177,11 +198,10 @@ const useCreateProposal = () => {
 
   const isValidIpfsMultiHash = useMemo(() => isValidMultiHash(ipfsMultihash), [ipfsMultihash])
   const isScriptValid = useMemo(() => isValidHexString(script), [script])
-  const hasPermissionOrEnoughBalance = useMemo(
-    () => hasPermission || BigNumber(daoPntBalance).isGreaterThanOrEqualTo(minOpenVoteAmount),
-    [hasPermission, minOpenVoteAmount, daoPntBalance]
-  )
-
+  const hasPermissionOrEnoughBalance =
+    hasPermission ||
+    (daoPntBalance &&
+      BigNumber(daoPntBalance.value.toString()).isGreaterThanOrEqualTo(BigNumber(minOpenVoteAmount.toString())))
   const canCreateProposal = useMemo(
     () =>
       hasPermissionOrEnoughBalance && metadata.length > 0 && isValidIpfsMultiHash
@@ -193,7 +213,7 @@ const useCreateProposal = () => {
   )
 
   const { data: simulationNewProposalData } = useSimulateContract({
-    address: settings.contracts.dandelionVoting,
+    address: settings.contracts.dandelionVotingV3,
     abi: DandelionVotingABI,
     functionName: 'newVote',
     args: [

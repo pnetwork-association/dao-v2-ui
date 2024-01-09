@@ -1,4 +1,4 @@
-import { bsc, mainnet, polygon } from 'wagmi/chains'
+import { bsc, gnosis, mainnet, polygon } from 'wagmi/chains'
 import { erc20Abi } from 'viem'
 import settings from '../../settings'
 
@@ -19,12 +19,22 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabl
         enabled
       }
     }
+    case gnosis.id: {
+      return {
+        address: settings.contracts.pntOnGnosis,
+        abi: erc20ABI,
+        functionName: 'allowance',
+        args: [address, settings.contracts.lendingManager],
+        chainId: gnosis.id,
+        enabled
+      }
+    }
     case polygon.id: {
       return {
         address: settings.contracts.pntOnPolygon,
         abi: erc20Abi,
         functionName: 'allowance',
-        args: [address, settings.contracts.lendingManager],
+        args: [address, settings.contracts.forwarderOnPolygon],
         chainId: polygon.id,
         enabled
       }
@@ -56,12 +66,22 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
         chainId: mainnet.id
       }
     }
+    case gnosis.id: {
+      return {
+        address: settings.contracts.pntOnGnosis,
+        abi: erc20ABI,
+        functionName: 'approve',
+        args: [settings.contracts.lendingManager, amount],
+        enabled,
+        chainId: gnosis.id
+      }
+    }
     case polygon.id: {
       return {
         address: settings.contracts.pntOnPolygon,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [settings.contracts.lendingManager, amount],
+        args: [settings.contracts.forwarderOnPolygon, amount],
         enabled,
         chainId: polygon.id
       }
@@ -96,7 +116,7 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: mainnet.id
       }
@@ -115,19 +135,38 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: bsc.id
       }
     }
-    case polygon.id: {
+    case gnosis.id: {
       return {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'lend',
         args: [receiver, amount, duration],
         enabled,
-        chainId: polygon.id
+        chainId: gnosis.id
+      }
+    }
+    case polygon.id: {
+      const userData =
+        amount && duration && receiver
+          ? getForwarderLendUserData({
+              amount,
+              duration,
+              receiverAddress: receiver
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnPolygon,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
+        enabled,
+        chainId: gnosis.id
       }
     }
     default:
@@ -148,7 +187,7 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: mainnet.id
       }
@@ -165,19 +204,36 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: bsc.id
       }
     }
     case polygon.id: {
+      const userData =
+        duration > 0
+          ? getForwarderIncreaseDurationLendUserData({
+              duration
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnGnosis,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
+        enabled,
+        chainId: polygon.id
+      }
+    }
+    case gnosis.id: {
       return {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'increaseDuration',
         args: [duration],
         enabled,
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     }
     default:

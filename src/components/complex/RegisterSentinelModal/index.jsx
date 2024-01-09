@@ -4,7 +4,7 @@ import { Chart } from 'react-chartjs-2'
 import styled, { ThemeContext } from 'styled-components'
 import { useChainId } from 'wagmi'
 import BigNumber from 'bignumber.js'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 
 import { useEpochs } from '../../../hooks/use-epochs'
 import { useBalances } from '../../../hooks/use-balances'
@@ -378,12 +378,12 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
           </Text>
         </Col>
       </Row>
-      {isSafe && activeChainId !== polygon.id && (
+      {isSafe && activeChainId !== gnosis.id && (
         <Row className="mt-2">
           <Col>
             <InfoBox>
               it looks like you are connected with a Gnosis Safe wallet. Make sure you control the same address on{' '}
-              {polygon.name} as well.
+              {gnosis.name} as well.
             </InfoBox>
           </Col>
         </Row>

@@ -11,7 +11,7 @@ import {
   useSimulateContract,
   useWaitForTransactionReceipt
 } from 'wagmi'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 
 import settings from '../settings'
 import LendingManagerABI from '../utils/abis/LendingManager.json'
@@ -49,7 +49,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   const { data: pntBalanceData } = useBalance({
     token: settings.contracts.pntOnPolygon,
     address,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
@@ -214,7 +214,7 @@ const useSentinel = () => {
     functionName: 'sentinelOf',
     args: [address],
     enabled: address,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   const sentinelAddress =
@@ -228,7 +228,7 @@ const useSentinel = () => {
     functionName: 'sentinelRegistration',
     args: [sentinelAddress],
     enabled: sentinelAddress,
-    chainId: polygon.id
+    chainId: gnosis.id
   })
 
   return {
@@ -274,7 +274,7 @@ const useBorrowingSentinelProspectus = () => {
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [startEpoch, endEpoch],
         enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     ]
   })

@@ -1,9 +1,8 @@
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
 import { useReadContracts } from 'wagmi'
-import { mainnet } from 'wagmi/chains'
-import { erc20Abi } from 'viem' 
-import { polygon } from 'wagmi/chains'
+import { mainnet, gnosis, polygon } from 'wagmi/chains'
+import { erc20Abi } from 'viem'
 
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
@@ -35,7 +34,7 @@ const useStats = () => {
         abi: erc20Abi,
         functionName: 'totalSupply',
         args: [],
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     ]
   })

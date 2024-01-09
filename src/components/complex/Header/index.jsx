@@ -3,7 +3,7 @@ import React, { Fragment, useState } from 'react'
 import { Container, Nav, Navbar } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
-import { bsc, polygon, gnosis } from 'wagmi/chains'
+import { bsc, gnosis } from 'wagmi/chains'
 import { FaInfoCircle } from 'react-icons/fa'
 
 import { useNickname } from '../../../hooks/use-nickname'

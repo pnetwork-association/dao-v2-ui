@@ -15,9 +15,10 @@ const settings = {
     pntOnPolygon: '0xb6bcae6468760bc0cdfb9c8ef4ee75c9dd23e1ed',
     pntOnEthereum: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
     pntOnBsc: '0xdaacB0Ab6Fb34d24E8a67BfA14BF4D95D4C7aF92',
-    daoPnt: '0x1adA73b624b3B89cebdd457db8cBA5d34eb05E95',
+    daoPnt: '0xFF8Ce5Aca26251Cc3f31e597291c71794C06092a',
     dandelionVotingV1: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
-    dandelionVoting: '0x0cf759bcCfEf5f322af58ADaE2D28885658B5e02',
+    dandelionVotingV2: '0xb1b013D9ffbA9B19Be1b4BF7a489F0Cc5d96F6Ec',
+    dandelionVotingV3: '0x0cf759bcCfEf5f322af58ADaE2D28885658B5e02',
     acl: '0x50b2b8e429cB51bD43cD3E690e5BEB9eb674f6d7',
     stakingManager: '0xdEE8ebE2b7152ECCd935fd67134BF1bad55302BC',
     stakingManagerLM: '0x74107f07765A918890c7a0E9d420Dc587539aD42',
@@ -44,10 +45,11 @@ const settings = {
   explorers: {
     mainnet: 'https://etherscan.io',
     bsc: 'https://bscscan.com',
-    polygon: 'https://polygonscan.com'
+    polygon: 'https://polygonscan.com',
+    gnosis: 'https://gnosisscan.io'
   },
   rpc: {
-    gnosis: 'https://rpc.gnosischain.com',
+    gnosis: 'https://rpc.gnosischain.com'
   },
   assets: [
     {
@@ -82,8 +84,8 @@ const settings = {
     }
   ],
   activities: {
-    blocksWindow: 130000,
-    limitBlock: 41124493
+    blocksWindow: 30000n,
+    limitBlock: 31222303
   }
 }
 

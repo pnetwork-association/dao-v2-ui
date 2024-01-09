@@ -97,7 +97,7 @@ const getForwarderVoteUserData = ({ voterAddress, id, vote }) => {
   return encode(
     ['address[]', 'bytes[]'],
     [
-      [settings.contracts.dandelionVoting],
+      [settings.contracts.dandelionVotingV3],
       [dandelionVotingInterface.encodeFunctionData('delegateVote', [voterAddress, id, vote])]
     ]
   )

@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import styled, { ThemeContext } from 'styled-components'
 import { useChainId } from 'wagmi'
 import { FaInfoCircle } from 'react-icons/fa'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 
 import { useBalances } from '../../../hooks/use-balances'
 import { useEstimateApy, useLend } from '../../../hooks/use-lending-manager'
@@ -339,12 +339,12 @@ const LendModal = ({ show, onClose = () => null }) => {
         </Col>
       </Row>
       <Line />
-      {isSafe && activeChainId !== polygon.id && (
+      {isSafe && activeChainId !== gnosis.id && (
         <Row className="mt-2">
           <Col>
             <InfoBox>
               it looks like you are connected with a Gnosis Safe wallet. Make sure you control the same address on{' '}
-              {polygon.name} as well. Otherwise you can specify a destination address by clicking on the "show advanced
+              {gnosis.name} as well. Otherwise you can specify a destination address by clicking on the "show advanced
               options" button
             </InfoBox>
           </Col>

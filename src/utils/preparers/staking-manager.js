@@ -1,4 +1,4 @@
-import { bsc, mainnet, polygon } from 'wagmi/chains'
+import { bsc, gnosis, mainnet, polygon } from 'wagmi/chains'
 import { erc20Abi } from 'viem'
 import settings from '../../settings'
 
@@ -16,6 +16,15 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnMainnet],
         chainId: mainnet.id
+      }
+    }
+    case gnosis.id: {
+      return {
+        address: settings.contracts.pntOnGnosis,
+        abi: erc20ABI,
+        functionName: 'allowance',
+        args: [address, settings.contracts.stakingManager],
+        chainId: gnosis.id
       }
     }
     case polygon.id: {
@@ -51,6 +60,16 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
         args: [settings.contracts.forwarderOnMainnet, amount],
         enabled,
         chainId: mainnet.id
+      }
+    }
+    case gnosis.id: {
+      return {
+        address: settings.contracts.pntOnGnosis,
+        abi: erc20ABI,
+        functionName: 'approve',
+        args: [settings.contracts.stakingManager, amount],
+        enabled,
+        chainId: gnosis.id
       }
     }
     case polygon.id: {
@@ -94,7 +113,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: mainnet.id
       }
@@ -113,17 +132,36 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: bsc.id
       }
     }
-    case polygon.id: {
+    case gnosis.id: {
       return {
         address: settings.contracts.stakingManager,
         abi: StakingManagerABI,
         functionName: 'stake',
         args: [receiver, amount, duration],
+        enabled,
+        chainId: gnosis.id
+      }
+    }
+    case polygon.id: {
+      const userData =
+        amount && duration && receiver
+          ? getForwarderStakeUserData({
+              amount,
+              duration,
+              receiverAddress: receiver
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnPolygon,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: polygon.id
       }
@@ -150,7 +188,7 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: mainnet.id
       }
@@ -170,17 +208,37 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: bsc.id
       }
     }
-    case polygon.id: {
+    case gnosis.id: {
       return {
         address: contractAddress,
         abi: StakingManagerABI,
         functionName: 'unstake',
         args: [amount, chainId],
+        enabled,
+        chainId: gnosis.id
+      }
+    }
+    case polygon.id: {
+      const userData =
+        amount && chainId && receiver
+          ? getForwarderUnstakeUserData({
+              amount,
+              chainId,
+              receiverAddress: receiver,
+              contractAddress
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnPolygon,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: polygon.id
       }

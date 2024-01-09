@@ -1,6 +1,6 @@
-import { bsc, mainnet, polygon } from 'wagmi/chains'
+import { bsc, mainnet, gnosis, polygon } from 'wagmi/chains'
 import settings from '../../settings'
-
+import { pNetworkNetworkIds } from '../../contants'
 import DandelionVotingABI from '../../utils/abis/DandelionVoting.json'
 import ForwarderABI from '../abis/Forwarder.json'
 import { getForwarderVoteUserData } from './forwarder'
@@ -20,7 +20,7 @@ const prepareContractWriteVote = ({ activeChainId, address, id, vote, enabled })
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: mainnet.id
       }
@@ -38,18 +38,36 @@ const prepareContractWriteVote = ({ activeChainId, address, id, vote, enabled })
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, '0x0075dd4c'],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: bsc.id
       }
     }
-    case polygon.id: {
+    case gnosis.id: {
       return {
-        address: settings.contracts.dandelionVoting,
+        address: settings.contracts.dandelionVotingV3,
         abi: DandelionVotingABI,
         functionName: 'vote',
         args: [id, vote],
         enabled
+      }
+    }
+    case polygon.id: {
+      const userData = address
+        ? getForwarderVoteUserData({
+            voterAddress: address,
+            id,
+            vote
+          })
+        : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnPolygon,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
+        enabled,
+        chainId: polygon.id
       }
     }
     default:

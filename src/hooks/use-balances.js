@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
 import { useAccount, useBalance, useChainId } from 'wagmi'
-import { polygon } from 'wagmi/chains'
+import { gnosis } from 'wagmi/chains'
 
 import settings from '../settings'
 import { formatAssetAmount } from '../utils/amount'
@@ -36,7 +36,7 @@ const useDaoPntBalance = () => {
   const { data: daoPntBalanceData } = useBalance({
     token: settings.contracts.daoPnt,
     address,
-    chainId: polygon.id,
+    chainId: gnosis.id,
     watch: true
   })
 

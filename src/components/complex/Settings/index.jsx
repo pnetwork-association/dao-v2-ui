@@ -116,11 +116,11 @@ const SettingsDrawer = ({ children }) => {
               value: ''
             },
             2: {
-              label: 'Bsc',
+              label: 'Gnosis',
               value: ''
             },
             3: {
-              label: 'Gnosis',
+              label: 'Bsc',
               value: ''
             }
           }

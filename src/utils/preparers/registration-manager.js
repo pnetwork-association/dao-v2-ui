@@ -1,4 +1,4 @@
-import { bsc, mainnet, polygon } from 'wagmi/chains'
+import { bsc, gnosis, mainnet, polygon } from 'wagmi/chains'
 import { erc20Abi } from 'viem'
 import settings from '../../settings'
 
@@ -21,6 +21,15 @@ const prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking = (
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnMainnet],
         chainId: mainnet.id
+      }
+    }
+    case gnosis.id: {
+      return {
+        address: settings.contracts.pntOnGnosis,
+        abi: erc20ABI,
+        functionName: 'allowance',
+        args: [address, settings.contracts.registrationManager],
+        chainId: gnosis.id
       }
     }
     case polygon.id: {
@@ -56,6 +65,16 @@ const prepareContractWriteApproveUpdateSentinelRegistrationByStaking = ({ active
         args: [settings.contracts.forwarderOnMainnet, amount],
         enabled: approveEnabled,
         chainId: mainnet.id
+      }
+    }
+    case gnosis.id: {
+      return {
+        address: settings.contracts.pntOnGnosis,
+        abi: erc20ABI,
+        functionName: 'approve',
+        args: [settings.contracts.registrationManager, amount],
+        enabled: approveEnabled,
+        chainId: gnosis.id
       }
     }
     case polygon.id: {
@@ -107,7 +126,7 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: mainnet.id
       }
@@ -127,17 +146,37 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [amount, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: bsc.id
       }
     }
-    case polygon.id: {
+    case gnosis.id: {
       return {
         address: settings.contracts.registrationManager,
         abi: RegistrationManagerABI,
         functionName: 'updateSentinelRegistrationByStaking',
         args: [receiver, amount, duration, isValidHexString(signature) ? signature : '0x'],
+        enabled,
+        chainId: gnosis.id
+      }
+    }
+    case polygon.id: {
+      const userData =
+        amount && duration && receiver && isValidHexString(signature)
+          ? getForwarderUpdateSentinelRegistrationByStakingUserData({
+              amount,
+              duration,
+              ownerAddress: receiver,
+              signature
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnPolygon,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: polygon.id
       }
@@ -169,7 +208,7 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: mainnet.id
       }
@@ -188,17 +227,36 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: bsc.id
       }
     }
-    case polygon.id: {
+    case gnosis.id: {
       return {
         address: settings.contracts.registrationManager,
         abi: RegistrationManagerABI,
         functionName: 'updateSentinelRegistrationByBorrowing',
         args: [numberOfEpochs, signature],
+        enabled,
+        chainId: gnosis.id
+      }
+    }
+    case polygon.id: {
+      const userData =
+        isValidHexString(signature) && numberOfEpochs && receiver
+          ? getForwarderUpdateSentinelRegistrationByBorrowingUserData({
+              ownerAddress: receiver,
+              numberOfEpochs,
+              signature
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnPolygon,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: polygon.id
       }
@@ -225,7 +283,7 @@ export const prepareContractWriteIncreaseStakingSentinelRegistrationDuration = (
         address: settings.contracts.forwarderOnMainnet,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: mainnet.id
       }
@@ -242,17 +300,34 @@ export const prepareContractWriteIncreaseStakingSentinelRegistrationDuration = (
         address: settings.contracts.forwarderOnBsc,
         abi: ForwarderABI,
         functionName: 'call',
-        args: [0, settings.contracts.forwarderOnPolygon, userData, pNetworkNetworkIds.polygon],
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: bsc.id
       }
     }
-    case polygon.id: {
+    case gnosis.id: {
       return {
         address: settings.contracts.registrationManager,
         abi: RegistrationManagerABI,
         functionName: 'increaseSentinelRegistrationDuration',
         args: [duration],
+        enabled,
+        chainId: gnosis.id
+      }
+    }
+    case polygon.id: {
+      const userData =
+        duration > 0
+          ? getForwarderIncreaseStakingSentinelRegistrationDurationUserData({
+              duration
+            })
+          : '0x'
+
+      return {
+        address: settings.contracts.forwarderOnPolygon,
+        abi: ForwarderABI,
+        functionName: 'call',
+        args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
         enabled,
         chainId: polygon.id
       }
