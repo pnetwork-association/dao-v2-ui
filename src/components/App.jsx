@@ -1,4 +1,4 @@
-import React, { useMemo, useContext } from 'react'
+import React, { useMemo, useContext, useEffect } from 'react'
 import { ThemeContext } from 'styled-components'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
@@ -51,19 +51,19 @@ const { chains, provider } = configureChains(
           chain.id === mainnet.id
             ? settings.rpcEndpoints && settings.rpcEndpoints[0] !== ''
               ? settings.rpcEndpoints[0]
-              : `https://eth-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+              : `https://eth-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
             : chain.id === gnosis.id
             ? settings.rpcEndpoints && settings.rpcEndpoints[0] !== ''
               ? settings.rpcEndpoints[3]
-              : `https://eth-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+              : `https://eth-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
             : chain.id === polygon.id
             ? settings.rpcEndpoints && settings.rpcEndpoints[1] !== ''
               ? settings.rpcEndpoints[1]
-              : `https://polygon-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+              : `https://polygon-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
             : chain.id === bsc.id
             ? settings.rpcEndpoints && settings.rpcEndpoints[2] !== ''
               ? settings.rpcEndpoints[2]
-              : `https://bsc-mainnet.alchemyapi.io/v2/${process.env.REACT_APP_ALCHEMY_ID}`
+              : `https://bsc-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
             : 'Unsupported Chain'
       })
     })
@@ -73,7 +73,7 @@ const { chains, provider } = configureChains(
 const { connectors } = getDefaultWallets({
   appName: 'pNetwork DAO',
   chains,
-  projectId: process.env.REACT_APP_WC2_PROJECT_ID
+  projectId: `${import.meta.env.VITE_REACT_APP_WC2_PROJECT_ID}`
 })
 
 const wagmiClient = createClient({
@@ -91,7 +91,7 @@ const App = () => {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains} theme={rainbowTheme} avatar={Avatar}>
-        <CryptoCompareProvider apiKey={process.env.REACT_APP_CRYPTO_COMPARE_API_KEY}>
+        <CryptoCompareProvider apiKey={import.meta.env.VITE_REACT_APP_CRYPTO_COMPARE_API_KEY}>
           <ActivitiesProvider>
             <ProposalsProvider>
               <EventsProvider>

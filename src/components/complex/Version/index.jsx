@@ -34,12 +34,12 @@ const VersionButton = styled.button`
 `
 
 export default function Version({ ..._props }) {
-  const githubLink = `https://github.com/pnetwork-association/dao-v2-ui/tree/${process.env.REACT_APP_GIT_SHA}`
+  const githubLink = `https://github.com/pnetwork-association/dao-v2-ui/tree/${import.meta.env.VITE_REACT_APP_GIT_SHA}`
   return (
     <VersionDiv {..._props}>
       <ContainerOptions>
         <VersionButton onClick={() => window.open(githubLink, '_blank', 'noopener,noreferrer')}>
-          Version: {process.env.REACT_APP_GIT_SHA}
+          Version: {import.meta.env.VITE_REACT_APP_GIT_SHA}
         </VersionButton>
         <Web3SettingsButton className={'api-button'} iconClassName={'api-icon'}></Web3SettingsButton>
       </ContainerOptions>

@@ -19,12 +19,12 @@ const fetchProposals = async ({ setProposals }) => {
   const mainnetProvider =
     rpcSettings.rpcEndpoints && rpcSettings.rpcEndpoints[0] !== ''
       ? new ethers.providers.JsonRpcProvider(rpcSettings.rpcEndpoints[0], mainnet.id)
-      : new ethers.providers.AlchemyProvider(mainnet.id, process.env.REACT_APP_ALCHEMY_ID)
+      : new ethers.providers.AlchemyProvider(mainnet.id, import.meta.env.VITE_REACT_APP_ALCHEMY_ID)
 
   const polygonProvider =
     rpcSettings.rpcEndpoints && rpcSettings.rpcEndpoints[1] !== ''
       ? new ethers.providers.JsonRpcProvider(rpcSettings.rpcEndpoints[1], polygon.id)
-      : new ethers.providers.AlchemyProvider(polygon.id, process.env.REACT_APP_ALCHEMY_ID)
+      : new ethers.providers.AlchemyProvider(polygon.id, import.meta.env.REACT_APP_ALCHEMY_ID)
 
   const fetchEtherscanAndPolygonscanProposals = async () => {
     try {
