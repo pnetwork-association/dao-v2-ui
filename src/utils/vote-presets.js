@@ -85,10 +85,12 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
           .multipliedBy(10 ** decimals)
           .toFixed()
 
-        return {
-          to: settings.contracts.financeVault,
-          calldata: Vault.encodeFunctionData('transfer', params)
-        }
+        return [
+          {
+            to: settings.contracts.financeVault,
+            calldata: Vault.encodeFunctionData('transfer', params)
+          }
+        ]
       }
     },
     custom: {

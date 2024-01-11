@@ -115,13 +115,13 @@ const CreateProposalModal = ({ show, onClose }) => {
     const prepare = async () => {
       try {
         const preset = presets[selectedPreset]
-        const action = await preset.prepare()
-        if (action) {
-          setScript(encodeCallScript([action]))
+        const actions = await preset.prepare()
+        if (actions) {
+          setScript(encodeCallScript(actions))
         }
       } catch (_err) {
         setScript('')
-        // console.error(_err)
+        console.error(_err)
       }
     }
 
