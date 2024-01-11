@@ -3,7 +3,39 @@ import { erc20ABI } from 'wagmi'
 import BigNumber from 'bignumber.js'
 
 import VaultABI from './abis/Vault.json'
+import EthPNTABI from './abis/EthPNT.json'
 import settings from '../settings'
+
+const prepareInflationProposal = async (receiverAddress, amount) => {
+  const Vault = new ethers.utils.Interface(VaultABI)
+  const EthPNT = new ethers.utils.Interface(EthPNTABI)
+
+  const ethPNTAsset = settings.assets.find((asset) => asset.symbol == 'ethPNT')
+  if (!ethPNTAsset) throw new Error('ethPNT asset config not found!')
+  const ethPNTAddress = ethPNTAsset.address
+  if (!ethPNTAddress) throw new Error('ethPNT asset address not found!')
+  const ethPNTDecimals = ethPNTAsset.decimals
+  if (!ethPNTDecimals) throw new Error('ethPNT asset decimals not found!')
+
+  const rawAmount = BigNumber(amount)
+    .multipliedBy(10 ** ethPNTDecimals)
+    .toFixed()
+
+  const withdrawInflationParams = [settings.contracts.financeVault, rawAmount]
+
+  const transferParams = [ethPNTAddress, receiverAddress, rawAmount]
+
+  return [
+    {
+      to: ethPNTAddress,
+      calldata: EthPNT.encodeFunctionData('withdrawInflation', withdrawInflationParams)
+    },
+    {
+      to: settings.contracts.financeVault,
+      calldata: Vault.encodeFunctionData('transfer', transferParams)
+    }
+  ]
+}
 
 const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
   return {
@@ -91,6 +123,85 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
             calldata: Vault.encodeFunctionData('transfer', params)
           }
         ]
+      }
+    },
+    withdrawInflationToRecipient: {
+      id: 'withdrawInflationToRecipient',
+      name: 'Withdraw Inflation To Recipient',
+      description: 'Withdraw requested inflated ethPNT amount from the treasury',
+      args: [
+        {
+          id: 'input-receiver-address',
+          name: 'receiverAddress',
+          component: 'Input',
+          props: {
+            style: {
+              fontSize: 15
+            },
+            placeholder: 'Receiver address ...',
+            value: presetParams[1] || '',
+            onChange: (_e) =>
+              setPresetParams({
+                ...presetParams,
+                1: _e.target.value
+              })
+          }
+        },
+        {
+          id: 'input-amount',
+          name: 'amount',
+          component: 'Input',
+          props: {
+            type: 'number',
+            style: {
+              fontSize: 15
+            },
+            placeholder: 'Amount ...',
+            value: presetParams[2] || '',
+            onChange: (_e) =>
+              setPresetParams({
+                ...presetParams,
+                2: _e.target.value
+              })
+          }
+        }
+      ],
+      prepare: async () => {
+        const params = Object.values(presetParams)
+        if (params.length < 2) return null
+
+        return prepareInflationProposal(params[0], params[1])
+      }
+    },
+    withdrawInflationToAssociation: {
+      id: 'withdrawInflationToAssociation',
+      name: 'Withdraw Inflation to pNetwork Association',
+      description: 'Withdraw requested inflated ethPNT amount from the treasury to pNetwork Association',
+      args: [
+        {
+          id: 'input-amount',
+          name: 'amount',
+          component: 'Input',
+          props: {
+            type: 'number',
+            style: {
+              fontSize: 15
+            },
+            placeholder: 'Amount ...',
+            value: presetParams[2] || '',
+            onChange: (_e) =>
+              setPresetParams({
+                ...presetParams,
+                2: _e.target.value
+              })
+          }
+        }
+      ],
+      prepare: async () => {
+        const params = Object.values(presetParams)
+        if (params.length < 1) return null
+
+        return prepareInflationProposal(settings.pNetworkAssociationGnosisSafeAddress, params[0])
       }
     },
     custom: {
