@@ -3,7 +3,7 @@ import { Row, Col } from 'react-bootstrap'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
 import styled from 'styled-components'
-import { usePrepareContractWrite, useContractWrite, useChainId, useAccount } from 'wagmi'
+import { useSimulateContract, useWriteContract, useChainId, useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
 import BigNumber from 'bignumber.js'
 
@@ -205,15 +205,17 @@ const Proposal = ({
     [open, daoPntBalance, vote]
   )
 
-  const { config: configYes } = usePrepareContractWrite(
+  const { data: simulationYesData } = useSimulateContract(
     prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: true, enabled: canVote })
   )
-  const { data: yesData, /*isLoading: isLoadingYes,*/ write: yes, error: yesError } = useContractWrite(configYes)
+  const { data: yesData, /*isLoading: isLoadingYes,*/ writeContract: callYes, error: yesError } = useWriteContract()
+  const yes = () => callYes(simulationYesData?.request)
 
-  const { config: configNo } = usePrepareContractWrite(
+  const { data: simulationNoData } = useSimulateContract(
     prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: false, enabled: canVote })
   )
-  const { data: noData, /*isLoading: isLoadingNo,*/ write: no, error: noError } = useContractWrite(configNo)
+  const { data: noData, /*isLoading: isLoadingNo,*/ writeContract: callNo, error: noError } = useWriteContract()
+  const no = () => callNo(simulationNoData?.request)
 
   useEffect(() => {
     if (yesError && isValidError(yesError)) {
@@ -319,11 +321,11 @@ const Proposal = ({
             )}
             {formattedVote === 'NOT VOTED' && open ? (
               <div className="d-flex align-items-center">
-                <VoteButton disabled={!canVote} vote={'YES'} onClick={() => yes?.()}>
+                <VoteButton disabled={!canVote} vote={'YES'} onClick={yes}>
                   <StyledIcon icon="verified" />
                   <VoteText vote={'YES'}>YES</VoteText>
                 </VoteButton>
-                <VoteButton disabled={!canVote} vote={'NO'} onClick={() => no?.()}>
+                <VoteButton disabled={!canVote} vote={'NO'} onClick={no}>
                   <StyledIcon icon="block" />
                   <VoteText vote={'NO'}>NO</VoteText>
                 </VoteButton>

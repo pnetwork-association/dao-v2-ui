@@ -1,5 +1,5 @@
 import { bsc, mainnet, polygon } from 'wagmi/chains'
-import { erc20ABI } from 'wagmi'
+import { erc20Abi } from 'viem'
 import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
@@ -12,7 +12,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
     case mainnet.id: {
       return {
         address: settings.contracts.pntOnEthereum,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnMainnet],
         chainId: mainnet.id
@@ -21,7 +21,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
     case polygon.id: {
       return {
         address: settings.contracts.pntOnPolygon,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.stakingManager],
         chainId: polygon.id
@@ -30,7 +30,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
     case bsc.id: {
       return {
         address: settings.contracts.pntOnBsc,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnBsc],
         chainId: bsc.id
@@ -46,7 +46,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
     case mainnet.id: {
       return {
         address: settings.contracts.pntOnEthereum,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
         enabled,
@@ -56,7 +56,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
     case polygon.id: {
       return {
         address: settings.contracts.pntOnPolygon,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.stakingManager, amount],
         enabled,
@@ -66,7 +66,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
     case bsc.id: {
       return {
         address: settings.contracts.pntOnBsc,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
         enabled,

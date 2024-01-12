@@ -391,7 +391,7 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
       {type === 'stake' && (
         <Row className="mt-3">
           <Col>
-            <Button disabled={!approveEnabled} loading={isApproving} onClick={() => approve?.()}>
+            <Button disabled={!approveEnabled} loading={isApproving} onClick={approve}>
               Approve
             </Button>
           </Col>
@@ -403,7 +403,7 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
             <Button
               disabled={!updateSentinelRegistrationByStakingEnabled}
               loading={isUpdatingSentinelRegistrationByStaking}
-              onClick={() => updateSentinelRegistrationByStaking?.()}
+              onClick={updateSentinelRegistrationByStaking}
             >
               {updateSentinelRegistrationByStakingButtonText}
             </Button>
@@ -413,7 +413,7 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
               <Button
                 disabled={!updateSentinelRegistrationByBorrowingEnabled || !isThereEnoughBorrowableAmount}
                 loading={isUpdatingSentinelRegistrationByBorrowing}
-                onClick={() => updateSentinelRegistrationByBorrowing?.()}
+                onClick={updateSentinelRegistrationByBorrowing}
               >
                 Borrow & Register
               </Button>

@@ -283,7 +283,7 @@ const LendDurationModal = ({ show, onClose }) => {
           <Button
             disabled={duration === 0}
             loading={increaseLendDurationLoading}
-            onClick={() => increaseLendDuration?.()}
+            onClick={increaseLendDuration}
           >
             Increase duration
           </Button>

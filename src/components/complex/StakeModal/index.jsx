@@ -151,14 +151,14 @@ const StakeModal = ({ show, onClose }) => {
       )}
       <Row className="mt-2">
         <Col>
-          <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>
+          <Button disabled={!approveEnabled} onClick={approve} loading={isApproving}>
             Approve
           </Button>
         </Col>
       </Row>
       <Row className="mt-2">
         <Col>
-          <Button disabled={!stakeEnabled} loading={isStaking} onClick={() => stake?.()}>
+          <Button disabled={!stakeEnabled} loading={isStaking} onClick={stake}>
             {stakeButtonText}
           </Button>
         </Col>

@@ -129,7 +129,7 @@ const UnstakeModal = ({ show, contractAddress, onClose }) => {
       </Row>
       <Row className="mt-2 mb-2">
         <Col>
-          <Button disabled={unstakeButtonDisabled} loading={isUnstaking} onClick={() => unstake?.()}>
+          <Button disabled={unstakeButtonDisabled} loading={isUnstaking} onClick={unstake}>
             {unstakeButtonText}
           </Button>
         </Col>

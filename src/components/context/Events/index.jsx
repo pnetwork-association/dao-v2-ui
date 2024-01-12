@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react'
-import { useContract, useProvider } from 'wagmi'
+import { useClient } from 'wagmi'
+import { getContract } from 'viem' 
 import { polygon } from 'wagmi/chains'
 
 import settings from '../../../settings'
@@ -15,24 +16,25 @@ export const EventsContext = createContext({
 const EventsProvider = ({ children }) => {
   const [lendedEvents, setLendedEvents] = useState([])
   const [borrowedEvents, setBorrowedEvents] = useState([])
-  const provider = useProvider({ chainId: polygon.id })
+  const client = useClient({ chainId: polygon.id })
 
-  const lendingManager = useContract({
+  const lendingManager = getContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
-    signerOrProvider: provider
+    client: client,
   })
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        setLendedEvents(await lendingManager.queryFilter('Lended'))
+        const events = await lendingManager.getEvents.Lended()
+        setLendedEvents(events)
       } catch (_err) {
         console.error(_err)
       }
 
       try {
-        setBorrowedEvents(await lendingManager.queryFilter('Borrowed'))
+        setBorrowedEvents(await lendingManager.getEvents.Borrowed())
       } catch (_err) {
         console.error(_err)
       }

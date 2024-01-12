@@ -1,6 +1,8 @@
 import { BigNumber } from 'bignumber.js'
 import { useMemo } from 'react'
-import { useContractReads, erc20ABI, mainnet } from 'wagmi'
+import { useReadContracts } from 'wagmi'
+import { mainnet } from 'wagmi/chains'
+import { erc20Abi } from 'viem' 
 import { polygon } from 'wagmi/chains'
 
 import settings from '../settings'
@@ -18,19 +20,19 @@ const useStats = () => {
     formattedCurrentEpochStartedAt
   } = useEpochs()
 
-  const { data } = useContractReads({
+  const { data } = useReadContracts({
     watch: true,
     contracts: [
       {
         address: settings.contracts.pntOnEthereum,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'totalSupply',
         args: [],
         chainId: mainnet.id
       },
       {
         address: settings.contracts.daoPnt,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'totalSupply',
         args: [],
         chainId: polygon.id

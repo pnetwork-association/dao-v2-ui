@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
-import { useContractWrite, useContractRead, useContractReads, useSwitchNetwork, useChainId } from 'wagmi'
+import { useWriteContract, useReadContract, useReadContracts, useSwitchChain, useChainId } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { groupBy } from 'lodash'
 
@@ -23,7 +23,7 @@ const useFeesDistributionByMonthlyRevenues = ({
   mr,
   addBorrowAmountToBorrowedAmount = false // used when we want to simulate a borrowing sentinel registration
 }) => {
-  const { data } = useContractReads({
+  const { data } = useReadContracts({
     contracts: [
       {
         address: settings.contracts.lendingManager,
@@ -158,7 +158,7 @@ const useClaimableFeesAssetsByEpochs = (_opts = {}) => {
     return Boolean(sentinelAddress) && Boolean(currentEpoch || currentEpoch === 0)
   }, [sentinelAddress, currentEpoch, type, kind])
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.feesManager,
     abi: FeesManagerABI,
     functionName: 'claimableFeesByEpochsRangeOf',
@@ -248,9 +248,9 @@ const useClaimableFeesAssetsByAssets = (_opts) => {
 }
 
 const useClaimFeeByEpoch = () => {
-  const { switchNetwork } = useSwitchNetwork({ chainId: polygon.id })
+  const { switchChain } = useSwitchChain({ chainId: polygon.id })
   const activeChainId = useChainId()
-  const { error, data, writeAsync } = useContractWrite({
+  const { error, data, writeAsync } = useWriteContract({
     address: settings.contracts.feesManager,
     abi: FeesManagerABI,
     functionName: 'claimFeeByEpoch',
@@ -267,7 +267,7 @@ const useClaimFeeByEpoch = () => {
   )
 
   return {
-    claim: activeChainId !== polygon.id && switchNetwork ? switchNetwork : onClaim,
+    claim: activeChainId !== polygon.id && switchChain ? switchChain : onClaim,
     error,
     data
   }
@@ -275,9 +275,9 @@ const useClaimFeeByEpoch = () => {
 
 const useClaimFeeByEpochsRange = () => {
   const { currentEpoch } = useEpochs()
-  const { switchNetwork } = useSwitchNetwork({ chainId: polygon.id })
+  const { switchChain } = useSwitchChain({ chainId: polygon.id })
   const activeChainId = useChainId()
-  const { error, data, writeAsync } = useContractWrite({
+  const { error, data, writeAsync } = useWriteContract({
     address: settings.contracts.feesManager,
     abi: FeesManagerABI,
     functionName: 'claimFeeByEpochsRange',
@@ -296,7 +296,7 @@ const useClaimFeeByEpochsRange = () => {
   )
 
   return {
-    claim: activeChainId !== polygon.id && switchNetwork ? switchNetwork : onClaim,
+    claim: activeChainId !== polygon.id && switchChain ? switchChain : onClaim,
     error,
     data
   }
@@ -321,7 +321,7 @@ const useStakingSentinelEstimatedRevenues = () => {
     }
   }, [kind, currentEpoch, sentinelRegistrationStartEpoch, sentinelRegistrationEndEpoch])
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'totalBorrowedAmountByEpochsRange',
@@ -390,7 +390,7 @@ const useBorrowingSentinelEstimatedRevenues = () => {
     }
   }, [kind, currentEpoch, sentinelRegistrationEndEpoch, sentinelRegistrationStartEpoch])
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'totalBorrowedAmountByEpochsRange',

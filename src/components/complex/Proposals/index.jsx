@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo, useState } from 'react'
 import { Tab } from 'react-bootstrap'
 import styled from 'styled-components'
-import { mainnet } from 'wagmi'
+import { mainnet } from 'wagmi/chains'
 
 import { useProposals } from '../../../hooks/use-proposals'
 import { useDaoPntBalance } from '../../../hooks/use-balances'

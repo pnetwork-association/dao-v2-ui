@@ -352,14 +352,14 @@ const LendModal = ({ show, onClose = () => null }) => {
       )}
       <Row className="mt-3">
         <Col>
-          <Button disabled={!approveEnabled} onClick={() => approve?.()} loading={isApproving}>
+          <Button disabled={!approveEnabled} onClick={approve} loading={isApproving}>
             Approve
           </Button>
         </Col>
       </Row>
       <Row className="mt-2 mb-2">
         <Col>
-          <Button disabled={!lendEnabled} loading={isLending} onClick={() => lend?.()}>
+          <Button disabled={!lendEnabled} loading={isLending} onClick={lend}>
             {lendButtonText}
           </Button>
         </Col>

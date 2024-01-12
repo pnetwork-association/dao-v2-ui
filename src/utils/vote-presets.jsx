@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { erc20ABI } from 'wagmi'
+import { erc20Abi } from 'viem'
 import BigNumber from 'bignumber.js'
 import { GoVerified } from 'react-icons/go'
 
@@ -7,7 +7,7 @@ import VaultABI from './abis/Vault.json'
 import settings from '../settings'
 import { removeCommas } from './amount'
 
-const getVotePresets = ({ presetParams, setPresetParams, provider, theme }) => {
+const getVotePresets = ({ presetParams, setPresetParams, client, theme }) => {
   return {
     paymentFromTreasury: {
       id: 'paymentFromTreasury',
@@ -83,7 +83,7 @@ const getVotePresets = ({ presetParams, setPresetParams, provider, theme }) => {
           decimals = asset.decimals
         } else {
           // fetching decimals on chain
-          const erc20 = new ethers.Contract(addressParam, erc20ABI, provider)
+          const erc20 = new ethers.Contract(addressParam, erc20Abi, client)
           decimals = await erc20.decimals()
         }
 

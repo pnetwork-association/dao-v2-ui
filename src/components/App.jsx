@@ -1,10 +1,12 @@
-import React, { useMemo, useContext, useEffect } from 'react'
+import React, { useMemo, useContext } from 'react'
 import { ThemeContext } from 'styled-components'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import { configureChains, createClient, WagmiConfig, createStorage } from 'wagmi'
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { createConfig, WagmiProvider  } from 'wagmi'
 import { mainnet, polygon, bsc, gnosis } from 'wagmi/chains'
-import { jsonRpcProvider } from '@wagmi/core/providers/jsonRpc'
+import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors'
+import { http } from '@wagmi/core'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query' 
 import { getWeb3Settings } from 'react-web3-settings'
 
 import { styleRainbowKit } from '../theme/rainbow-configs'
@@ -42,69 +44,67 @@ const router = createHashRouter([
 
 const settings = getWeb3Settings()
 
-const { chains, provider } = configureChains(
-  [gnosis],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => ({
-        http:
-          chain.id === mainnet.id
-            ? settings.rpcEndpoints && settings.rpcEndpoints[0] !== ''
-              ? settings.rpcEndpoints[0]
-              : `https://eth-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
-            : chain.id === gnosis.id
-            ? settings.rpcEndpoints && settings.rpcEndpoints[0] !== ''
-              ? settings.rpcEndpoints[3]
-              : `https://eth-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
-            : chain.id === polygon.id
-            ? settings.rpcEndpoints && settings.rpcEndpoints[1] !== ''
-              ? settings.rpcEndpoints[1]
-              : `https://polygon-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
-            : chain.id === bsc.id
-            ? settings.rpcEndpoints && settings.rpcEndpoints[2] !== ''
-              ? settings.rpcEndpoints[2]
-              : `https://bsc-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
-            : 'Unsupported Chain'
-      })
-    })
-  ]
-)
-
-const { connectors } = getDefaultWallets({
-  appName: 'pNetwork DAO',
-  chains,
-  projectId: `${import.meta.env.VITE_REACT_APP_WC2_PROJECT_ID}`
+export const wagmiConfig = createConfig({
+  chains: [gnosis],
+  connectors: [
+    injected(),
+    walletConnect({
+      projectId: `${import.meta.env.VITE_REACT_APP_WC2_PROJECT_ID}`,
+    }),
+    coinbaseWallet({
+      appName: 'DAO v3 dApp',
+    }),
+  ],
+  transports: {
+    [mainnet.id]: http(
+      settings.rpcEndpoints && settings.rpcEndpoints[0] !== '' ?
+      settings.rpcEndpoints[0] :
+      `https://eth-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
+    ),
+    [polygon.id]: http(
+      settings.rpcEndpoints && settings.rpcEndpoints[1] !== ''
+      ? settings.rpcEndpoints[1]
+      : `https://polygon-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
+    ), 
+    [bsc.id]: http(
+      settings.rpcEndpoints && settings.rpcEndpoints[2] !== ''
+      ? settings.rpcEndpoints[2]
+      : `https://bsc-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
+      ), 
+    [gnosis.id]: http(
+      settings.rpcEndpoints && settings.rpcEndpoints[3] !== '' ?
+      settings.rpcEndpoints[3] :
+      'https://rpc.gnosischain.com/'
+      // `https://eth-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
+    ), 
+  },
 })
 
-const wagmiClient = createClient({
-  persister: null,
-  storage: createStorage({ storage: window.localStorage }),
-  autoConnect: true,
-  connectors,
-  provider
-})
+const queryClient = new QueryClient() 
 
 const App = () => {
   const theme = useContext(ThemeContext)
   const rainbowTheme = useMemo(() => styleRainbowKit(theme), [theme])
 
   return (
-    <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains} theme={rainbowTheme} avatar={Avatar}>
-        <CryptoCompareProvider apiKey={import.meta.env.VITE_REACT_APP_CRYPTO_COMPARE_API_KEY}>
-          <ActivitiesProvider>
-            <ProposalsProvider>
-              <EventsProvider>
-                <SettingsDrawer>
-                  <RouterProvider router={router} />
-                </SettingsDrawer>
-              </EventsProvider>
-              <Disclaimer />
-            </ProposalsProvider>
-          </ActivitiesProvider>
-        </CryptoCompareProvider>
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <RainbowKitProvider theme={rainbowTheme} avatar={Avatar}>
+          <CryptoCompareProvider apiKey={import.meta.env.VITE_REACT_APP_CRYPTO_COMPARE_API_KEY}>
+            <ActivitiesProvider>
+              <ProposalsProvider>
+                <EventsProvider>
+                  <SettingsDrawer>
+                    <RouterProvider router={router} />
+                  </SettingsDrawer>
+                </EventsProvider>
+                <Disclaimer />
+              </ProposalsProvider>
+            </ActivitiesProvider>
+          </CryptoCompareProvider>
+        </RainbowKitProvider>
+      </QueryClientProvider> 
+    </WagmiProvider>
   )
 }
 export default App

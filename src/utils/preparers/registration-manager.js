@@ -1,5 +1,5 @@
 import { bsc, mainnet, polygon } from 'wagmi/chains'
-import { erc20ABI } from 'wagmi'
+import { erc20Abi } from 'viem'
 import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
@@ -17,7 +17,7 @@ const prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking = (
     case mainnet.id: {
       return {
         address: settings.contracts.pntOnEthereum,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnMainnet],
         chainId: mainnet.id
@@ -26,7 +26,7 @@ const prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking = (
     case polygon.id: {
       return {
         address: settings.contracts.pntOnPolygon,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.registrationManager],
         chainId: polygon.id
@@ -35,7 +35,7 @@ const prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking = (
     case bsc.id: {
       return {
         address: settings.contracts.pntOnBsc,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnBsc],
         chainId: bsc.id
@@ -51,7 +51,7 @@ const prepareContractWriteApproveUpdateSentinelRegistrationByStaking = ({ active
     case mainnet.id: {
       return {
         address: settings.contracts.pntOnEthereum,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
         enabled: approveEnabled,
@@ -61,7 +61,7 @@ const prepareContractWriteApproveUpdateSentinelRegistrationByStaking = ({ active
     case polygon.id: {
       return {
         address: settings.contracts.pntOnPolygon,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.registrationManager, amount],
         enabled: approveEnabled,
@@ -71,7 +71,7 @@ const prepareContractWriteApproveUpdateSentinelRegistrationByStaking = ({ active
     case bsc.id: {
       return {
         address: settings.contracts.pntOnBsc,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
         enabled: approveEnabled,

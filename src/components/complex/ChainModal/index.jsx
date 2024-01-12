@@ -1,6 +1,6 @@
 import { Fragment, useState, useEffect, useCallback } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import { useChainId, useSwitchNetwork, useAccount } from 'wagmi'
+import { useChainId, useSwitchChain, useAccount } from 'wagmi'
 import { gnosis } from 'wagmi/chains'
 import styled from 'styled-components'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -50,7 +50,7 @@ const StyledFaInfoCircle = styled(FaInfoCircle)`
 
 const ChainModal = ({ show, onClose }) => {
   const activeChainId = useChainId()
-  const { chains, error: networkError, switchNetwork } = useSwitchNetwork()
+  const { chains, error: networkError, switchNetwork } = useSwitchChain()
   const { connector: activeConnector } = useAccount()
   const [switchingToChain, setSwitchingToChain] = useState(false)
 

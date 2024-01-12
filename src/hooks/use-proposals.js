@@ -1,5 +1,5 @@
 import { useMemo, useState, useContext } from 'react'
-import { useAccount, useBalance, useContractReads, useContractWrite, usePrepareContractWrite } from 'wagmi'
+import { useAccount, useBalance, useReadContracts, useWriteContract, useSimulateContract } from 'wagmi'
 import BigNumber from 'bignumber.js'
 import { mainnet, polygon } from 'wagmi/chains'
 
@@ -20,7 +20,7 @@ const useProposals = () => {
   const oldProposals = useMemo(() => proposals.filter(({ chainId }) => chainId === mainnet.id), [proposals])
   const newProposals = useMemo(() => proposals.filter(({ chainId }) => chainId === polygon.id), [proposals])
 
-  const { data: oldVoterStatesData } = useContractReads({
+  const { data: oldVoterStatesData } = useReadContracts({
     contracts: oldProposals.map(({ effectiveId }) => ({
       address: settings.contracts.dandelionVotingOld,
       abi: DandelionVotingOldABI,
@@ -30,7 +30,7 @@ const useProposals = () => {
     }))
   })
 
-  const { data: newVoterStatesData } = useContractReads({
+  const { data: newVoterStatesData } = useReadContracts({
     contracts: newProposals.map(({ effectiveId }) => ({
       address: settings.contracts.dandelionVoting,
       abi: DandelionVotingABI,
@@ -147,7 +147,7 @@ const useCreateProposal = () => {
   const [showScript, setShowScript] = useState(false)
   const [ipfsMultihash, setIpfsMultihash] = useState('')
 
-  const { data } = useContractReads({
+  const { data } = useReadContracts({
     watch: false,
     contracts: [
       {
@@ -192,7 +192,7 @@ const useCreateProposal = () => {
     [isScriptValid, showScript, hasPermissionOrEnoughBalance, metadata, isValidIpfsMultiHash]
   )
 
-  const { config: newProposalConfig } = usePrepareContractWrite({
+  const { data: simulationNewProposalData } = useSimulateContract({
     address: settings.contracts.dandelionVoting,
     abi: DandelionVotingABI,
     functionName: 'newVote',
@@ -204,11 +204,12 @@ const useCreateProposal = () => {
     enabled: canCreateProposal
   })
   const {
-    write: createProposal,
+    writeContract: callCreateProposal,
     error: createProposalError,
     data: createProposalData,
     isLoading
-  } = useContractWrite(newProposalConfig)
+  } = useWriteContract()
+  const createProposal = () => callCreateProposal(simulationNewProposalData?.request)
 
   return {
     canCreateProposal,

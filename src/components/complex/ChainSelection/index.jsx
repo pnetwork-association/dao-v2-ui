@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Row, Col } from 'react-bootstrap'
-import { useSwitchNetwork } from 'wagmi'
+import { useSwitchChain } from 'wagmi'
 import styled from 'styled-components'
 
 import { chainIdToIcon } from '../../../contants'
@@ -42,7 +42,7 @@ const FALLBACK_CHAINS = [
 ]
 
 const ChainSelection = ({ onChange }) => {
-  const { chains } = useSwitchNetwork()
+  const { chains } = useSwitchChain()
 
   const options = useMemo(() => {
     const effectiveChains = chains.length > 0 ? chains : FALLBACK_CHAINS

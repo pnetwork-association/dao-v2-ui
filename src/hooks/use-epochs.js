@@ -1,42 +1,43 @@
 import moment from 'moment'
-import { useMemo } from 'react'
-import { useContractReads } from 'wagmi'
-import { polygon } from 'wagmi/chains'
+import { useEffect, useMemo } from 'react'
+import { useReadContracts, useClient } from 'wagmi'
+import { getContract } from 'viem'
+import { gnosis } from 'wagmi/chains'
 
 import settings from '../settings'
 import EpochsManagerABI from '../utils/abis/EpochsManager.json'
 import { parseSeconds } from '../utils/time'
 
 const useEpochs = () => {
-  const { data } = useContractReads({
+  const { data } = useReadContracts({
     contracts: [
       {
         address: settings.contracts.epochsManager,
         abi: EpochsManagerABI,
         functionName: 'currentEpoch',
         args: [],
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.epochsManager,
         abi: EpochsManagerABI,
         functionName: 'epochDuration',
         args: [],
-        chainId: polygon.id
+        chainId: gnosis.id
       },
       {
         address: settings.contracts.epochsManager,
         abi: EpochsManagerABI,
         functionName: 'startFirstEpochTimestamp',
         args: [],
-        chainId: polygon.id
+        chainId: gnosis.id
       }
     ]
   })
-
-  const currentEpoch = useMemo(() => (data && data[0] ? data[0].toNumber() : null), [data])
-  const epochDuration = useMemo(() => (data && data[1] ? data[1].toNumber() : null), [data])
-  const startFirstEpochTimestamp = useMemo(() => (data && data[2] ? data[2].toNumber() : null), [data])
+  
+  const currentEpoch = useMemo(() => (data && data[0].result ? Number(data[0].result) : null), [data])
+  const epochDuration = useMemo(() => (data && data[1].result ?  Number(data[1].result) : null), [data])
+  const startFirstEpochTimestamp = useMemo(() => (data && data[2].result ?  Number(data[2].result) : null), [data])
 
   const secondsPassedUntilNow = useMemo(
     () => (startFirstEpochTimestamp ? moment().unix() - startFirstEpochTimestamp : null),

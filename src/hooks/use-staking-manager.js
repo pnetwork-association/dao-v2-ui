@@ -5,10 +5,10 @@ import {
   useAccount,
   useBalance,
   useChainId,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction
+  useReadContract,
+  useWriteContract,
+  useSimulateContract,
+  useWaitForTransactionReceipt
 } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import axios from 'axios'
@@ -41,17 +41,18 @@ const useStake = () => {
     watch: true
   })
 
-  const { data: allowance, refetch: refetchAllowance } = useContractRead(
+  const { data: allowance, refetch: refetchAllowance } = useReadContract(
     prepareContractReadAllowanceApproveStake({ activeChainId, address })
   )
 
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
-  const { config: approveConfigs } = usePrepareContractWrite(
+  const { data: simulationApproveData } = useSimulateContract(
     prepareContractWriteApproveStake({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
   )
-  const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
+  const { writeContract: callApprove, error: approveError, data: approveData } = useWriteContract()
+  const approve = () => callApprove(simulationApproveData?.request)
 
   const stakeEnabled = useMemo(
     () =>
@@ -62,7 +63,7 @@ const useStake = () => {
     [onChainAmount, approved, pntBalanceData, duration]
   )
 
-  const { config: stakeConfigs } = usePrepareContractWrite(
+  const { data: simulationStakeData } = useSimulateContract(
     prepareContractWriteStake({
       activeChainId,
       amount: onChainAmount,
@@ -71,14 +72,15 @@ const useStake = () => {
       enabled: stakeEnabled
     })
   )
-  const { write: stake, error: stakeError, data: stakeData } = useContractWrite(stakeConfigs)
+  const { writeContract: callStake, error: stakeError, data: stakeData } = useWriteContract()
+  const stake = () => callStake(simulationStakeData?.request)
 
-  const { isLoading: isApproving } = useWaitForTransaction({
+  const { isLoading: isApproving } = useWaitForTransactionReceipt({
     hash: approveData?.hash,
     confirmations: 1
   })
 
-  const { isLoading: isStaking } = useWaitForTransaction({
+  const { isLoading: isStaking } = useWaitForTransactionReceipt({
     hash: stakeData?.hash,
     confirmations: 1
   })
@@ -143,7 +145,7 @@ const useUnstake = (_opts = {}) => {
     [amount, availableToUnstakePntAmount]
   )
 
-  const { config: unstakeConfigs } = usePrepareContractWrite(
+  const { data: simulationUnstakeData } = useSimulateContract(
     prepareContractWriteUnstake({
       activeChainId,
       amount: onChainAmount,
@@ -153,9 +155,10 @@ const useUnstake = (_opts = {}) => {
       contractAddress
     })
   )
-  const { write: unstake, error: unstakeError, data: unstakeData } = useContractWrite(unstakeConfigs)
+  const { writeContract: callUnstake, error: unstakeError, data: unstakeData } = useWriteContract()
+  const unstake = () => callUnstake(simulationUnstakeData?.request)
 
-  const { isLoading: isUnstaking } = useWaitForTransaction({
+  const { isLoading: isUnstaking } = useWaitForTransactionReceipt({
     hash: unstakeData?.hash,
     confirmations: 1
   })
@@ -176,7 +179,7 @@ const useUserStake = (_opts = {}) => {
   const { contractAddress = settings.contracts.stakingManager } = _opts
   const { address } = useAccount()
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: contractAddress,
     abi: StakingManagerABI,
     functionName: 'stakeOf',
@@ -189,14 +192,14 @@ const useUserStake = (_opts = {}) => {
   const availableToUnstakePntAmount = useMemo(() => {
     if (!data) return
     const { endDate, amount } = data
-    return BigNumber(endDate.toNumber() <= moment().unix() ? amount.toString() : amount.toString())
+    return BigNumber(Number(endDate) <= moment().unix() ? amount.toString() : amount.toString())
       .dividedBy(10 ** 18)
       .toFixed()
   }, [data])
 
   const amount = useMemo(() => (!data ? null : BigNumber(data.amount.toString()).dividedBy(10 ** 18)), [data])
-  const endDate = useMemo(() => (!data ? null : data?.endDate?.toNumber()), [data])
-  const startDate = useMemo(() => (!data ? null : data?.startDate?.toNumber()), [data])
+  const endDate = useMemo(() => (!data ? null : Number(data?.endDate)), [data])
+  const startDate = useMemo(() => (!data ? null : Number(data?.startDate)), [data])
 
   return {
     amount,

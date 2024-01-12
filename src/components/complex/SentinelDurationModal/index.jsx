@@ -115,7 +115,7 @@ const SentinelDurationModal = ({ show, onClose }) => {
           <Button
             disabled={epochs === 0}
             loading={increaseStakingSentinelRegistrationDurationLoading}
-            onClick={() => increaseStakingSentinelRegistrationDuration?.()}
+            onClick={increaseStakingSentinelRegistrationDuration}
           >
             Increase duration
           </Button>

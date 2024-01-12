@@ -5,11 +5,11 @@ import {
   useAccount,
   useBalance,
   useChainId,
-  useContractRead,
-  useContractReads,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction
+  useReadContract,
+  useReadContracts,
+  useWriteContract,
+  useSimulateContract,
+  useWaitForTransactionReceipt
 } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import moment from 'moment'
@@ -51,15 +51,16 @@ const useLend = () => {
 
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
-  const { data: allowance, refetch: refetchAllowance } = useContractRead(
+  const { data: allowance, refetch: refetchAllowance } = useReadContract(
     prepareContractReadAllowanceApproveLend({ activeChainId, address, enabled: address })
   )
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved && address, [onChainAmount, approved, address])
-  const { config: approveConfigs } = usePrepareContractWrite(
+  const { data: simulationApproveData } = useSimulateContract(
     prepareContractWriteApproveLend({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
   )
-  const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
+  const { writeContract: callApprove, error: approveError, data: approveData } = useWriteContract()
+  const approve = () => callApprove(simulationApproveData?.request)
 
   const lendEnabled = useMemo(
     () =>
@@ -72,7 +73,7 @@ const useLend = () => {
     [onChainAmount, approved, pntBalanceData, epochs, address]
   )
 
-  const { config: lendConfigs } = usePrepareContractWrite(
+  const { data: simulationLendData } = useSimulateContract(
     prepareContractWriteLend({
       activeChainId,
       amount: onChainAmount,
@@ -81,15 +82,15 @@ const useLend = () => {
       enabled: lendEnabled
     })
   )
+  const { writeContract: callLend, error: lendError, data: lendData } = useWriteContract()
+  const lend = () => callLend(simulationLendData?.request)
 
-  const { write: lend, error: lendError, data: lendData } = useContractWrite(lendConfigs)
-
-  const { isLoading: isApproving } = useWaitForTransaction({
+  const { isLoading: isApproving } = useWaitForTransactionReceipt({
     hash: approveData?.hash,
     confirmations: 1
   })
 
-  const { isLoading: isLending } = useWaitForTransaction({
+  const { isLoading: isLending } = useWaitForTransactionReceipt({
     hash: lendData?.hash,
     confirmations: 1
   })
@@ -143,7 +144,7 @@ const useAccountLoanEndEpoch = () => {
   const { address } = useAccount()
   const { currentEpoch } = useEpochs()
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'weightByEpochsRangeOf',
@@ -168,7 +169,7 @@ const useAccountLoanStartEpoch = () => {
   const { address } = useAccount()
   const { currentEpoch } = useEpochs()
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'weightByEpochsRangeOf',
@@ -201,7 +202,7 @@ const useAccountLoanStartEpoch = () => {
 }
 
 const useTotalLendedAmountByEpoch = (_epoch) => {
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'totalLendedAmountByEpoch',
@@ -218,7 +219,7 @@ const useTotalLendedAmountByEpoch = (_epoch) => {
 }
 
 const useTotalBorrowedAmountByEpoch = (_epoch) => {
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'totaBorrowedAmountByEpoch',
@@ -238,7 +239,7 @@ const useTotalLendedAmountByStartAndEndEpochs = () => {
   const { value: startEpoch } = useAccountLoanStartEpoch()
   const { value: endEpoch } = useAccountLoanEndEpoch()
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'totalLendedAmountByEpochsRange',
@@ -268,7 +269,7 @@ const useTotalLendedAmountByStartAndEndEpochs = () => {
 const useUtilizationRatio = () => {
   const { currentEpoch } = useEpochs()
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'utilizationRatioByEpochsRange',
@@ -292,7 +293,7 @@ const useUtilizationRatio = () => {
 const useUtilizationRatioInTheCurrentEpoch = () => {
   const { currentEpoch } = useEpochs()
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'utilizationRatioByEpoch',
@@ -314,7 +315,7 @@ const useAccountUtilizationRatio = () => {
   const { value: startEpoch } = useAccountLoanStartEpoch()
   const { value: endEpoch } = useAccountLoanEndEpoch()
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'utilizationRatioOf',
@@ -346,7 +347,7 @@ const useClaimableRewardsAssetsByEpochs = () => {
     assets.filter(({ lendingManagerClaimEnabled }) => lendingManagerClaimEnabled).map(({ symbolPrice }) => symbolPrice)
   )
 
-  const { data } = useContractRead({
+  const { data } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
@@ -435,7 +436,7 @@ const useClaimableRewardsAssetsByAssets = () => {
 }
 
 const useClaimRewardByEpoch = () => {
-  const { error, data, writeAsync } = useContractWrite({
+  const { error, data, writeAsync } = useWriteContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'claimRewardByEpoch',
@@ -459,7 +460,7 @@ const useClaimRewardByEpoch = () => {
 
 const useClaimRewardByEpochsRange = () => {
   const { currentEpoch } = useEpochs()
-  const { error, data, writeAsync } = useContractWrite({
+  const { error, data, writeAsync } = useWriteContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'claimRewardByEpochsRange',
@@ -496,7 +497,7 @@ const useEstimateApy = () => {
     [currentEpoch]
   )
 
-  const { data } = useContractReads({
+  const { data } = useReadContracts({
     contracts: [
       {
         address: settings.contracts.lendingManager,
@@ -517,8 +518,8 @@ const useEstimateApy = () => {
     ]
   })
 
-  const totalWeights = useMemo(() => (data && data[0] ? data[0].map((_val) => BigNumber(_val.toString())) : []), [data])
-  const userWeights = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val.toString())) : []), [data])
+  const totalWeights = useMemo(() => (data && data[0].result ? data[0].result.map((_val) => BigNumber(_val.toString())) : []), [data])
+  const userWeights = useMemo(() => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val.toString())) : []), [data])
 
   const { startEpoch, endEpoch } = useMemo(() => {
     const lockTime = BigNumber(duration).multipliedBy(SECONDS_IN_ONE_DAY)
@@ -613,7 +614,7 @@ const useEstimateApyIncreaseDuration = () => {
     [currentEpoch]
   )
 
-  const { data } = useContractReads({
+  const { data } = useReadContracts({
     contracts: [
       {
         address: settings.contracts.lendingManager,
@@ -642,8 +643,8 @@ const useEstimateApyIncreaseDuration = () => {
     ]
   })
 
-  const totalWeights = useMemo(() => (data && data[0] ? data[0].map((_val) => BigNumber(_val.toString())) : []), [data])
-  const userWeights = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val.toString())) : []), [data])
+  const totalWeights = useMemo(() => (data && data[0].result ? data[0].result.map((_val) => BigNumber(_val.toString())) : []), [data])
+  const userWeights = useMemo(() => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val.toString())) : []), [data])
   const stake = useMemo(() => (data && data[2] ? data[2] : []), [data])
 
   const { startEpoch, endEpoch } = useMemo(() => {
@@ -739,7 +740,7 @@ const useApy = () => {
   const { PNT: pntUsd } = useRates(['PNT'])
   const { value: mr } = useSentinelLastEpochReward()
 
-  const { data } = useContractReads({
+  const { data } = useReadContracts({
     contracts: [
       {
         address: settings.contracts.stakingManagerLM,
@@ -769,8 +770,8 @@ const useApy = () => {
   })
 
   const stake = useMemo(() => (data && data[0] ? data[0] : {}), [data])
-  const totalWeights = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val)) : []), [data])
-  const userWeights = useMemo(() => (data && data[2] ? data[2].map((_val) => BigNumber(_val)) : []), [data])
+  const totalWeights = useMemo(() => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val)) : []), [data])
+  const userWeights = useMemo(() => (data && data[2].result ? data[2].result.map((_val) => BigNumber(_val)) : []), [data])
 
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
     startEpoch,
@@ -814,14 +815,15 @@ const useIncreaseLendDuration = () => {
   const [duration, setDuration] = useState(1) // 1 day
   const activeChainId = useChainId()
 
-  const { config } = usePrepareContractWrite(
+  const { data: simulationData } = useSimulateContract(
     prepareContractWriteIncreaseLendDuration({
       activeChainId,
       duration: duration * SECONDS_IN_ONE_DAY,
       enabled: duration > 0
     })
   )
-  const { write, error, data, isLoading } = useContractWrite(config)
+  const { writeContract: callWrite, error, data, isLoading } = useWriteContract()
+  const write = () => callWrite(simulationData?.request)
 
   return {
     duration,
@@ -834,7 +836,7 @@ const useIncreaseLendDuration = () => {
 }
 
 const useEpochsBorrowableAmount = () => {
-  const { data } = useContractReads({
+  const { data } = useReadContracts({
     contracts: [
       {
         address: settings.contracts.lendingManager,
@@ -855,8 +857,8 @@ const useEpochsBorrowableAmount = () => {
     ]
   })
 
-  const epochsLendedAmount = useMemo(() => (data && data[0] ? data[0].map((_val) => BigNumber(_val)) : []), [data])
-  const epochsBorrowedAmount = useMemo(() => (data && data[1] ? data[1].map((_val) => BigNumber(_val)) : []), [data])
+  const epochsLendedAmount = useMemo(() => (data && data[0].result ? data[0].result.map((_val) => BigNumber(_val)) : []), [data])
+  const epochsBorrowedAmount = useMemo(() => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val)) : []), [data])
   const epochsBorrowableAmount = useMemo(
     () => epochsLendedAmount.map((_amount, _index) => _amount.minus(epochsBorrowedAmount[_index])),
     [epochsLendedAmount, epochsBorrowedAmount]

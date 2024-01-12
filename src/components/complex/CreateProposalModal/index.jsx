@@ -2,8 +2,9 @@ import React, { useEffect, useCallback, Fragment, useState, useMemo, useContext 
 import { Row, Col } from 'react-bootstrap'
 import styled, { ThemeContext } from 'styled-components'
 import { toast } from 'react-toastify'
-import { ethers } from 'ethers'
-import { mainnet, useProvider } from 'wagmi'
+import { formatEther } from 'viem'
+import { useClient } from 'wagmi'
+import { mainnet } from 'wagmi/chains'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { GoVerified } from 'react-icons/go'
 
@@ -39,7 +40,7 @@ const CreateProposalModal = ({ show, onClose }) => {
   const [selectedPreset, setSelectedPreset] = useState('paymentFromTreasury')
   const [presetParams, setPresetParams] = useState({})
   const [showEncodedScript, setShowEncodedScript] = useState(false)
-  const provider = useProvider({ chainId: mainnet.id })
+  const client = useClient({ chainId: mainnet.id })
 
   const {
     canCreateProposal,
@@ -91,8 +92,8 @@ const CreateProposalModal = ({ show, onClose }) => {
   }, [showScript, setShowScript, setScript])
 
   const presets = useMemo(
-    () => getVotePresets({ presetParams, setPresetParams, provider, theme }),
-    [presetParams, provider, theme]
+    () => getVotePresets({ presetParams, setPresetParams, client, theme }),
+    [presetParams, client, theme]
   )
 
   const renderPresetArg = useCallback(({ id, component, props }) => {
@@ -239,7 +240,7 @@ const CreateProposalModal = ({ show, onClose }) => {
           )}
           <Row className="mt-4 mb-2">
             <Col>
-              <Button disabled={!canCreateProposal} loading={isLoading} onClick={() => createProposal?.()}>
+              <Button disabled={!canCreateProposal} loading={isLoading} onClick={createProposal}>
                 Create proposal
               </Button>
             </Col>
@@ -251,7 +252,7 @@ const CreateProposalModal = ({ show, onClose }) => {
           <Col>
             <InfoBox type="warning">
               In order to be able to open a vote you should either have at least&nbsp;
-              {formatAssetAmount(ethers.utils.formatEther(minOpenVoteAmount).toString(), 'daoPNT')} or be granted a
+              {formatAssetAmount(formatEther(minOpenVoteAmount), 'daoPNT')} or be granted a
               special permission via a DAO vote
             </InfoBox>
           </Col>

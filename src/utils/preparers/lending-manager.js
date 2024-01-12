@@ -1,5 +1,5 @@
 import { bsc, mainnet, polygon } from 'wagmi/chains'
-import { erc20ABI } from 'wagmi'
+import { erc20Abi } from 'viem'
 import settings from '../../settings'
 
 import ForwarderABI from '../abis/Forwarder.json'
@@ -12,7 +12,7 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabl
     case mainnet.id: {
       return {
         address: settings.contracts.pntOnEthereum,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnMainnet],
         chainId: mainnet.id,
@@ -22,7 +22,7 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabl
     case polygon.id: {
       return {
         address: settings.contracts.pntOnPolygon,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.lendingManager],
         chainId: polygon.id,
@@ -32,7 +32,7 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabl
     case bsc.id: {
       return {
         address: settings.contracts.pntOnBsc,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnBsc],
         chainId: bsc.id,
@@ -49,7 +49,7 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
     case mainnet.id: {
       return {
         address: settings.contracts.pntOnEthereum,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
         enabled,
@@ -59,7 +59,7 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
     case polygon.id: {
       return {
         address: settings.contracts.pntOnPolygon,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.lendingManager, amount],
         enabled,
@@ -69,7 +69,7 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
     case bsc.id: {
       return {
         address: settings.contracts.pntOnBsc,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
         enabled,

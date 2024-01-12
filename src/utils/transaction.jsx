@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-toastify'
-import { mainnet } from 'wagmi'
+import { mainnet } from 'wagmi/chains'
 
 import { getExplorerUrlByChainId } from './explorer'
 

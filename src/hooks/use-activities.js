@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useContext } from 'react'
-import { useBlockNumber, useContract, useProvider } from 'wagmi'
+import { useBlockNumber, useClient } from 'wagmi'
+import { getContract } from 'viem'
 import { polygon } from 'wagmi/chains'
 import retry from 'async-retry'
 
@@ -55,40 +56,40 @@ const useActivities = () => {
     watch: false, // NOTE: keep it false becase of rate limiting
     chainId: polygon.id
   })
-  const provider = useProvider({ chainId: polygon.id })
+  const client = useClient({ chainId: polygon.id })
 
-  const stakingManager = useContract({
+  const stakingManager = getContract({
     address: settings.contracts.stakingManager,
     abi: StakingManagerABI,
-    signerOrProvider: provider
+    client: client,
   })
 
-  const lendingManager = useContract({
+  const lendingManager = getContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
-    signerOrProvider: provider
+    client: client,
   })
 
-  const registrationManager = useContract({
+  const registrationManager = getContract({
     address: settings.contracts.registrationManager,
     abi: RegistrationManagerABI,
-    signerOrProvider: provider
+    client: client,
   })
 
-  const dandelionVoting = useContract({
+  const dandelionVoting = getContract({
     address: settings.contracts.dandelionVoting,
     abi: DandelionVotingABI,
-    signerOrProvider: provider
+    client: client,
   })
 
   const { fromBlock, toBlock } = useMemo(
     () => ({
       fromBlock: blockNumber
         ? cachedLastBlock === 0
-          ? blockNumber - settings.activities.blocksWindow
+          ? blockNumber - BigInt(settings.activities.blocksWindow)
           : cachedLastBlock + 1
         : 0,
-      toBlock: blockNumber ? blockNumber + 1 : 0
+      toBlock: blockNumber ? blockNumber + 1n : 0n
     }),
     [blockNumber, cachedLastBlock]
   )
@@ -105,11 +106,11 @@ const useActivities = () => {
             {
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
-                  retry(() => stakingManager.queryFilter('Staked', _fromBlock, _toBlock), {
+                  retry(() => stakingManager.getEvents.Staked({fromBlock: _fromBlock, toBlock: _toBlock}), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   }),
-                  retry(() => stakingManager.queryFilter('Unstaked', _fromBlock, _toBlock), {
+                  retry(() => stakingManager.getEvents.Unstaked({fromBlock: _fromBlock, toBlock: _toBlock}), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   })
@@ -136,11 +137,11 @@ const useActivities = () => {
             {
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
-                  retry(() => lendingManager.queryFilter('Lended', _fromBlock, _toBlock), {
+                  retry(() => lendingManager.getEvents.Lended({fromBlock: _fromBlock, toBlock: _toBlock}), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   }),
-                  retry(() => lendingManager.queryFilter('DurationIncreased', _fromBlock, _toBlock), {
+                  retry(() => lendingManager.getEvents.DurationIncreased({fromBlock: _fromBlock, toBlock: _toBlock}), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   })
@@ -169,11 +170,11 @@ const useActivities = () => {
               limitBlock: 42023192, // no votes until now
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
-                  retry(() => dandelionVoting.queryFilter('CastVote', _fromBlock, _toBlock), {
+                  retry(() => dandelionVoting.getEvents.CastVote({fromBlock: _fromBlock, toBlock: _toBlock}), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   }),
-                  retry(() => dandelionVoting.queryFilter('StartVote', _fromBlock, _toBlock), {
+                  retry(() => dandelionVoting.getEvents.StartVote({fromBlock: _fromBlock, toBlock: _toBlock}), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   })
@@ -200,7 +201,7 @@ const useActivities = () => {
               limitBlock: 42023192, // no votes until now
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
-                  retry(() => registrationManager.queryFilter('SentinelRegistrationUpdated', _fromBlock, _toBlock), {
+                  retry(() => registrationManager.getEvents.SentinelRegistrationUpdated({fromBlock: _fromBlock, toBlock: _toBlock}), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   })
@@ -222,9 +223,9 @@ const useActivities = () => {
     }
 
     if (
-      stakingManager?.queryFilter &&
-      lendingManager?.queryFilter &&
-      dandelionVoting?.queryFilter &&
+      stakingManager?.getEvents &&
+      lendingManager?.getEvents &&
+      dandelionVoting?.getEvents &&
       fromBlock &&
       toBlock &&
       toBlock > cachedLastBlock &&
