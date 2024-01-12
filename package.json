@@ -4,12 +4,13 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
-    "@rainbow-me/rainbowkit": "^0.12.18",
+    "@rainbow-me/rainbowkit": "file:../rainbowkit/packages/rainbowkit",
+    "@tanstack/react-query": "^5.17.9",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "@wagmi/core": "^0.10.8",
+    "@wagmi/core": "^2.1.1",
     "assert": "^2.0.0",
     "async-mutex": "^0.4.0",
     "async-retry": "^1.3.3",
@@ -33,7 +34,6 @@
     "react-icons": "^4.7.1",
     "react-number-format": "^5.3.0",
     "react-router-dom": "^6.4.5",
-    "react-scripts": "5.0.1",
     "react-svg": "^15.1.15",
     "react-switch": "^7.0.0",
     "react-test-renderer": "^18.2.0",
@@ -47,7 +47,7 @@
     "vite": "^5.0.11",
     "vite-plugin-node-polyfills": "^0.19.0",
     "vite-tsconfig-paths": "^4.2.3",
-    "wagmi": "^0.12.9",
+    "wagmi": "^2.1.1",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
