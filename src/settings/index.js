@@ -32,6 +32,7 @@ const settings = {
     minStakeAmount: 200000,
     estimatedSentinelRunningCost: 150
   },
+  pNetworkAssociationGnosisSafeAddress: '0xf1f6568a76559d85cF68E6597fA587544184dD46',
   explorer: 'https://etherscan.io',
   assets: [
     {
