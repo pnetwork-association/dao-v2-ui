@@ -53,33 +53,49 @@ const prepareOldProposal = (
   _idStart = 0,
   _durationBlocks
 ) => {
-  const { executed, executionBlock, open, script, snapshotBlock, startBlock } = _voteData
+  const [
+    open,
+    executed,
+    startBlock,
+    executionBlock,
+    snapshotBlock,
+    supportRequired,
+    rawMinAcceptQuorum,
+    rawVotingPower,
+    yea,
+    nay,
+    script
+  ] = _voteData
 
-  const votingPower = BigNumber(_voteData.votingPower.toString()).dividedBy(10 ** 18)
-  const no = BigNumber(_voteData.nay.toString()).dividedBy(10 ** 18)
-  const yes = BigNumber(_voteData.yea.toString()).dividedBy(10 ** 18)
+  console.log('_voteData', executed, executionBlock, open, script, snapshotBlock, startBlock)
+
+  const votingPower = BigNumber(rawVotingPower.toString()).dividedBy(10 ** 18)
+  const no = BigNumber(nay.toString()).dividedBy(10 ** 18)
+  const yes = BigNumber(yea.toString()).dividedBy(10 ** 18)
 
   const votingPnt = yes.plus(no)
   const percentageYea = yes.dividedBy(votingPnt).multipliedBy(100)
   const percentageNay = no.dividedBy(votingPnt).multipliedBy(100)
 
   const quorum = yes.dividedBy(votingPower)
-  const minAcceptQuorum = BigNumber(_voteData.minAcceptQuorum.toString()).dividedBy(10 ** 18)
+  const minAcceptQuorum = BigNumber(rawMinAcceptQuorum.toString()).dividedBy(10 ** 18)
 
   const quorumReached = quorum.isGreaterThan(minAcceptQuorum)
   const passed = percentageYea.isGreaterThan(51) && quorumReached
 
-  const endBlock = startBlock.add(_durationBlocks)
+  const endBlock = BigNumber(startBlock.toString()).plus(BigNumber(_durationBlocks.toString()))
 
   // No need to calculate the countdown on old votes on eth since are all closed and the new ones will be only on Polygon
   // TODO: What does it happen if keep creating vote on ethereum?
   const countdown = -1
 
+  console.log('_executionBlockNumberTimestamp', _executionBlockNumberTimestamp)
+
   const formattedCloseDate =
     countdown > 0
       ? `~${moment.unix(now + countdown).format('MMM DD YYYY - HH:mm:ss')}`
-      : _executionBlockNumberTimestamp
-      ? moment.unix(_executionBlockNumberTimestamp).format('MMM DD YYYY - HH:mm:ss')
+      : Number(_executionBlockNumberTimestamp)
+      ? moment.unix(Number(_executionBlockNumberTimestamp)).format('MMM DD YYYY - HH:mm:ss')
       : null
 
   const url = escapeUrl(_proposal.url)
@@ -89,9 +105,9 @@ const prepareOldProposal = (
     actions: _voteActions,
     chainId: _chainId,
     effectiveId: _proposal.id,
-    endBlock: endBlock.toNumber(),
+    endBlock: Number(endBlock),
     executed,
-    executionBlock: executionBlock.toNumber(),
+    executionBlock: Number(executionBlock),
     formattedCloseDate,
     formattedPercentageNay: formatAssetAmount(percentageNay, '%', {
       decimals: 2
@@ -109,8 +125,8 @@ const prepareOldProposal = (
     quorum: quorum.toFixed(),
     quorumReached,
     script,
-    snapshotBlock: snapshotBlock.toNumber(),
-    startBlock: startBlock.toNumber(),
+    snapshotBlock: Number(snapshotBlock),
+    startBlock: Number(startBlock),
     url,
     votingPnt,
     votingPower: votingPower,
