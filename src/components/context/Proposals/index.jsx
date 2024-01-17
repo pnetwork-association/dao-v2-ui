@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import moment from 'moment'
-import { mainnet, polygon } from 'wagmi/chains'
+import { gnosis, mainnet } from 'wagmi/chains'
 import { ethers } from 'ethers'
 import BigNumber from 'bignumber.js'
 import { getWeb3Settings } from 'react-web3-settings'
@@ -21,26 +21,26 @@ const fetchProposals = async ({ setProposals }) => {
       ? new ethers.providers.JsonRpcProvider(rpcSettings.rpcEndpoints[0], mainnet.id)
       : new ethers.providers.AlchemyProvider(mainnet.id, import.meta.env.VITE_REACT_APP_ALCHEMY_ID)
 
-  const polygonProvider =
-    rpcSettings.rpcEndpoints && rpcSettings.rpcEndpoints[1] !== ''
-      ? new ethers.providers.JsonRpcProvider(rpcSettings.rpcEndpoints[1], polygon.id)
-      : new ethers.providers.AlchemyProvider(polygon.id, import.meta.env.REACT_APP_ALCHEMY_ID)
+  const gnosisProvider =
+    rpcSettings.rpcEndpoints && rpcSettings.rpcEndpoints[3] !== ''
+      ? new ethers.providers.JsonRpcProvider(rpcSettings.rpcEndpoints[3], gnosis.id)
+      : new ethers.providers.JsonRpcProvider(settings.rpc.gnosis, gnosis.id)
 
-  const fetchEtherscanAndPolygonscanProposals = async () => {
+  const fetchEtherscanAndGnosisscanProposals = async () => {
     try {
       const [
         {
           data: { result: resultEtherscan }
         },
         {
-          data: { result: resultPolygonscan }
+          data: { result: resultGnosisscan }
         }
       ] = await Promise.all([
         axios.get(
-          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.dandelionVotingOld}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`
+          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=365841&toBlock=latest&address=${settings.contracts.dandelionVotingV1}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=${import.meta.env.VITE_REACT_APP_ETHERSCAN_API_KEY}`
         ),
         axios.get(
-          `https://api.polygonscan.com/api?module=logs&action=getLogs&fromBlock=41096385&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=${process.env.REACT_APP_POLYGONSCAN_API_KEY}`
+          `https://api.gnosisscan.io/api?module=logs&action=getLogs&fromBlock=41096385&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0x4d72fe0577a3a3f7da968d7b892779dde102519c25527b29cf7054f245c791b9&apikey=${import.meta.env.VITE_REACT_APP_GNOSISSCAN_API_KEY}`
         )
       ])
 
@@ -62,7 +62,7 @@ const fetchProposals = async ({ setProposals }) => {
             ...data
           }
         }),
-        polygonscanProposals: resultPolygonscan.map((_proposal, _id) => {
+        gnosisscanProposals: resultGnosisscan.map((_proposal, _id) => {
           const voteId = _id + 1
           const data = extrapolateProposalData(hexToAscii(_proposal.data))
 
@@ -79,21 +79,22 @@ const fetchProposals = async ({ setProposals }) => {
       console.error(_err)
     }
   }
-  const { etherscanProposals, polygonscanProposals } = await fetchEtherscanAndPolygonscanProposals()
+  const { etherscanProposals, gnosisscanProposals } = await fetchEtherscanAndGnosisscanProposals()
 
-  const dandelionVotingOld = new ethers.Contract(
-    settings.contracts.dandelionVotingOld,
+  const dandelionVotingV1 = new ethers.Contract(
+    settings.contracts.dandelionVotingV1,
     DandelionVotingOldABI,
     mainnetProvider
   )
   const dandelionVotingNew = new ethers.Contract(
     settings.contracts.dandelionVoting,
     DandelionVotingABI,
-    polygonProvider
+    gnosisProvider
   )
-  const oldVotesData = await Promise.all(etherscanProposals.map(({ id }) => dandelionVotingOld.getVote(id)))
-  const newVotesData = await Promise.all(polygonscanProposals.map(({ id }) => dandelionVotingNew.getVote(id)))
-  const oldDurationBlocks = await dandelionVotingOld.durationBlocks()
+
+  const oldVotesData = await Promise.all(etherscanProposals.map(({ id }) => dandelionVotingV1.getVote(id)))
+  const newVotesData = await Promise.all(gnosisscanProposals.map(({ id }) => dandelionVotingNew.getVote(id)))
+  const oldDurationBlocks = await dandelionVotingV1.durationBlocks()
   const newDuration = await dandelionVotingNew.duration()
 
   const fetchExecutionBlockNumberTimestamps = async () => {
@@ -121,14 +122,14 @@ const fetchProposals = async ({ setProposals }) => {
           data: { result: resultEtherscan }
         },
         {
-          data: { result: resultPolygonscan }
+          data: { result: resultGnosisscan }
         }
       ] = await Promise.all([
         axios.get(
-          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=16090616&toBlock=latest&address=${settings.contracts.dandelionVotingOld}&topic0=0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`
+          `https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=16090616&toBlock=latest&address=${settings.contracts.dandelionVotingV1}&topic0=0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab&apikey=${import.meta.env.VITE_REACT_APP_ETHERSCAN_API_KEY}`
         ), // 16090616 block of the first votes containing a script
         axios.get(
-          `https://api.polygonscan.com/api?module=logs&action=getLogs&fromBlock=16090616&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab&apikey=${process.env.REACT_APP_POLYGONSCAN_API_KEY}`
+           `https://api.gnosisscan.io/api?module=logs&action=getLogs&fromBlock=16090616&toBlock=latest&address=${settings.contracts.dandelionVoting}&topic0=0xbf8e2b108bb7c980e08903a8a46527699d5e84905a082d56dacb4150725c8cab&apikey=${import.meta.env.VITE_REACT_APP_GNOSISSCAN_API_KEY}`
         )
       ])
 
@@ -152,7 +153,7 @@ const fetchProposals = async ({ setProposals }) => {
 
       return {
         oldVotesActions: await getActions(resultEtherscan, mainnetProvider),
-        newVotesActions: await getActions(resultPolygonscan, polygonProvider)
+        newVotesActions: await getActions(resultGnosisscan, gnosisProvider)
       }
     } catch (_err) {
       console.error(_err)
@@ -179,13 +180,13 @@ const fetchProposals = async ({ setProposals }) => {
       : []
 
   const newProposals =
-    newVotesData?.length > 0 && polygonscanProposals.length === newVotesData.length && newVotesData[0] && newDuration
-      ? polygonscanProposals.map((_proposal, _index) =>
+    newVotesData?.length > 0 && gnosisscanProposals.length === newVotesData.length && newVotesData[0] && newDuration
+      ? gnosisscanProposals.map((_proposal, _index) =>
           prepareNewProposal(
             _proposal,
             newVotesData[_index],
             newVotesActions && newVotesActions[_index + 1] ? newVotesActions[_index + 1] : [],
-            polygon.id,
+            gnosis.id,
             etherscanProposals.length,
             newDuration
           )

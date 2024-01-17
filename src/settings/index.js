@@ -16,7 +16,7 @@ const settings = {
     pntOnEthereum: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
     pntOnBsc: '0xdaacB0Ab6Fb34d24E8a67BfA14BF4D95D4C7aF92',
     daoPnt: '0x1adA73b624b3B89cebdd457db8cBA5d34eb05E95',
-    dandelionVotingOld: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
+    dandelionVotingV1: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     dandelionVoting: '0x0cf759bcCfEf5f322af58ADaE2D28885658B5e02',
     acl: '0x50b2b8e429cB51bD43cD3E690e5BEB9eb674f6d7',
     stakingManager: '0xdEE8ebE2b7152ECCd935fd67134BF1bad55302BC',
