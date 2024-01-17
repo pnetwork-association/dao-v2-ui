@@ -46,6 +46,9 @@ const settings = {
     bsc: 'https://bscscan.com',
     polygon: 'https://polygonscan.com'
   },
+  rpc: {
+    gnosis: 'https://rpc.gnosischain.com',
+  },
   assets: [
     {
       address: '0xf4ea6b892853413bd9d9f1a5d3a620a0ba39c5b2',
