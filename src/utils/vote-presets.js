@@ -4,10 +4,12 @@ import BigNumber from 'bignumber.js'
 
 import VaultABI from './abis/Vault.json'
 import EthPNTABI from './abis/EthPNT.json'
+import pNetworkV2VaultABI from './abis/pNetworkV2Vault.json'
 import settings from '../settings'
 
 const getVaultContract = () => new ethers.utils.Interface(VaultABI)
 const getEthPNTContract = () => new ethers.utils.Interface(EthPNTABI)
+const getPnetworkV2VaultContract = () => new ethers.utils.Interface(pNetworkV2VaultABI)
 
 const prepareInfaltionData = (amount) => {
   const Vault = getVaultContract()
@@ -214,7 +216,6 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
       prepare: async () => {
         const params = Object.values(presetParams)
         if (params.length < 1) return null
-
         const inflationData = prepareInfaltionData(params[0])
 
         return prepareInflationProposal(
@@ -224,6 +225,99 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
           settings.contracts.pNetworkAssociationGnosisSafeAddress,
           inflationData.rawAmount
         )
+      }
+    },
+    withdrawInflationAndPegin: {
+      id: 'withdrawInflationAndPegin',
+      name: 'Withdraw Inflation and Pegin',
+      description:
+        'Withdraw requested inflated ethPNT amount to the treasury and Pegin to an account on a different chain',
+      args: [
+        {
+          id: 'input-amount',
+          name: 'amount',
+          component: 'Input',
+          props: {
+            type: 'number',
+            style: {
+              fontSize: 15
+            },
+            placeholder: 'Amount ...',
+            value: presetParams[0] || '',
+            onChange: (_e) =>
+              setPresetParams({
+                ...presetParams,
+                0: _e.target.value
+              })
+          }
+        },
+        {
+          id: 'select-chain',
+          name: 'destinationChain',
+          component: 'ChainSelection',
+          props: {
+            onSelect: (_chainId) =>
+              setPresetParams({
+                ...presetParams,
+                1: _chainId
+              })
+          }
+        },
+        {
+          id: 'input-receiver-address',
+          name: 'receiverAddress',
+          component: 'Input',
+          props: {
+            style: {
+              fontSize: 15
+            },
+            placeholder: 'Receiver address ...',
+            value: presetParams[2] || '',
+            onChange: (_e) =>
+              setPresetParams({
+                ...presetParams,
+                2: _e.target.value
+              })
+          }
+        }
+      ],
+      prepare: async () => {
+        if (Object.values(presetParams).length < 2) return null
+        const amount = presetParams[0]
+        const destinationChainId = !presetParams[1] ? settings.chains[0].chainId : presetParams[1]
+        const destinationAddress = presetParams[2]
+
+        const pNetworkV2Vault = getPnetworkV2VaultContract()
+
+        const inflationData = prepareInfaltionData(amount)
+        const inflationProposal = await prepareInflationProposal(
+          inflationData.Vault,
+          inflationData.EthPNT,
+          inflationData.ethPNTAddress,
+          settings.contracts.financeVault,
+          inflationData.rawAmount
+        )
+
+        const approve = {
+          to: inflationData.ethPNTAddress,
+          calldata: inflationData.EthPNT.encodeFunctionData('approve', [
+            settings.contracts.pNetworkV2VaultAddess,
+            inflationData.rawAmount
+          ])
+        }
+
+        const pegin = {
+          to: settings.contracts.pNetworkV2VaultAddess,
+          calldata: pNetworkV2Vault.encodeFunctionData('pegIn(uint256, address, string, bytes, bytes4)', [
+            inflationData.rawAmount,
+            inflationData.ethPNTAddress,
+            destinationAddress,
+            ethers.utils.arrayify('0x'),
+            destinationChainId
+          ])
+        }
+
+        return [...inflationProposal, approve, pegin]
       }
     },
     custom: {
