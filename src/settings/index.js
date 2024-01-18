@@ -89,12 +89,7 @@ const settings = {
   ],
   chains: [
     {
-      name: 'Arbitrum',
-      logo: './assets/svg/ARBITRUM.svg',
-      chainId: '0x00ce98c4'
-    },
-    {
-      name: 'Bsc',
+      name: 'BSC',
       logo: './assets/svg/BSC.svg',
       chainId: '0x00e4b170'
     },
@@ -113,6 +108,11 @@ const settings = {
       name: 'Polygon',
       logo: './assets/svg/POLYGON.svg',
       chainId: '0x0075dd4c'
+    },
+    {
+      name: 'Arbitrum',
+      logo: './assets/svg/ARBITRUM.svg',
+      chainId: '0x00ce98c4'
     }
   ]
 }
