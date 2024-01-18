@@ -1,10 +1,11 @@
 import React, { createContext, useEffect, useState } from 'react'
 import { useClient } from 'wagmi'
-import { getContract } from 'viem' 
-import { polygon } from 'wagmi/chains'
+import { getContract } from 'viem'
+import { gnosis } from 'wagmi/chains'
 
 import settings from '../../../settings'
 import LendingManagerABI from '../../../utils/abis/LendingManager.json'
+import wagmiConfig from '../../../utils/wagmiConfig'
 
 export const EventsContext = createContext({
   borrowedEvents: [],
@@ -16,12 +17,12 @@ export const EventsContext = createContext({
 const EventsProvider = ({ children }) => {
   const [lendedEvents, setLendedEvents] = useState([])
   const [borrowedEvents, setBorrowedEvents] = useState([])
-  const client = useClient({ chainId: polygon.id })
+  const client = useClient({ config: wagmiConfig, chainId: gnosis.id })
 
   const lendingManager = getContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
-    client: client,
+    client: client
   })
 
   useEffect(() => {
