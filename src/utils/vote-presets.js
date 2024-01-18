@@ -6,9 +6,12 @@ import VaultABI from './abis/Vault.json'
 import EthPNTABI from './abis/EthPNT.json'
 import settings from '../settings'
 
-const prepareInflationProposal = async (receiverAddress, amount) => {
-  const Vault = new ethers.utils.Interface(VaultABI)
-  const EthPNT = new ethers.utils.Interface(EthPNTABI)
+const getVaultContract = () => new ethers.utils.Interface(VaultABI)
+const getEthPNTContract = () => new ethers.utils.Interface(EthPNTABI)
+
+const prepareInfaltionData = (amount) => {
+  const Vault = getVaultContract()
+  const EthPNT = getEthPNTContract()
 
   const ethPNTAsset = settings.assets.find((asset) => asset.symbol == 'ethPNT')
   if (!ethPNTAsset) throw new Error('ethPNT asset config not found!')
@@ -21,21 +24,24 @@ const prepareInflationProposal = async (receiverAddress, amount) => {
     .multipliedBy(10 ** ethPNTDecimals)
     .toFixed()
 
-  const withdrawInflationParams = [settings.contracts.financeVault, rawAmount]
-
-  const transferParams = [ethPNTAddress, receiverAddress, rawAmount]
-
-  return [
-    {
-      to: ethPNTAddress,
-      calldata: EthPNT.encodeFunctionData('withdrawInflation', withdrawInflationParams)
-    },
-    {
-      to: settings.contracts.financeVault,
-      calldata: Vault.encodeFunctionData('transfer', transferParams)
-    }
-  ]
+  return {
+    Vault: Vault,
+    EthPNT: EthPNT,
+    rawAmount: rawAmount,
+    ethPNTAddress: ethPNTAddress
+  }
 }
+
+const prepareInflationProposal = async (Vault, EthPNT, ethPNTAddress, receiverAddress, rawAmount) => [
+  {
+    to: ethPNTAddress,
+    calldata: EthPNT.encodeFunctionData('withdrawInflation', [settings.contracts.financeVault, rawAmount])
+  },
+  {
+    to: settings.contracts.financeVault,
+    calldata: Vault.encodeFunctionData('transfer', [ethPNTAddress, receiverAddress, rawAmount])
+  }
+]
 
 const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
   return {
@@ -170,7 +176,15 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
         const params = Object.values(presetParams)
         if (params.length < 2) return null
 
-        return prepareInflationProposal(params[0], params[1])
+        const inflationData = prepareInfaltionData(params[1])
+
+        return prepareInflationProposal(
+          inflationData.Vault,
+          inflationData.EthPNT,
+          inflationData.ethPNTAddress,
+          params[0],
+          inflationData.rawAmount
+        )
       }
     },
     withdrawInflationToAssociation: {
@@ -201,7 +215,15 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
         const params = Object.values(presetParams)
         if (params.length < 1) return null
 
-        return prepareInflationProposal(settings.pNetworkAssociationGnosisSafeAddress, params[0])
+        const inflationData = prepareInfaltionData(params[0])
+
+        return prepareInflationProposal(
+          inflationData.Vault,
+          inflationData.EthPNT,
+          inflationData.ethPNTAddress,
+          settings.contracts.pNetworkAssociationGnosisSafeAddress,
+          inflationData.rawAmount
+        )
       }
     },
     custom: {
