@@ -96,10 +96,10 @@ const CreateProposalModal = ({ show, onClose }) => {
     switch (component) {
       case 'ChainSelection':
         return (
-          <>
+          <div key={id}>
             <Text size="sm">Pegin destination</Text>
-            <ChainSelection key={id} {...props} />
-          </>
+            <ChainSelection {...props} />
+          </div>
         )
       case 'AssetSelection':
         return <AssetSelection key={id} {...props} />
