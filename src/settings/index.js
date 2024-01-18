@@ -21,7 +21,8 @@ const settings = {
     borrowingManager: '0xD1760AA0FCD9e64bA4ea43399Ad789CFd63C7809',
     epochsManager: '0x15Ff10fCc8A1a50bFbE07847A22664801eA79E0f',
     registrationManager: '0x906B067e392e2c5f9E4f101f36C0b8CdA4885EBf',
-    feesManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570'
+    feesManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
+    pNetworkAssociationGnosisSafeAddress: '0xf1f6568a76559d85cF68E6597fA587544184dD46'
   },
   stakingManager: {
     minStakeDays: 7,
@@ -32,7 +33,6 @@ const settings = {
     minStakeAmount: 200000,
     estimatedSentinelRunningCost: 150
   },
-  pNetworkAssociationGnosisSafeAddress: '0xf1f6568a76559d85cF68E6597fA587544184dD46',
   explorer: 'https://etherscan.io',
   assets: [
     {
@@ -84,6 +84,34 @@ const settings = {
       borrowingManagerClaimEnabled: true,
       feesManagerClaimEnabled: true,
       symbolPrice: 'USDC'
+    }
+  ],
+  chains: [
+    {
+      name: 'Arbitrum',
+      logo: './assets/svg/ARBITRUM.svg',
+      chainId: '0x00ce98c4'
+    },
+    {
+      name: 'Bsc',
+      logo: './assets/svg/BSC.svg',
+      chainId: '0x00e4b170'
+    },
+    {
+      name: 'Ethereum',
+      logo: './assets/svg/ETH.svg',
+      chainId: '0x005fe7f9'
+    },
+    {
+      name: 'Gnosis',
+      logo: './assets/svg/GNOSIS.svg',
+      endpoint: 'https://rpc.gnosischain.com',
+      chainId: '0x00f1918e'
+    },
+    {
+      name: 'Polygon',
+      logo: './assets/svg/POLYGON.svg',
+      chainId: '0x0075dd4c'
     }
   ]
 }
