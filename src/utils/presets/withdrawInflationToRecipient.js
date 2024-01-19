@@ -47,6 +47,8 @@ const withdrawInflationToRecipient = ({ presetParams, setPresetParams }) => ({
 
     const inflationData = prepareInflationData(params[1])
 
+    if (!ethers.utils.isAddress(params[0])) throw new Error('Inserted destination address is not valid')
+
     return prepareInflationProposal(inflationData.ethPNTAddress, params[0], inflationData.rawAmount)
   }
 })
