@@ -54,6 +54,23 @@ const withdrawInflationAndPegin = ({ presetParams, setPresetParams }) => ({
             2: _e.target.value
           })
       }
+    },
+    {
+      id: 'input-user-data',
+      name: 'userData',
+      component: 'Input',
+      props: {
+        style: {
+          fontSize: 15
+        },
+        placeholder: 'Optional User Data ...',
+        value: presetParams[3] || '',
+        onChange: (_e) =>
+          setPresetParams({
+            ...presetParams,
+            3: _e.target.value
+          })
+      }
     }
   ],
   prepare: async () => {
@@ -61,6 +78,7 @@ const withdrawInflationAndPegin = ({ presetParams, setPresetParams }) => ({
     const amount = presetParams[0]
     const destinationChainId = !presetParams[1] ? settings.chains[0].chainId : presetParams[1]
     const destinationAddress = presetParams[2]
+    const userData = presetParams[3] ? presetParams[3] : '0x'
 
     const inflationData = prepareInflationData(amount)
     const inflationProposal = await prepareInflationProposal(
@@ -83,7 +101,7 @@ const withdrawInflationAndPegin = ({ presetParams, setPresetParams }) => ({
         inflationData.rawAmount,
         inflationData.ethPNTAddress,
         destinationAddress,
-        ethers.utils.arrayify('0x'),
+        ethers.utils.arrayify(userData),
         destinationChainId
       ])
     }

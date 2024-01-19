@@ -1,5 +1,5 @@
 import paymentFromTreasury from './presets/paymentFromTreasury'
-import withdrawInflationAndPegin from './presets/withdrawInfaltionAndPegin'
+import withdrawInflationAndPegin from './presets/withdrawInflationAndPegin'
 import withdrawInflationToAssociation from './presets/withdrawInflationToAssociation'
 import withdrawInflationToRecipient from './presets/withdrawInflationToRecipient'
 
