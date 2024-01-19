@@ -20,6 +20,7 @@ import InfoBox from '../../base/InfoBox'
 import Input from '../../base/Input'
 import Select from '../../base/Select'
 import AssetSelection from '../AssetSelection'
+import ChainSelection from '../ChainSelection'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 const UseScriptText = styled(Text)`
@@ -93,6 +94,13 @@ const CreateProposalModal = ({ show, onClose }) => {
 
   const renderPresetArg = useCallback(({ id, component, props }) => {
     switch (component) {
+      case 'ChainSelection':
+        return (
+          <div key={id}>
+            <Text size="sm">Pegin destination</Text>
+            <ChainSelection {...props} />
+          </div>
+        )
       case 'AssetSelection':
         return <AssetSelection key={id} {...props} />
       case 'Input':
