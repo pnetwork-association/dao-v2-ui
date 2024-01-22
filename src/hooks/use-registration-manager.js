@@ -281,7 +281,7 @@ const useBorrowingSentinelProspectus = () => {
     ]
   })
   const borrowedAmount = settings.registrationManager.borrowAmount
-  const totalBorrowedAmountInEpoch = useMemo(() => (data && data[0] ? data[0] : []), [data])
+  const totalBorrowedAmountInEpoch = useMemo(() => (data && data[0].result ? data[0].result : []), [data])
 
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
     addBorrowAmountToBorrowedAmount: true,
