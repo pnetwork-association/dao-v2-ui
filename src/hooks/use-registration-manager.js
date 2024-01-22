@@ -74,7 +74,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     })
   )
   const { writeContract: callApprove, error: approveError, data: approveData } = useWriteContract()
-  const approve = callApprove(simulationApproveData?.request)
+  const approve = () => callApprove(simulationApproveData?.request)
 
   const lockTime = useMemo(
     () =>
@@ -113,7 +113,8 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     error: updateSentinelRegistrationByStakingError,
     data: updateSentinelRegistrationByStakingData
   } = useWriteContract()
-  const updateSentinelRegistrationByStaking = () => callUpdateSentinelRegistrationByStaking(simulationUpdateSentinelRegistrationByStakingData?.request)
+  const updateSentinelRegistrationByStaking = () =>
+    callUpdateSentinelRegistrationByStaking(simulationUpdateSentinelRegistrationByStakingData?.request)
 
   const { isLoading: isApproving } = useWaitForTransactionReceipt({
     hash: approveData?.hash,
@@ -143,7 +144,8 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     error: updateSentinelRegistrationByBorrowingError,
     data: updateSentinelRegistrationByBorrowingData
   } = useWriteContract()
-  const updateSentinelRegistrationByBorrowing = () => callUpdateSentinelRegistrationByBorrowing(simulationUpdateSentinelRegistrationByBorrowingData?.request)
+  const updateSentinelRegistrationByBorrowing = () =>
+    callUpdateSentinelRegistrationByBorrowing(simulationUpdateSentinelRegistrationByBorrowingData?.request)
 
   const { isLoading: isUpdatingSentinelRegistrationByBorrowing } = useWaitForTransactionReceipt({
     hash: updateSentinelRegistrationByBorrowingData?.hash,
