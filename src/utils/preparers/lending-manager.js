@@ -22,7 +22,7 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabl
     case gnosis.id: {
       return {
         address: settings.contracts.pntOnGnosis,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.lendingManager],
         chainId: gnosis.id,
@@ -69,7 +69,7 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
     case gnosis.id: {
       return {
         address: settings.contracts.pntOnGnosis,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.lendingManager, amount],
         enabled,

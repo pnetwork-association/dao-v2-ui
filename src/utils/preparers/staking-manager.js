@@ -21,7 +21,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
     case gnosis.id: {
       return {
         address: settings.contracts.pntOnGnosis,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.stakingManager],
         chainId: gnosis.id
@@ -65,7 +65,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
     case gnosis.id: {
       return {
         address: settings.contracts.pntOnGnosis,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.stakingManager, amount],
         enabled,

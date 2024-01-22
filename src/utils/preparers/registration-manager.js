@@ -26,7 +26,7 @@ const prepareContractReadAllowanceApproveUpdateSentinelRegistrationByStaking = (
     case gnosis.id: {
       return {
         address: settings.contracts.pntOnGnosis,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'allowance',
         args: [address, settings.contracts.registrationManager],
         chainId: gnosis.id
@@ -70,7 +70,7 @@ const prepareContractWriteApproveUpdateSentinelRegistrationByStaking = ({ active
     case gnosis.id: {
       return {
         address: settings.contracts.pntOnGnosis,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.registrationManager, amount],
         enabled: approveEnabled,
