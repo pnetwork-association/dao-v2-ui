@@ -33,14 +33,18 @@ const Action = ({ action }) => {
     return (
       <div className="d-flex">
         <span>
-          <Text variant="text2">Transfer&nbsp;</Text>
+          {from === '0x' ? <Text variant="text2">Mint&nbsp;</Text> : <Text variant="text2">Transfer&nbsp;</Text>}
           <Text>of&nbsp;</Text>
           <Text variant="text2">{amount}&nbsp;</Text>
           <AssetLogo src={asset.logo} />
-          <Text>&nbsp;&nbsp;from&nbsp;</Text>
-          <A href={getAddressExplorerUrl(from, { chainId: activeChainId })} target="_blank">
-            {fromNickname}
-          </A>
+          {from !== '0x' ? (
+            <>
+              <Text>&nbsp;&nbsp;from&nbsp;</Text>
+              <A href={getAddressExplorerUrl(from, { chainId: activeChainId })} target="_blank">
+                {fromNickname}
+              </A>
+            </>
+          ) : null}
           <Text>&nbsp;to&nbsp;</Text>
           <A href={getAddressExplorerUrl(to, { chainId: activeChainId })} target="_blank">
             {toNickname}
