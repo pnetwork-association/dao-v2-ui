@@ -20,7 +20,7 @@ const getForwarderLendUserData = ({ amount, duration, receiverAddress }) => {
   return encode(
     ['address[]', 'bytes[]'],
     [
-      [settings.contracts.pntOnPolygon, settings.contracts.lendingManager],
+      [settings.contracts.pntOnGnosis, settings.contracts.lendingManager],
       [
         erc20Interface.encodeFunctionData('approve', [settings.contracts.lendingManager, amountWithoutFees]),
         stakingManagerInterface.encodeFunctionData('lend', [receiverAddress, amountWithoutFees, duration])
@@ -40,7 +40,7 @@ const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
   return encode(
     ['address[]', 'bytes[]'],
     [
-      [settings.contracts.pntOnPolygon, settings.contracts.stakingManager],
+      [settings.contracts.pntOnGnosis, settings.contracts.stakingManager],
       [
         erc20Interface.encodeFunctionData('approve', [settings.contracts.stakingManager, amountWithoutFees]),
         stakingManagerInterface.encodeFunctionData('stake', [receiverAddress, amountWithoutFees, duration])
@@ -76,7 +76,7 @@ const getForwarderUpdateSentinelRegistrationByStakingUserData = ({ amount, durat
   return encode(
     ['address[]', 'bytes[]'],
     [
-      [settings.contracts.pntOnPolygon, settings.contracts.registrationManager],
+      [settings.contracts.pntOnGnosis, settings.contracts.registrationManager],
       [
         erc20Interface.encodeFunctionData('approve', [settings.contracts.registrationManager, amountWithoutFees]),
         registrationManagerInterface.encodeFunctionData('updateSentinelRegistrationByStaking', [

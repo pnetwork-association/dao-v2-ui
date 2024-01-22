@@ -47,7 +47,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   const activeChainId = useChainId()
 
   const { data: pntBalanceData } = useBalance({
-    token: settings.contracts.pntOnPolygon,
+    token: settings.contracts.pntOnGnosis,
     address,
     chainId: gnosis.id
   })
