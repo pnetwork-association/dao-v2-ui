@@ -130,7 +130,7 @@ const CreateProposalModal = ({ show, onClose }) => {
         }
       } catch (_err) {
         setScript('')
-        // console.error(_err)
+        console.error(_err)
       }
     }
 
@@ -252,8 +252,8 @@ const CreateProposalModal = ({ show, onClose }) => {
           <Col>
             <InfoBox type="warning">
               In order to be able to open a vote you should either have at least&nbsp;
-              {formatAssetAmount(formatEther(minOpenVoteAmount), 'daoPNT')} or be granted a
-              special permission via a DAO vote
+              {formatAssetAmount(formatEther(minOpenVoteAmount), 'daoPNT')} or be granted a special permission via a DAO
+              vote
             </InfoBox>
           </Col>
         </Row>
