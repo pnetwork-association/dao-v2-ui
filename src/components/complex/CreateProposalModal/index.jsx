@@ -22,6 +22,7 @@ import Select from '../../base/Select'
 import AssetSelection from '../AssetSelection'
 import ChainSelection from '../ChainSelection'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import MerklDistributionFormula from '../MerklDistributionFormula'
 
 const UseScriptText = styled(Text)`
   font-size: 13px;
@@ -99,6 +100,12 @@ const CreateProposalModal = ({ show, onClose }) => {
           <div key={id}>
             <Text size="sm">Pegin destination</Text>
             <ChainSelection {...props} />
+          </div>
+        )
+      case 'MerklDistributionFormula':
+        return (
+          <div key={id}>
+            <MerklDistributionFormula {...props} />
           </div>
         )
       case 'AssetSelection':
