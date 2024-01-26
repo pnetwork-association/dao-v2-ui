@@ -1,46 +1,7 @@
-import { ethers } from 'ethers'
-
 import { getVotePresets } from '../vote-presets'
 import { encodeCallScript } from '../voting-scripts'
-import { ethPNTContract, pNetworkV2Vault, vaultContract } from '../presets/utils'
-import BigNumber from 'bignumber.js'
-
-const DAO_V1_VOTING_ADDRESS = '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4'
-const DAO_V1_TREASURY_ADDRESS = '0xDd92eb1478D3189707aB7F4a5aCE3a615cdD0476'
-const ETHPNT_ADDRESS = '0xf4ea6b892853413bd9d9f1a5d3a620a0ba39c5b2'
-const PNETWORKV2_VAULT_ADDRESS = '0xe396757ec7e6ac7c8e5abe7285dde47b98f22db8'
 
 describe('withdrawInflationAndPegin', () => {
-  const getLiquidityPoolsPresetActions = (_destinationAddress, _amount, _userData, _destinationChainId) => {
-    const withdrawInflationCalldata = ethPNTContract.encodeFunctionData('withdrawInflation', [
-      DAO_V1_TREASURY_ADDRESS,
-      _amount
-    ])
-
-    const transferCalldata = vaultContract.encodeFunctionData('transfer', [
-      ETHPNT_ADDRESS,
-      DAO_V1_VOTING_ADDRESS,
-      _amount
-    ])
-
-    const approveCalldata = ethPNTContract.encodeFunctionData('approve', [PNETWORKV2_VAULT_ADDRESS, _amount])
-
-    const pegInCalldata = pNetworkV2Vault.encodeFunctionData('pegIn(uint256, address, string, bytes, bytes4)', [
-      _amount,
-      ETHPNT_ADDRESS,
-      _destinationAddress,
-      _userData,
-      _destinationChainId
-    ])
-
-    return [
-      { to: ETHPNT_ADDRESS, calldata: withdrawInflationCalldata },
-      { to: DAO_V1_TREASURY_ADDRESS, calldata: transferCalldata },
-      { to: ETHPNT_ADDRESS, calldata: approveCalldata },
-      { to: PNETWORKV2_VAULT_ADDRESS, calldata: pegInCalldata }
-    ]
-  }
-
   test('Should match the generated script', async () => {
     const presets = getVotePresets({
       presetParams: { 0: '1', 2: '0xa41657bf225F8Ec7E2010C89c3F084172948264D' },

@@ -23,7 +23,8 @@ const settings = {
     registrationManager: '0x906B067e392e2c5f9E4f101f36C0b8CdA4885EBf',
     feesManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
     pNetworkAssociationGnosisSafeAddress: '0xf1f6568a76559d85cF68E6597fA587544184dD46',
-    pNetworkV2EthereumVaultAddess: '0xe396757ec7e6ac7c8e5abe7285dde47b98f22db8'
+    pNetworkV2EthereumVaultAddess: '0xe396757ec7e6ac7c8e5abe7285dde47b98f22db8',
+    merklDistributionCreatorAddress: '0x8BB4C975Ff3c250e0ceEA271728547f3802B36Fd'
   },
   stakingManager: {
     minStakeDays: 7,
@@ -35,6 +36,7 @@ const settings = {
     estimatedSentinelRunningCost: 150
   },
   explorer: 'https://etherscan.io',
+  zeroAddress: '0x0000000000000000000000000000000000000000',
   assets: [
     {
       address: '0xf4ea6b892853413bd9d9f1a5d3a620a0ba39c5b2',
