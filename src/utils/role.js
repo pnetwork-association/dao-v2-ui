@@ -1,5 +1,5 @@
-import { ethers } from 'ethers'
+import { keccak256, toBytes } from 'viem'
 
-const getRole = (_role) => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(_role))
+const getRole = (_role) => keccak256(toBytes(_role))
 
 export { getRole }

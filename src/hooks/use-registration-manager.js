@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
+import { parseEther, getAddress } from 'viem'
 import { useEffect, useMemo, useState } from 'react'
 import {
   useAccount,
@@ -87,7 +87,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   const isSignatureValid = useMemo(() => isValidHexString(signature), [signature])
   const updateSentinelRegistrationByStakingEnabled = useMemo(
     () =>
-      onChainAmount.gt(ethers.utils.parseEther('0')) &&
+      onChainAmount.gt(parseEther('0')) &&
       approved &&
       pntBalanceData &&
       onChainAmount.lte(pntBalanceData.value) &&
@@ -221,7 +221,7 @@ const useSentinel = () => {
 
   const sentinelAddress =
     sentinelAddressData && sentinelAddressData !== '0x0000000000000000000000000000000000000000'
-      ? ethers.utils.getAddress(sentinelAddressData)
+      ? getAddress(sentinelAddressData)
       : null
 
   const { data: sentinelRegistrationData } = useReadContract({

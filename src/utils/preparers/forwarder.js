@@ -1,9 +1,9 @@
-import { ethers } from 'ethers'
+import { encodeAbiParameters, encodeFunctionData } from 'viem'
 import BigNumber from 'bignumber.js'
 
 import settings from '../../settings'
 
-const encode = (...params) => new ethers.utils.AbiCoder().encode(...params)
+const encode = (...params) => new encodeAbiParameters(...params)
 
 const subtractFee = (_amount) => {
   const amountBn = BigNumber(_amount.toString())
@@ -11,10 +11,6 @@ const subtractFee = (_amount) => {
 }
 
 const getForwarderLendUserData = ({ amount, duration, receiverAddress }) => {
-  const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
-  const stakingManagerInterface = new ethers.utils.Interface([
-    'function lend(address receiver, uint256 amount, uint64 duration)'
-  ])
   const amountWithoutFees = subtractFee(amount)
 
   return encode(
@@ -22,19 +18,22 @@ const getForwarderLendUserData = ({ amount, duration, receiverAddress }) => {
     [
       [settings.contracts.pntOnGnosis, settings.contracts.lendingManager],
       [
-        erc20Interface.encodeFunctionData('approve', [settings.contracts.lendingManager, amountWithoutFees]),
-        stakingManagerInterface.encodeFunctionData('lend', [receiverAddress, amountWithoutFees, duration])
+        encodeFunctionData({
+          abi: ['function approve(address spender, uint256 amount)'],
+          functionName: 'approve',
+          args: [settings.contracts.lendingManager, amountWithoutFees]
+        }),
+        encodeFunctionData({
+          abi: ['function lend(address receiver, uint256 amount, uint64 duration)'],
+          functionName: 'lend',
+          args: [receiverAddress, amountWithoutFees, duration]
+        })
       ]
     ]
   )
 }
 
 const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
-  const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
-  const stakingManagerInterface = new ethers.utils.Interface([
-    'function stake(address receiver, uint256 amount, uint64 duration)'
-  ])
-
   const amountWithoutFees = subtractFee(amount)
 
   return encode(
@@ -42,8 +41,16 @@ const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
     [
       [settings.contracts.pntOnGnosis, settings.contracts.stakingManager],
       [
-        erc20Interface.encodeFunctionData('approve', [settings.contracts.stakingManager, amountWithoutFees]),
-        stakingManagerInterface.encodeFunctionData('stake', [receiverAddress, amountWithoutFees, duration])
+        encodeFunctionData({
+          abi: ['function approve(address spender, uint256 amount)'],
+          functionName: 'approve',
+          args: [settings.contracts.stakingManager, amountWithoutFees]
+        }),
+        encodeFunctionData({
+          args: ['function stake(address receiver, uint256 amount, uint64 duration)'],
+          functionName: 'stake',
+          args: [receiverAddress, amountWithoutFees, duration]
+        })
       ]
     ]
   )
@@ -54,23 +61,22 @@ const getForwarderUnstakeUserData = ({
   chainId,
   receiverAddress,
   contractAddress = settings.contracts.stakingManager
-}) => {
-  const stakingManagerInterface = new ethers.utils.Interface([
-    'function unstake(address owner, uint256 amount, bytes4 chainId)'
-  ])
-
-  return encode(
+}) =>
+  encode(
     ['address[]', 'bytes[]'],
-    [[contractAddress], [stakingManagerInterface.encodeFunctionData('unstake', [receiverAddress, amount, chainId])]]
+    [
+      [contractAddress],
+      [
+        encodeFunctionData({
+          abi: ['function unstake(address owner, uint256 amount, bytes4 chainId)'],
+          functionName: 'unstake',
+          args: [receiverAddress, amount, chainId]
+        })
+      ]
+    ]
   )
-}
 
 const getForwarderUpdateSentinelRegistrationByStakingUserData = ({ amount, duration, ownerAddress, signature }) => {
-  const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
-  const registrationManagerInterface = new ethers.utils.Interface([
-    'function updateSentinelRegistrationByStaking(address owner, uint256 amount, uint64 duration, bytes signature)'
-  ])
-
   const amountWithoutFees = subtractFee(amount)
 
   return encode(
@@ -78,75 +84,84 @@ const getForwarderUpdateSentinelRegistrationByStakingUserData = ({ amount, durat
     [
       [settings.contracts.pntOnGnosis, settings.contracts.registrationManager],
       [
-        erc20Interface.encodeFunctionData('approve', [settings.contracts.registrationManager, amountWithoutFees]),
-        registrationManagerInterface.encodeFunctionData('updateSentinelRegistrationByStaking', [
-          ownerAddress,
-          amountWithoutFees,
-          duration,
-          signature
-        ])
+        encodeFunctionData({
+          abi: ['function approve(address spender, uint256 amount)'],
+          functionName: 'approve',
+          args: [settings.contracts.registrationManager, amountWithoutFees]
+        }),
+        encodeFunctionData({
+          abi: [
+            'function updateSentinelRegistrationByStaking(address owner, uint256 amount, uint64 duration, bytes signature)'
+          ],
+          functionName: 'updateSentinelRegistrationByStaking',
+          args: [ownerAddress, amountWithoutFees, duration, signature]
+        })
       ]
     ]
   )
 }
 
-const getForwarderVoteUserData = ({ voterAddress, id, vote }) => {
-  const dandelionVotingInterface = new ethers.utils.Interface([
-    'function delegateVote(address voter, uint256 _voteId, bool _supports)'
-  ])
-  return encode(
+const getForwarderVoteUserData = ({ voterAddress, id, vote }) =>
+  encode(
     ['address[]', 'bytes[]'],
     [
       [settings.contracts.dandelionVotingV3],
-      [dandelionVotingInterface.encodeFunctionData('delegateVote', [voterAddress, id, vote])]
+      [
+        encodeFunctionData({
+          abi: ['function delegateVote(address voter, uint256 _voteId, bool _supports)'],
+          functionName: 'delegateVote',
+          args: [voterAddress, id, vote]
+        })
+      ]
     ]
   )
-}
 
-const getForwarderUpdateSentinelRegistrationByBorrowingUserData = ({ ownerAddress, numberOfEpochs, signature }) => {
-  const registrationManagerInterface = new ethers.utils.Interface([
-    'function updateSentinelRegistrationByBorrowing(address owner, uint16 numberOfEpochs, bytes signature)'
-  ])
-  return encode(
+const getForwarderUpdateSentinelRegistrationByBorrowingUserData = ({ ownerAddress, numberOfEpochs, signature }) =>
+  encode(
     ['address[]', 'bytes[]'],
     [
       [settings.contracts.registrationManager],
       [
-        registrationManagerInterface.encodeFunctionData('updateSentinelRegistrationByBorrowing', [
-          ownerAddress,
-          numberOfEpochs,
-          signature
-        ])
+        encodeFunctionData({
+          abi: [
+            'function updateSentinelRegistrationByBorrowing(address owner, uint16 numberOfEpochs, bytes signature)'
+          ],
+          functionName: 'updateSentinelRegistrationByBorrowing',
+          args: [ownerAddress, numberOfEpochs, signature]
+        })
       ]
     ]
   )
-}
 
-const getForwarderIncreaseDurationLendUserData = ({ duration }) => {
-  const borrowingManagerInterface = new ethers.utils.Interface(['function increaseDuration(uint64 duration)'])
-
-  return encode(
+const getForwarderIncreaseDurationLendUserData = ({ duration }) =>
+  encode(
     ['address[]', 'bytes[]'],
     [
       [settings.contracts.lendingManager],
-      [borrowingManagerInterface.encodeFunctionData('increaseDuration', [duration])]
+      [
+        encodeFunctionData({
+          abi: ['function increaseDuration(uint64 duration)'],
+          functionName: 'increaseDuration',
+          args: [duration]
+        })
+      ]
     ]
   )
-}
 
-const getForwarderIncreaseStakingSentinelRegistrationDurationUserData = ({ duration }) => {
-  const registrationManagerInterface = new ethers.utils.Interface([
-    'function increaseSentinelRegistrationDuration(uint64 duration)'
-  ])
-
-  return encode(
+const getForwarderIncreaseStakingSentinelRegistrationDurationUserData = ({ duration }) =>
+  encode(
     ['address[]', 'bytes[]'],
     [
       [settings.contracts.lendingManager],
-      [registrationManagerInterface.encodeFunctionData('increaseSentinelRegistrationDuration', [duration])]
+      [
+        encodeFunctionData({
+          abi: ['function increaseSentinelRegistrationDuration(uint64 duration)'],
+          functionName: 'increaseSentinelRegistrationDuration',
+          args: [duration]
+        })
+      ]
     ]
   )
-}
 
 export {
   getForwarderIncreaseDurationLendUserData,

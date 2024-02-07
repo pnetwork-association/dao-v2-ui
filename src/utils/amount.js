@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { format } from 'currency-formatter'
 import numeral from 'numeral'
-import { ethers } from 'ethers'
 
 export const formatAssetAmount = (_amount, _symbol, _opts = {}) => {
   const { decimals = 3, forceDecimals = false } = _opts
@@ -37,11 +36,9 @@ export const removeUselessDecimals = (_amount, _decimals = 5) =>
 
 export const getEthersOnChainAmount = (_amount) =>
   _amount.toString().length > 0
-    ? ethers.BigNumber.from(
-        BigNumber(_amount)
-          .multipliedBy(10 ** 18)
-          .toFixed()
-      )
-    : ethers.BigNumber.from('0')
+    ? BigNumber(_amount)
+        .multipliedBy(10 ** 18)
+        .toFixed()
+    : BigNumber('0')
 
 export const removeCommas = (_num) => _num?.replace(/,/g, '')

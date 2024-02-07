@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { trim } from 'viem'
 import moment from 'moment'
 import BigNumber from 'bignumber.js'
 
@@ -14,8 +14,8 @@ const extractActionsFromTransaction = (_transaction) => {
   const actions = logs.map(({ topics, data, address }, _index) => {
     switch (topics[0]) {
       case TRANSFER:
-        const from = ethers.utils.hexStripZeros(topics[1], 32)
-        const to = ethers.utils.hexStripZeros(topics[2], 32)
+        const from = trim(topics[1], 32)
+        const to = trim(topics[2], 32)
         const value = data
 
         return {
