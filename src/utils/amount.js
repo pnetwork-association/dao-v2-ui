@@ -35,10 +35,6 @@ export const removeUselessDecimals = (_amount, _decimals = 5) =>
   BigNumber(BigNumber(_amount).toFixed(_decimals)).toFixed()
 
 export const getEthersOnChainAmount = (_amount) =>
-  _amount.toString().length > 0
-    ? BigNumber(_amount)
-        .multipliedBy(10 ** 18)
-        .toFixed()
-    : BigNumber('0')
+  _amount.toString().length > 0 ? BigNumber(_amount).multipliedBy(10 ** 18) : BigNumber('0')
 
 export const removeCommas = (_num) => _num?.replace(/,/g, '')
