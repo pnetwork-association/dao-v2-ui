@@ -2,7 +2,6 @@ import { encodeAbiParameters, parseAbiParameters } from 'viem'
 
 const createExecutorId = (id) => `0x${String(id).padStart(8, '0')}`
 const encodeCallScript = (actions, specId = 1) => {
-  console.log('actions', actions)
   return actions.reduce((script, { to, calldata }) => {
     const addr = encodeAbiParameters(parseAbiParameters('address'), [to]).substring(2)
     const length = encodeAbiParameters(parseAbiParameters('uint256'), [(calldata.length - 2) / 2]).substring(2)

@@ -128,8 +128,6 @@ const LendModal = ({ show, onClose = () => null }) => {
   const isSafe = useIsSafe()
   const isAutoClosing = useRef(false)
 
-  console.log('isSafe', isSafe)
-
   const chartEpochs = useMemo(() => {
     if (!(currentEpoch || currentEpoch === 0) || !(endEpoch || endEpoch === 0)) return []
 
