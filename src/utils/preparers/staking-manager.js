@@ -50,7 +50,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
   }
 }
 
-const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) => {
+const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled, account }) => {
   switch (activeChainId) {
     case mainnet.id: {
       return {
@@ -58,6 +58,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
+        account: account,
         enabled,
         chainId: mainnet.id
       }
@@ -68,6 +69,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.stakingManager, amount],
+        account: account,
         enabled,
         chainId: gnosis.id
       }
@@ -78,6 +80,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnPolygon, amount],
+        account: account,
         enabled,
         chainId: polygon.id
       }
@@ -88,6 +91,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
+        account: account,
         enabled,
         chainId: bsc.id
       }

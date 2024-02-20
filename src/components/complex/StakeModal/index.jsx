@@ -79,16 +79,16 @@ const StakeModal = ({ show, onClose }) => {
   }, [stakeError])
 
   useEffect(() => {
-    if (approveData) {
-      toastifyTransaction(approveData, { chainId: activeChainId })
+    if (approveData || isApproving) {
+      toastifyTransaction(approveData, isApproving, { chainId: activeChainId })
     }
-  }, [approveData, activeChainId])
+  }, [approveData, isApproving, activeChainId])
 
   useEffect(() => {
-    if (stakeData) {
-      toastifyTransaction(stakeData, { chainId: activeChainId })
+    if (stakeData || isStaking) {
+      toastifyTransaction(stakeData, isStaking, { chainId: activeChainId })
     }
-  }, [stakeData, activeChainId])
+  }, [stakeData, isStaking, activeChainId])
 
   useEffect(() => {
     setReceiver(address)

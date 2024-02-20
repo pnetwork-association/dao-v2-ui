@@ -49,11 +49,15 @@ const useStake = () => {
 
   const approveEnabled = useMemo(() => onChainAmount > 0 && !approved, [onChainAmount, approved])
   const { data: simulationApproveData } = useSimulateContract(
-    prepareContractWriteApproveStake({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
+    prepareContractWriteApproveStake({
+      activeChainId,
+      amount: onChainAmount,
+      enabled: approveEnabled,
+      account: address
+    })
   )
   const { writeContract: callApprove, error: approveError, data: approveData } = useWriteContract()
   const approve = () => callApprove(simulationApproveData?.request)
-
   const stakeEnabled = useMemo(
     () =>
       onChainAmount > 0 &&
@@ -76,12 +80,12 @@ const useStake = () => {
   const stake = () => callStake(simulationStakeData?.request)
 
   const { isLoading: isApproving } = useWaitForTransactionReceipt({
-    hash: approveData?.hash,
+    hash: approveData,
     confirmations: 1
   })
 
   const { isLoading: isStaking } = useWaitForTransactionReceipt({
-    hash: stakeData?.hash,
+    hash: stakeData,
     confirmations: 1
   })
 

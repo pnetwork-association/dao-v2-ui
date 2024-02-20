@@ -15,21 +15,23 @@ const StyledA = styled(A)`
   }
 `
 
-const toastifyTransaction = (_data, _opts = {}, _cb) => {
+const toastifyTransaction = (_data, _isOngoing, _opts = {}, _cb) => {
   const { chainId = mainnet.id } = _opts
 
-  toast.success(
-    <div>
-      <StyledA href={`${getExplorerUrlByChainId(chainId)}/tx/${_data.hash}`} target="_blank">
-        Transaction
-      </StyledA>{' '}
-      <Text size="lg" variant="white">
-        broadcasted!
-      </Text>
-    </div>
-  )
+  if (_isOngoing) {
+    toast.success(
+      <div>
+        <StyledA href={`${getExplorerUrlByChainId(chainId)}/tx/${_data.hash}`} target="_blank">
+          Transaction
+        </StyledA>{' '}
+        <Text size="lg" variant="white">
+          broadcasted!
+        </Text>
+      </div>
+    )
+  }
 
-  _data.wait(1).then(() => {
+  if (_data && !_isOngoing) {
     toast.success(
       <div>
         <StyledA href={`${getExplorerUrlByChainId(chainId)}/tx/${_data.hash}`} target="_blank">
@@ -41,7 +43,7 @@ const toastifyTransaction = (_data, _opts = {}, _cb) => {
       </div>
     )
     _cb?.()
-  })
+  }
 }
 
 export { toastifyTransaction }
