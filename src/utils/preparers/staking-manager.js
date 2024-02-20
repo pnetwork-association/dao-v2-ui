@@ -32,7 +32,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
         address: settings.contracts.pntOnPolygon,
         abi: erc20Abi,
         functionName: 'allowance',
-        args: [address, settings.contracts.stakingManager],
+        args: [address, settings.contracts.forwarderOnPolygon],
         chainId: polygon.id
       }
     }
@@ -77,7 +77,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled }) =>
         address: settings.contracts.pntOnPolygon,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [settings.contracts.stakingManager, amount],
+        args: [settings.contracts.forwarderOnPolygon, amount],
         enabled,
         chainId: polygon.id
       }
