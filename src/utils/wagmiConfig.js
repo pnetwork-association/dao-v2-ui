@@ -25,7 +25,7 @@ const wagmiConfig = getDefaultConfig({
     [bsc.id]: http(
       web3Settings.rpcEndpoints && web3Settings.rpcEndpoints[2] !== ''
         ? web3Settings.rpcEndpoints[2]
-        : `https://bsc-mainnet.alchemyapi.io/v2/${import.meta.env.VITE_REACT_APP_ALCHEMY_ID}`
+        : `https://bsc-dataseed1.binance.org/`
     ),
     [gnosis.id]: http(
       web3Settings.rpcEndpoints && web3Settings.rpcEndpoints[3] !== ''
