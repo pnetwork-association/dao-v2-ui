@@ -29,7 +29,7 @@ const settings = {
     feesManager: '0x053b3d59F06601dF87D9EdD24CB2a81FAE93405f',
     forwarderOnGnosis: '0x13D272775434B468D762ce626cafB9276ba94B96',
     forwarderOnMainnet: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
-    forwarderOnPolygon: '0x257A984836F4459954CE09955E3c00e8C5b1fb89',
+    forwarderOnPolygon: '0xc85cd78555df9991245f15c7aa6c4edbb7791c19',
     forwarderOnBsc: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
     financeVault: '0x139Ad01CAcbbe51B4A2B099E52C47693Ba87351b'
   },
