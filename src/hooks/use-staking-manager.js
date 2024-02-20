@@ -47,7 +47,7 @@ const useStake = () => {
 
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
-  const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
+  const approveEnabled = useMemo(() => onChainAmount > 0 && !approved, [onChainAmount, approved])
   const { data: simulationApproveData } = useSimulateContract(
     prepareContractWriteApproveStake({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
   )
@@ -56,9 +56,9 @@ const useStake = () => {
 
   const stakeEnabled = useMemo(
     () =>
-      onChainAmount.gt(0) &&
+      onChainAmount > 0 &&
       approved &&
-      onChainAmount.lte(pntBalanceData.value) &&
+      onChainAmount <= pntBalanceData.value &&
       duration >= settings.stakingManager.minStakeDays,
     [onChainAmount, approved, pntBalanceData, duration]
   )
@@ -86,7 +86,7 @@ const useStake = () => {
   })
 
   useEffect(() => {
-    setApproved(allowance ? allowance.gte(onChainAmount) : false)
+    setApproved(allowance ? allowance >= onChainAmount : false)
   }, [allowance, onChainAmount])
 
   useEffect(() => {

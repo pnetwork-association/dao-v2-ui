@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { format } from 'currency-formatter'
+import { parseUnits } from 'viem'
 import numeral from 'numeral'
 
 export const formatAssetAmount = (_amount, _symbol, _opts = {}) => {
@@ -34,7 +35,6 @@ export const formatCurrency = (_amount, _currency) =>
 export const removeUselessDecimals = (_amount, _decimals = 5) =>
   BigNumber(BigNumber(_amount).toFixed(_decimals)).toFixed()
 
-export const getEthersOnChainAmount = (_amount) =>
-  _amount.toString().length > 0 ? BigNumber(_amount).multipliedBy(10 ** 18) : BigNumber('0')
+export const getEthersOnChainAmount = (_amount) => (_amount.toString().length > 0 ? parseUnits(_amount, 18) : 0n)
 
 export const removeCommas = (_num) => _num?.replace(/,/g, '')

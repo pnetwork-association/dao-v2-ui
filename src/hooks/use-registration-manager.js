@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { parseEther, getAddress } from 'viem'
+import { getAddress } from 'viem'
 import { useEffect, useMemo, useState } from 'react'
 import {
   useAccount,
@@ -62,7 +62,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   )
 
   const approveEnabled = useMemo(
-    () => onChainAmount.gt(0) && !approved && type === 'stake',
+    () => onChainAmount > 0 && !approved && type === 'stake',
     [onChainAmount, approved, type]
   )
 
@@ -87,10 +87,10 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   const isSignatureValid = useMemo(() => isValidHexString(signature), [signature])
   const updateSentinelRegistrationByStakingEnabled = useMemo(
     () =>
-      onChainAmount.gt(parseEther('0')) &&
+      onChainAmount > 0n &&
       approved &&
       pntBalanceData &&
-      onChainAmount.lte(pntBalanceData.value) &&
+      onChainAmount <= pntBalanceData.value &&
       lockTime &&
       lockTime >= settings.stakingManager.minStakeSeconds &&
       isSignatureValid &&
@@ -153,7 +153,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
   })
 
   useEffect(() => {
-    setApproved(allowance ? allowance.gte(onChainAmount) : false)
+    setApproved(allowance ? allowance >= onChainAmount : false)
   }, [allowance, onChainAmount])
 
   useEffect(() => {

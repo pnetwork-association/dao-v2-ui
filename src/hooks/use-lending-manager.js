@@ -55,7 +55,7 @@ const useLend = () => {
     prepareContractReadAllowanceApproveLend({ activeChainId, address, enabled: address })
   )
 
-  const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved && address, [onChainAmount, approved, address])
+  const approveEnabled = useMemo(() => onChainAmount > 0 && !approved && address, [onChainAmount, approved, address])
   const { data: simulationApproveData } = useSimulateContract(
     prepareContractWriteApproveLend({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
   )
@@ -64,10 +64,10 @@ const useLend = () => {
 
   const lendEnabled = useMemo(
     () =>
-      onChainAmount.gt(0) &&
+      onChainAmount > 0 &&
       approved &&
       pntBalanceData &&
-      onChainAmount.lte(pntBalanceData.value) &&
+      onChainAmount <= pntBalanceData.value &&
       epochs > 0 &&
       Boolean(address),
     [onChainAmount, approved, pntBalanceData, epochs, address]
@@ -96,7 +96,7 @@ const useLend = () => {
   })
 
   useEffect(() => {
-    setApproved(allowance ? allowance.gte(onChainAmount) : false)
+    setApproved(allowance ? allowance >= onChainAmount : false)
   }, [allowance, onChainAmount])
 
   useEffect(() => {
@@ -518,8 +518,14 @@ const useEstimateApy = () => {
     ]
   })
 
-  const totalWeights = useMemo(() => (data && data[0].result ? data[0].result.map((_val) => BigNumber(_val.toString())) : []), [data])
-  const userWeights = useMemo(() => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val.toString())) : []), [data])
+  const totalWeights = useMemo(
+    () => (data && data[0].result ? data[0].result.map((_val) => BigNumber(_val.toString())) : []),
+    [data]
+  )
+  const userWeights = useMemo(
+    () => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val.toString())) : []),
+    [data]
+  )
 
   const { startEpoch, endEpoch } = useMemo(() => {
     const lockTime = BigNumber(duration).multipliedBy(SECONDS_IN_ONE_DAY)
@@ -643,8 +649,14 @@ const useEstimateApyIncreaseDuration = () => {
     ]
   })
 
-  const totalWeights = useMemo(() => (data && data[0].result ? data[0].result.map((_val) => BigNumber(_val.toString())) : []), [data])
-  const userWeights = useMemo(() => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val.toString())) : []), [data])
+  const totalWeights = useMemo(
+    () => (data && data[0].result ? data[0].result.map((_val) => BigNumber(_val.toString())) : []),
+    [data]
+  )
+  const userWeights = useMemo(
+    () => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val.toString())) : []),
+    [data]
+  )
   const stake = useMemo(() => (data && data[2] ? data[2] : []), [data])
 
   const { startEpoch, endEpoch } = useMemo(() => {
@@ -770,8 +782,14 @@ const useApy = () => {
   })
 
   const stake = useMemo(() => (data && data[0] ? data[0] : {}), [data])
-  const totalWeights = useMemo(() => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val)) : []), [data])
-  const userWeights = useMemo(() => (data && data[2].result ? data[2].result.map((_val) => BigNumber(_val)) : []), [data])
+  const totalWeights = useMemo(
+    () => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val)) : []),
+    [data]
+  )
+  const userWeights = useMemo(
+    () => (data && data[2].result ? data[2].result.map((_val) => BigNumber(_val)) : []),
+    [data]
+  )
 
   const feeDistributionByMonthlyRevenues = useFeesDistributionByMonthlyRevenues({
     startEpoch,
@@ -857,8 +875,14 @@ const useEpochsBorrowableAmount = () => {
     ]
   })
 
-  const epochsLendedAmount = useMemo(() => (data && data[0].result ? data[0].result.map((_val) => BigNumber(_val)) : []), [data])
-  const epochsBorrowedAmount = useMemo(() => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val)) : []), [data])
+  const epochsLendedAmount = useMemo(
+    () => (data && data[0].result ? data[0].result.map((_val) => BigNumber(_val)) : []),
+    [data]
+  )
+  const epochsBorrowedAmount = useMemo(
+    () => (data && data[1].result ? data[1].result.map((_val) => BigNumber(_val)) : []),
+    [data]
+  )
   const epochsBorrowableAmount = useMemo(
     () => epochsLendedAmount.map((_amount, _index) => _amount.minus(epochsBorrowedAmount[_index])),
     [epochsLendedAmount, epochsBorrowedAmount]
