@@ -50,7 +50,7 @@ const StyledFaInfoCircle = styled(FaInfoCircle)`
 
 const ChainModal = ({ show, onClose }) => {
   const activeChainId = useChainId()
-  const { chains, error: networkError, switchNetwork } = useSwitchChain()
+  const { chains, error: switchError, switchChain } = useSwitchChain()
   const { connector: activeConnector } = useAccount()
   const [switchingToChain, setSwitchingToChain] = useState(false)
 
@@ -81,15 +81,15 @@ const ChainModal = ({ show, onClose }) => {
   }, [activeConnector, onClose, stopSwitching])
 
   useEffect(() => {
-    if (networkError && isValidError(networkError)) {
-      stopSwitching()
+    if (switchError && isValidError(switchError)) {
+      console.error(switchError.message)
     }
-  }, [networkError, stopSwitching])
+  }, [switchError, stopSwitching])
 
   return (
     <Modal title="Switch network" show={show} size="md" onClose={onClose}>
       <div className="p-1">
-        {switchNetwork ? (
+        {switchChain ? (
           chains.map((_chain) => {
             const isCurrentChain = _chain.id === activeChainId
             const switching = _chain.id === switchingToChain
@@ -103,7 +103,8 @@ const ChainModal = ({ show, onClose }) => {
                     ? undefined
                     : () => {
                         setSwitchingToChain(_chain.id)
-                        switchNetwork(_chain.id)
+                        console.log(_chain.id)
+                        switchChain({ chainId: _chain.id })
                       }
                 }
               >
