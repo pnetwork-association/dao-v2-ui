@@ -1,18 +1,7 @@
 {
-  "plugins": ["react", "react-hooks"],
+  "extends": ["react-app", "react-app/jest"],
   "parserOptions": {
     "sourceType": "module",
     "ecmaVersion": 13
-  },
-  "overrides": [
-    {
-      "files": [
-        "**/*.test.js",
-        "**/*.test.jsx"
-      ],
-      "env": {
-        "jest": true
-      }
-    }
-  ]
+  }
 }
