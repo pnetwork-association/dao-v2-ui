@@ -1,8 +1,10 @@
-import { handlePartialData, getEpochsFromRawData } from '../use-sentinels-historical-data'
-import { completeData, partialData } from './api.data'
+import { it, expect, vi } from 'vitest'
 import axios from 'axios'
 
-jest.mock('axios')
+import { handlePartialData, getEpochsFromRawData } from '../use-sentinels-historical-data'
+import { completeData, partialData } from './api.data'
+
+vi.mock('axios')
 
 it('should elaborate data', () => {
   const pData = handlePartialData(partialData)
