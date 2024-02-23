@@ -190,18 +190,15 @@ const useCreateProposal = () => {
 
   const { hasPermission, minOpenVoteAmount } = useMemo(
     () => ({
-      hasPermission: data && data[0] ? data[0] : false,
-      minOpenVoteAmount: data && data[1] ? data[1] : '0'
+      hasPermission: data && data[0].status === 'success' && data[0].result ? data[0].result : false,
+      minOpenVoteAmount: data && data[1].status === 'success' && data[1].result ? data[1].result : '0'
     }),
     [data]
   )
 
   const isValidIpfsMultiHash = useMemo(() => isValidMultiHash(ipfsMultihash), [ipfsMultihash])
   const isScriptValid = useMemo(() => isValidHexString(script), [script])
-  const hasPermissionOrEnoughBalance =
-    hasPermission ||
-    (daoPntBalance &&
-      BigNumber(daoPntBalance.value.toString()).isGreaterThanOrEqualTo(BigNumber(minOpenVoteAmount.toString())))
+  const hasPermissionOrEnoughBalance = hasPermission || (daoPntBalance && daoPntBalance.value > minOpenVoteAmount)
   const canCreateProposal = useMemo(
     () =>
       hasPermissionOrEnoughBalance && metadata.length > 0 && isValidIpfsMultiHash
@@ -212,7 +209,7 @@ const useCreateProposal = () => {
     [isScriptValid, showScript, hasPermissionOrEnoughBalance, metadata, isValidIpfsMultiHash]
   )
 
-  const { data: simulationNewProposalData } = useSimulateContract({
+  const simulationNewProposalData = useSimulateContract({
     address: settings.contracts.dandelionVotingV3,
     abi: DandelionVotingABI,
     functionName: 'newVote',
@@ -221,7 +218,9 @@ const useCreateProposal = () => {
       ipfsMultihash.length > 0 ? `${metadata} https://ipfs.io/ipfs/${ipfsMultihash}` : metadata,
       false
     ],
-    enabled: canCreateProposal
+    account: address,
+    enabled: canCreateProposal,
+    chainId: gnosis.id
   })
   const {
     writeContract: callCreateProposal,
