@@ -1,6 +1,5 @@
 import { useMemo, useState, useContext } from 'react'
-import { useAccount, useBalance, useReadContracts, useWriteContract, useSimulateContract } from 'wagmi'
-import BigNumber from 'bignumber.js'
+import { useAccount, useBalance, useReadContracts, useWriteContract } from 'wagmi'
 import { gnosis, mainnet, polygon } from 'wagmi/chains'
 
 import settings from '../settings'
@@ -209,26 +208,29 @@ const useCreateProposal = () => {
     [isScriptValid, showScript, hasPermissionOrEnoughBalance, metadata, isValidIpfsMultiHash]
   )
 
-  const simulationNewProposalData = useSimulateContract({
-    address: settings.contracts.dandelionVotingV3,
-    abi: DandelionVotingABI,
-    functionName: 'newVote',
-    args: [
-      showScript && isScriptValid ? script : '0x',
-      ipfsMultihash.length > 0 ? `${metadata} https://ipfs.io/ipfs/${ipfsMultihash}` : metadata,
-      false
-    ],
-    account: address,
-    enabled: canCreateProposal,
-    chainId: gnosis.id
-  })
+  // No use of simulateContract because already in wagmi useWriteContract
+  // (https://github.com/wevm/wagmi/blob/HEAD/packages/core/src/actions/writeContract.ts#L107)
   const {
     writeContract: callCreateProposal,
     error: createProposalError,
     data: createProposalData,
     isLoading
   } = useWriteContract()
-  const createProposal = () => callCreateProposal(simulationNewProposalData?.request)
+  const createProposal = () =>
+    callCreateProposal({
+      address: settings.contracts.dandelionVotingV3,
+      abi: DandelionVotingABI,
+      functionName: 'newVote',
+      args: [
+        showScript && isScriptValid ? script : '0x',
+        ipfsMultihash.length > 0 ? `${metadata} https://ipfs.io/ipfs/${ipfsMultihash}` : metadata,
+        false
+      ],
+      account: address,
+      enabled: canCreateProposal,
+      chainId: gnosis.id
+    })
+  // simulationNewProposalData?.request)
 
   return {
     canCreateProposal,
