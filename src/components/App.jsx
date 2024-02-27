@@ -13,7 +13,6 @@ import ProposalsProvider from './context/Proposals'
 import EventsProvider from './context/Events'
 import Avatar from './base/Avatar'
 import Overview from './pages/Overview'
-import Nodes from './pages/Nodes'
 import Staking from './pages/Staking'
 import Disclaimer from './complex/Disclaimer'
 import SettingsDrawer from './complex/Settings'
@@ -23,10 +22,6 @@ const router = createHashRouter([
   {
     path: '/',
     element: <Overview />
-  },
-  {
-    path: '/nodes',
-    element: <Nodes />
   },
   {
     path: '/staking',

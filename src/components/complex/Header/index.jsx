@@ -272,9 +272,6 @@ const Header = (_props) => {
           <StyledLink withmargin="true" to={'/staking'} active={(pathname === '/staking').toString()}>
             Staking
           </StyledLink>
-          <StyledLink withmargin="true" to={'/nodes'} active={(pathname === '/nodes').toString()}>
-            Nodes
-          </StyledLink>
         </StyledNav>
         <ButtonsContainer>
           <CustomConnectButton />
@@ -290,9 +287,6 @@ const Header = (_props) => {
           </StyledLinkMobile>
           <StyledLinkMobile to={'/staking'} active={(pathname === '/staking').toString()}>
             Staking
-          </StyledLinkMobile>
-          <StyledLinkMobile to={'/nodes'} active={(pathname === '/nodes').toString()}>
-            Nodes
           </StyledLinkMobile>
         </ContainerLinkMobile>
       </HeaderContainer>
