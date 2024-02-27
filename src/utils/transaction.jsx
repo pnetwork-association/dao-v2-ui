@@ -21,7 +21,7 @@ const toastifyTransaction = (_data, _isOngoing, _opts = {}, _cb) => {
   if (_isOngoing) {
     toast.success(
       <div>
-        <StyledA href={`${getExplorerUrlByChainId(chainId)}/tx/${_data.hash}`} target="_blank">
+        <StyledA href={`${getExplorerUrlByChainId(chainId)}/tx/${_data}`} target="_blank">
           Transaction
         </StyledA>{' '}
         <Text size="lg" variant="white">
@@ -34,7 +34,7 @@ const toastifyTransaction = (_data, _isOngoing, _opts = {}, _cb) => {
   if (_data && !_isOngoing) {
     toast.success(
       <div>
-        <StyledA href={`${getExplorerUrlByChainId(chainId)}/tx/${_data.hash}`} target="_blank">
+        <StyledA href={`${getExplorerUrlByChainId(chainId)}/tx/${_data}`} target="_blank">
           Transaction
         </StyledA>{' '}
         <Text size="lg" variant="white">
