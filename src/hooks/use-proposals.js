@@ -152,7 +152,7 @@ const useProposals = () => {
     return [...effectiveDaoV1Proposals, ...effectiveDaoV2ProposalVotes, ...daoV3ProposalsWithVote].sort(
       (_a, _b) => _b.timestamp - _a.timestamp
     )
-  }, [daoV1ProposalsWithVote, daoV2ProposalsWithVote])
+  }, [daoV1ProposalsWithVote, daoV2ProposalsWithVote, daoV3ProposalsWithVote])
 }
 
 const useCreateProposal = () => {
