@@ -13,7 +13,6 @@ import ProposalsProvider from './context/Proposals'
 import EventsProvider from './context/Events'
 import Avatar from './base/Avatar'
 import Overview from './pages/Overview'
-import Lending from './pages/Lending'
 import Nodes from './pages/Nodes'
 import Staking from './pages/Staking'
 import Disclaimer from './complex/Disclaimer'
@@ -24,10 +23,6 @@ const router = createHashRouter([
   {
     path: '/',
     element: <Overview />
-  },
-  {
-    path: '/lending',
-    element: <Lending />
   },
   {
     path: '/nodes',
