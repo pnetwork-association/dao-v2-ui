@@ -162,7 +162,7 @@ const useUnstake = (_opts = {}) => {
     )
 
   const { isLoading: isUnstaking } = useWaitForTransactionReceipt({
-    hash: unstakeData?.hash,
+    hash: unstakeData,
     confirmations: 1
   })
 

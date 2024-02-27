@@ -115,12 +115,12 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     )
 
   const { isLoading: isApproving } = useWaitForTransactionReceipt({
-    hash: approveData?.hash,
+    hash: approveData,
     confirmations: 1
   })
 
   const { isLoading: isUpdatingSentinelRegistrationByStaking } = useWaitForTransactionReceipt({
-    hash: updateSentinelRegistrationByStakingData?.hash,
+    hash: updateSentinelRegistrationByStakingData,
     confirmations: 1
   })
 
@@ -145,7 +145,7 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     )
 
   const { isLoading: isUpdatingSentinelRegistrationByBorrowing } = useWaitForTransactionReceipt({
-    hash: updateSentinelRegistrationByBorrowingData?.hash,
+    hash: updateSentinelRegistrationByBorrowingData,
     confirmations: 1
   })
 
