@@ -235,7 +235,7 @@ const LendModal = ({ show, onClose = () => null }) => {
   )
 
   const lendButtonText = useMemo(
-    () => (BigNumber(amount).isGreaterThan(pntBalance) && !lendEnabled ? 'Insufficent amount' : 'Lend'),
+    () => (BigNumber(amount).isGreaterThan(pntBalance) && !lendEnabled ? 'Insufficient amount' : 'Lend'),
     [amount, pntBalance, lendEnabled]
   )
 

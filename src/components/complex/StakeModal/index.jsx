@@ -106,7 +106,7 @@ const StakeModal = ({ show, onClose }) => {
   }, [showAdvancedOptions])
 
   const stakeButtonText = useMemo(
-    () => (BigNumber(amount).isGreaterThan(pntBalance) && !stakeEnabled ? 'Insufficent amount' : 'Stake'),
+    () => (BigNumber(amount).isGreaterThan(pntBalance) && !stakeEnabled ? 'Insufficient amount' : 'Stake'),
     [amount, pntBalance, stakeEnabled]
   )
 

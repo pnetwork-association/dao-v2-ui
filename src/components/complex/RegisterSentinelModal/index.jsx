@@ -223,7 +223,7 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
     () =>
       type === 'stake'
         ? BigNumber(amount).isGreaterThan(pntBalance) && !updateSentinelRegistrationByStakingEnabled
-          ? 'Insufficent amount'
+          ? 'Insufficient amount'
           : 'Stake & Register'
         : null,
     [type, amount, pntBalance, updateSentinelRegistrationByStakingEnabled]

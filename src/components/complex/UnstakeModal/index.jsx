@@ -66,7 +66,7 @@ const UnstakeModal = ({ show, contractAddress, onClose }) => {
   )
 
   const unstakeButtonText = useMemo(
-    () => (BigNumber(amount).isGreaterThan(availableToUnstakePntAmount) ? 'Insufficent amount' : 'Unstake'),
+    () => (BigNumber(amount).isGreaterThan(availableToUnstakePntAmount) ? 'Insufficient amount' : 'Unstake'),
     [amount, availableToUnstakePntAmount]
   )
 
