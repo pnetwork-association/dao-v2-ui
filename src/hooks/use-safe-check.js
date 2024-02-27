@@ -30,9 +30,7 @@ const useIsSafe = () => {
   useEffect(() => {
     const getCode = async () => {
       try {
-        console.log('address', address)
         const code = await client.getBytecode({ address: address, blockTag: 'latest' })
-        console.log('code', code)
         if (code === GNOSIS_PROXY_CONTRACT_BYTECODE) {
           const contract = getContract({
             address: address,
