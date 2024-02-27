@@ -107,10 +107,6 @@ const QuorumText = styled(Text)`
   color: ${({ theme, quorumreached }) => (quorumreached ? theme.yellow : theme.red)};
 `
 
-const QuorumContainer = styled.div`
-  margin-left: 7px;
-`
-
 const StyledIcon = styled(Icon)`
   margin-right: 5px;
 `
