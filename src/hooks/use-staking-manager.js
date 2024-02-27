@@ -7,7 +7,6 @@ import {
   useChainId,
   useReadContract,
   useWriteContract,
-  useSimulateContract,
   useWaitForTransactionReceipt
 } from 'wagmi'
 import { gnosis } from 'wagmi/chains'
@@ -48,16 +47,16 @@ const useStake = () => {
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
   const approveEnabled = useMemo(() => onChainAmount > 0 && !approved, [onChainAmount, approved])
-  const { data: simulationApproveData } = useSimulateContract(
-    prepareContractWriteApproveStake({
-      activeChainId,
-      amount: onChainAmount,
-      enabled: approveEnabled,
-      account: address
-    })
-  )
   const { writeContract: callApprove, error: approveError, data: approveData } = useWriteContract()
-  const approve = () => callApprove(simulationApproveData?.request)
+  const approve = () =>
+    callApprove(
+      prepareContractWriteApproveStake({
+        activeChainId,
+        amount: onChainAmount,
+        enabled: approveEnabled,
+        account: address
+      })
+    )
   const stakeEnabled = useMemo(
     () =>
       onChainAmount > 0 &&
@@ -67,17 +66,17 @@ const useStake = () => {
     [onChainAmount, approved, pntBalanceData, duration]
   )
 
-  const { data: simulationStakeData } = useSimulateContract(
-    prepareContractWriteStake({
-      activeChainId,
-      amount: onChainAmount,
-      duration: duration * SECONDS_IN_ONE_DAY,
-      receiver,
-      enabled: stakeEnabled
-    })
-  )
   const { writeContract: callStake, error: stakeError, data: stakeData } = useWriteContract()
-  const stake = () => callStake(simulationStakeData?.request)
+  const stake = () =>
+    callStake(
+      prepareContractWriteStake({
+        activeChainId,
+        amount: onChainAmount,
+        duration: duration * SECONDS_IN_ONE_DAY,
+        receiver,
+        enabled: stakeEnabled
+      })
+    )
 
   const { isLoading: isApproving } = useWaitForTransactionReceipt({
     hash: approveData,
@@ -149,18 +148,18 @@ const useUnstake = (_opts = {}) => {
     [amount, availableToUnstakePntAmount]
   )
 
-  const { data: simulationUnstakeData } = useSimulateContract(
-    prepareContractWriteUnstake({
-      activeChainId,
-      amount: onChainAmount,
-      chainId: chainIdToPNetworkNetworkId[chainId],
-      receiver: address,
-      enabled: unstakeEnabled,
-      contractAddress
-    })
-  )
   const { writeContract: callUnstake, error: unstakeError, data: unstakeData } = useWriteContract()
-  const unstake = () => callUnstake(simulationUnstakeData?.request)
+  const unstake = () =>
+    callUnstake(
+      prepareContractWriteUnstake({
+        activeChainId,
+        amount: onChainAmount,
+        chainId: chainIdToPNetworkNetworkId[chainId],
+        receiver: address,
+        enabled: unstakeEnabled,
+        contractAddress
+      })
+    )
 
   const { isLoading: isUnstaking } = useWaitForTransactionReceipt({
     hash: unstakeData?.hash,

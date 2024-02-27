@@ -8,7 +8,6 @@ import {
   useReadContract,
   useReadContracts,
   useWriteContract,
-  useSimulateContract,
   useWaitForTransactionReceipt
 } from 'wagmi'
 import { gnosis } from 'wagmi/chains'
@@ -56,11 +55,9 @@ const useLend = () => {
   )
 
   const approveEnabled = useMemo(() => onChainAmount > 0 && !approved && address, [onChainAmount, approved, address])
-  const { data: simulationApproveData } = useSimulateContract(
-    prepareContractWriteApproveLend({ activeChainId, amount: onChainAmount, enabled: approveEnabled })
-  )
   const { writeContract: callApprove, error: approveError, data: approveData } = useWriteContract()
-  const approve = () => callApprove(simulationApproveData?.request)
+  const approve = () =>
+    callApprove(prepareContractWriteApproveLend({ activeChainId, amount: onChainAmount, enabled: approveEnabled }))
 
   const lendEnabled = useMemo(
     () =>
@@ -73,17 +70,17 @@ const useLend = () => {
     [onChainAmount, approved, pntBalanceData, epochs, address]
   )
 
-  const { data: simulationLendData } = useSimulateContract(
-    prepareContractWriteLend({
-      activeChainId,
-      amount: onChainAmount,
-      duration: duration * SECONDS_IN_ONE_DAY,
-      receiver,
-      enabled: lendEnabled
-    })
-  )
   const { writeContract: callLend, error: lendError, data: lendData } = useWriteContract()
-  const lend = () => callLend(simulationLendData?.request)
+  const lend = () =>
+    callLend(
+      prepareContractWriteLend({
+        activeChainId,
+        amount: onChainAmount,
+        duration: duration * SECONDS_IN_ONE_DAY,
+        receiver,
+        enabled: lendEnabled
+      })
+    )
 
   const { isLoading: isApproving } = useWaitForTransactionReceipt({
     hash: approveData?.hash,
@@ -833,15 +830,15 @@ const useIncreaseLendDuration = () => {
   const [duration, setDuration] = useState(1) // 1 day
   const activeChainId = useChainId()
 
-  const { data: simulationData } = useSimulateContract(
-    prepareContractWriteIncreaseLendDuration({
-      activeChainId,
-      duration: duration * SECONDS_IN_ONE_DAY,
-      enabled: duration > 0
-    })
-  )
   const { writeContract: callWrite, error, data, isLoading } = useWriteContract()
-  const write = () => callWrite(simulationData?.request)
+  const write = () =>
+    callWrite(
+      prepareContractWriteIncreaseLendDuration({
+        activeChainId,
+        duration: duration * SECONDS_IN_ONE_DAY,
+        enabled: duration > 0
+      })
+    )
 
   return {
     duration,

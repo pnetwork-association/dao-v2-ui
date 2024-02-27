@@ -3,7 +3,7 @@ import { Row, Col } from 'react-bootstrap'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
 import styled from 'styled-components'
-import { useSimulateContract, useWriteContract, useChainId, useAccount } from 'wagmi'
+import { useWriteContract, useChainId, useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
 import BigNumber from 'bignumber.js'
 
@@ -205,17 +205,11 @@ const Proposal = ({
     [open, daoPntBalance, vote]
   )
 
-  const { data: simulationYesData } = useSimulateContract(
-    prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: true, enabled: canVote })
-  )
   const { data: yesData, /*isLoading: isLoadingYes,*/ writeContract: callYes, error: yesError } = useWriteContract()
-  const yes = () => callYes(simulationYesData?.request)
+  const yes = () => callYes({ activeChainId, address, id: effectiveId, vote: true, enabled: canVote })
 
-  const { data: simulationNoData } = useSimulateContract(
-    prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: false, enabled: canVote })
-  )
   const { data: noData, /*isLoading: isLoadingNo,*/ writeContract: callNo, error: noError } = useWriteContract()
-  const no = () => callNo(simulationNoData?.request)
+  const no = () => callNo({ activeChainId, address, id: effectiveId, vote: false, enabled: canVote })
 
   useEffect(() => {
     if (yesError && isValidError(yesError)) {

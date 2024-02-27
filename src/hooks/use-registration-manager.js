@@ -8,7 +8,6 @@ import {
   useReadContract,
   useReadContracts,
   useWriteContract,
-  useSimulateContract,
   useWaitForTransactionReceipt
 } from 'wagmi'
 import { gnosis } from 'wagmi/chains'
@@ -66,15 +65,15 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     [onChainAmount, approved, type]
   )
 
-  const { data: simulationApproveData } = useSimulateContract(
-    prepareContractWriteApproveUpdateSentinelRegistrationByStaking({
-      activeChainId,
-      amount: onChainAmount,
-      approveEnabled
-    })
-  )
   const { writeContract: callApprove, error: approveError, data: approveData } = useWriteContract()
-  const approve = () => callApprove(simulationApproveData?.request)
+  const approve = () =>
+    callApprove(
+      prepareContractWriteApproveUpdateSentinelRegistrationByStaking({
+        activeChainId,
+        amount: onChainAmount,
+        approveEnabled
+      })
+    )
 
   const lockTime = useMemo(
     () =>
@@ -98,23 +97,22 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     [onChainAmount, approved, lockTime, pntBalanceData, isSignatureValid, type]
   )
 
-  const { data: simulationUpdateSentinelRegistrationByStakingData } = useSimulateContract(
-    prepareContractWriteUpdateSentinelRegistrationByStaking({
-      activeChainId,
-      amount: onChainAmount,
-      duration: lockTime,
-      receiver: address,
-      signature,
-      enabled: updateSentinelRegistrationByStakingEnabled
-    })
-  )
   const {
     writeContract: callUpdateSentinelRegistrationByStaking,
     error: updateSentinelRegistrationByStakingError,
     data: updateSentinelRegistrationByStakingData
   } = useWriteContract()
   const updateSentinelRegistrationByStaking = () =>
-    callUpdateSentinelRegistrationByStaking(simulationUpdateSentinelRegistrationByStakingData?.request)
+    callUpdateSentinelRegistrationByStaking(
+      prepareContractWriteUpdateSentinelRegistrationByStaking({
+        activeChainId,
+        amount: onChainAmount,
+        duration: lockTime,
+        receiver: address,
+        signature,
+        enabled: updateSentinelRegistrationByStakingEnabled
+      })
+    )
 
   const { isLoading: isApproving } = useWaitForTransactionReceipt({
     hash: approveData?.hash,
@@ -130,22 +128,21 @@ const useRegisterSentinel = ({ type = 'stake' }) => {
     () => epochs >= 1 && isSignatureValid && type === 'borrow',
     [epochs, isSignatureValid, type]
   )
-  const { data: simulationUpdateSentinelRegistrationByBorrowingData } = useSimulateContract(
-    prepareContractWriteUpdateSentinelRegistrationByBorrowing({
-      activeChainId,
-      numberOfEpochs: epochs,
-      receiver: address,
-      signature,
-      enabled: updateSentinelRegistrationByBorrowingEnabled
-    })
-  )
   const {
     writeContract: callUpdateSentinelRegistrationByBorrowing,
     error: updateSentinelRegistrationByBorrowingError,
     data: updateSentinelRegistrationByBorrowingData
   } = useWriteContract()
   const updateSentinelRegistrationByBorrowing = () =>
-    callUpdateSentinelRegistrationByBorrowing(simulationUpdateSentinelRegistrationByBorrowingData?.request)
+    callUpdateSentinelRegistrationByBorrowing(
+      prepareContractWriteUpdateSentinelRegistrationByBorrowing({
+        activeChainId,
+        numberOfEpochs: epochs,
+        receiver: address,
+        signature,
+        enabled: updateSentinelRegistrationByBorrowingEnabled
+      })
+    )
 
   const { isLoading: isUpdatingSentinelRegistrationByBorrowing } = useWaitForTransactionReceipt({
     hash: updateSentinelRegistrationByBorrowingData?.hash,
@@ -330,15 +327,15 @@ const useIncreaseStakingSentinelRegistrationDuration = () => {
   const [epochs, setEpochs] = useState(0)
   const activeChainId = useChainId()
 
-  const { data: simulationData } = useSimulateContract(
-    prepareContractWriteIncreaseStakingSentinelRegistrationDuration({
-      activeChainId,
-      duration: epochs * epochDuration,
-      enabled: epochs > 0
-    })
-  )
   const { writeContract: callWrite, error, data, isLoading } = useWriteContract()
-  const write = () => callWrite(simulationData?.request)
+  const write = () =>
+    callWrite(
+      prepareContractWriteIncreaseStakingSentinelRegistrationDuration({
+        activeChainId,
+        duration: epochs * epochDuration,
+        enabled: epochs > 0
+      })
+    )
 
   return {
     epochs,
