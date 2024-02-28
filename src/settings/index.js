@@ -31,7 +31,15 @@ const settings = {
     forwarderOnMainnet: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
     forwarderOnPolygon: '0xc85cd78555df9991245f15c7aa6c4edbb7791c19',
     forwarderOnBsc: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
-    financeVault: '0x139Ad01CAcbbe51B4A2B099E52C47693Ba87351b'
+    financeVault: '0x6239968e6231164687CB40f8389d933dD7f7e0A5',
+    crossExecutor: '0x0123456789012345678901234567890123456789' // THIS IS AN ADRESS PLACEHOLDER
+  },
+  pnetworkIds: {
+    mainnet: '0x005fe7f9',
+    interim: '0xffffffff',
+    polygon: '0x0075dd4c',
+    gnosis: '0x00f1918e',
+    bsc: '0x00e4b170'
   },
   stakingManager: {
     minStakeDays: 7,
