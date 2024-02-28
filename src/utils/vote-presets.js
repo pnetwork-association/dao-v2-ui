@@ -1,4 +1,5 @@
 import changeInflationOwner from './presets/changeInflationOwner'
+import migrateTreasuryFunds from './presets/ migrateTreasuryFunds'
 import createMerklIncentive from './presets/createMerklIncentive'
 import paymentFromTreasury from './presets/paymentFromTreasury'
 import withdrawInflationAndPegin from './presets/withdrawInflationAndPegin'
@@ -13,6 +14,7 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
     withdrawInflationAndPegin: withdrawInflationAndPegin({ presetParams, setPresetParams }),
     createMerklIncentive: createMerklIncentive({ presetParams, setPresetParams }),
     changeInflationOwner: changeInflationOwner({ presetParams, setPresetParams }),
+    migrateTreasuryFunds: migrateTreasuryFunds({ presetParams, setPresetParams }),
     custom: {
       id: 'custom',
       name: 'Custom - encoded script',
