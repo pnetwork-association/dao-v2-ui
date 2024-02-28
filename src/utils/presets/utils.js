@@ -7,7 +7,7 @@ import RewardsManagerABI from '../abis/RewardsManager.json'
 import MerklDistributionCreatorABI from '../abis/MerklDistributionCreator.json'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
-import { readContract } from '@wagmi/core'
+import { readContract, getProvider } from '@wagmi/core'
 
 import settings from '../../settings'
 
@@ -21,17 +21,25 @@ export const dandelionVotingContract = new ethers.utils.Interface(DandelionVotin
 
 const ONE_DAY = 60 * 60 * 24
 
-export const prepareInflationData = (amount) => {
+export const getEthPNTAsset = () => {
   const ethPNTAsset = settings.assets.find((asset) => asset.symbol == 'ethPNT')
   if (!ethPNTAsset) throw new Error('ethPNT asset config not found!')
+  return ethPNTAsset
+}
+
+export const getRawAmount = (amount, decimals) =>
+  BigNumber(amount)
+    .multipliedBy(10 ** decimals)
+    .toFixed()
+
+export const prepareInflationData = (amount) => {
+  const ethPNTAsset = getEthPNTAsset()
   const ethPNTAddress = ethPNTAsset.address
   if (!ethPNTAddress) throw new Error('ethPNT asset address not found!')
   const ethPNTDecimals = ethPNTAsset.decimals
   if (!ethPNTDecimals) throw new Error('ethPNT asset decimals not found!')
 
-  const rawAmount = BigNumber(amount)
-    .multipliedBy(10 ** ethPNTDecimals)
-    .toFixed()
+  const rawAmount = getRawAmount(amount, ethPNTDecimals)
 
   return {
     rawAmount: rawAmount,
