@@ -83,12 +83,12 @@ const useLend = () => {
     )
 
   const { isLoading: isApproving } = useWaitForTransactionReceipt({
-    hash: approveData?.hash,
+    hash: approveData,
     confirmations: 1
   })
 
   const { isLoading: isLending } = useWaitForTransactionReceipt({
-    hash: lendData?.hash,
+    hash: lendData,
     confirmations: 1
   })
 

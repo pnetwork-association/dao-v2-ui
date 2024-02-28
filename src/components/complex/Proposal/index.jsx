@@ -107,10 +107,6 @@ const QuorumText = styled(Text)`
   color: ${({ theme, quorumreached }) => (quorumreached ? theme.yellow : theme.red)};
 `
 
-const QuorumContainer = styled.div`
-  margin-left: 7px;
-`
-
 const StyledIcon = styled(Icon)`
   margin-right: 5px;
 `
@@ -143,7 +139,7 @@ const SpinnerView = styled.div`
   display: flex;
   flex: 1;
   justify-content: center;
-  align-items. center;
+  align-items: center;
   margin-top: 50px;
   margin-bottom: 50px;
 `
@@ -205,35 +201,23 @@ const Proposal = ({
     [open, daoPntBalance, vote]
   )
 
-  const { data: yesData, /*isLoading: isLoadingYes,*/ writeContract: callYes, error: yesError } = useWriteContract()
-  const yes = () => callYes({ activeChainId, address, id: effectiveId, vote: true, enabled: canVote })
-
-  const { data: noData, /*isLoading: isLoadingNo,*/ writeContract: callNo, error: noError } = useWriteContract()
-  const no = () => callNo({ activeChainId, address, id: effectiveId, vote: false, enabled: canVote })
-
-  useEffect(() => {
-    if (yesError && isValidError(yesError)) {
-      toast.error(yesError.message)
-    }
-  }, [yesError])
+  const { data: voteData, /*isLoading: isLoadingYes,*/ writeContract: callVote, error: voteError } = useWriteContract()
+  const yes = () =>
+    callVote(prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: true, enabled: true }))
+  const no = () =>
+    callVote(prepareContractWriteVote({ activeChainId, address, id: effectiveId, vote: false, enabled: true }))
 
   useEffect(() => {
-    if (noError && isValidError(noError)) {
-      toast.error(noError.message)
+    if (voteError && isValidError(voteError)) {
+      toast.error(voteError.message)
     }
-  }, [noError])
+  }, [voteError])
 
   useEffect(() => {
-    if (yesData) {
-      toastifyTransaction(yesData, { chainId: activeChainId })
+    if (voteData) {
+      toastifyTransaction(voteData, { chainId: activeChainId })
     }
-  }, [yesData, activeChainId])
-
-  useEffect(() => {
-    if (noData) {
-      toastifyTransaction(noData, { chainId: activeChainId })
-    }
-  }, [noData, activeChainId])
+  }, [voteData, activeChainId])
 
   const renderTooltip = (props) => (
     <Tooltip id="button-tooltip" {...props}>
