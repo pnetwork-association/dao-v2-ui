@@ -53,7 +53,6 @@ const useStake = () => {
       prepareContractWriteApproveStake({
         activeChainId,
         amount: onChainAmount,
-        enabled: approveEnabled,
         account: address
       })
     )
@@ -73,8 +72,7 @@ const useStake = () => {
         activeChainId,
         amount: onChainAmount,
         duration: duration * SECONDS_IN_ONE_DAY,
-        receiver,
-        enabled: stakeEnabled
+        receiver
       })
     )
 
@@ -138,15 +136,15 @@ const useUnstake = (_opts = {}) => {
   const [amount, setAmount] = useState('0')
   const activeChainId = useChainId()
   const [chainId, setChainId] = useState(1) // NOTE: ChainSelection starts with eth
-  const { availableToUnstakePntAmount } = useUserStake()
+  // const { availableToUnstakePntAmount } = useUserStake()
   const { address } = useAccount()
 
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
-  const unstakeEnabled = useMemo(
-    () => BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
-    [amount, availableToUnstakePntAmount]
-  )
+  // const unstakeEnabled = useMemo(
+  //   () => BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
+  //   [amount, availableToUnstakePntAmount]
+  // )
 
   const { writeContract: callUnstake, error: unstakeError, data: unstakeData } = useWriteContract()
   const unstake = () =>
@@ -156,7 +154,6 @@ const useUnstake = (_opts = {}) => {
         amount: onChainAmount,
         chainId: chainIdToPNetworkNetworkId[chainId],
         receiver: address,
-        enabled: unstakeEnabled,
         contractAddress
       })
     )

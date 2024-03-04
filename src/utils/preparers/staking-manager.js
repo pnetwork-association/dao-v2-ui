@@ -50,7 +50,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
   }
 }
 
-const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled, account }) => {
+const prepareContractWriteApproveStake = ({ activeChainId, amount, account }) => {
   switch (activeChainId) {
     case mainnet.id: {
       return {
@@ -59,7 +59,6 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled, acco
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
         account: account,
-        enabled,
         chainId: mainnet.id
       }
     }
@@ -70,7 +69,6 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled, acco
         functionName: 'approve',
         args: [settings.contracts.stakingManager, amount],
         account: account,
-        enabled,
         chainId: gnosis.id
       }
     }
@@ -81,7 +79,6 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled, acco
         functionName: 'approve',
         args: [settings.contracts.forwarderOnPolygon, amount],
         account: account,
-        enabled,
         chainId: polygon.id
       }
     }
@@ -92,7 +89,6 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled, acco
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
         account: account,
-        enabled,
         chainId: bsc.id
       }
     }
@@ -101,7 +97,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, enabled, acco
   }
 }
 
-const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, enabled }) => {
+const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }) => {
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
@@ -118,7 +114,6 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
         chainId: mainnet.id
       }
     }
@@ -137,7 +132,6 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
         chainId: bsc.id
       }
     }
@@ -147,7 +141,6 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         abi: StakingManagerABI,
         functionName: 'stake',
         args: [receiver, amount, duration],
-        enabled,
         chainId: gnosis.id
       }
     }
@@ -166,7 +159,6 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
         chainId: polygon.id
       }
     }
@@ -175,7 +167,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, 
   }
 }
 
-const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver, enabled, contractAddress }) => {
+const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver, contractAddress }) => {
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
@@ -193,7 +185,6 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
         chainId: mainnet.id
       }
     }
@@ -213,7 +204,6 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
         chainId: bsc.id
       }
     }
@@ -223,7 +213,6 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         abi: StakingManagerABI,
         functionName: 'unstake',
         args: [amount, chainId],
-        enabled,
         chainId: gnosis.id
       }
     }
@@ -243,7 +232,6 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
         chainId: polygon.id
       }
     }
