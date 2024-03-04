@@ -11,7 +11,7 @@ const settings = {
   },
   contracts: {
     pTokensVault: '0xe396757EC7E6aC7C8E5ABE7285dde47b98F22db8',
-    pntOnGnosis: '0x0259461eed4d76d4f0f900f9035f6c4dfb39159a',
+    pntOnGnosis: '0x8805Aa0C1a8e59b03fA95740F691E28942Cf44f6',
     pntOnPolygon: '0xb6bcae6468760bc0cdfb9c8ef4ee75c9dd23e1ed',
     pntOnEthereum: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
     pntOnBsc: '0xdaacB0Ab6Fb34d24E8a67BfA14BF4D95D4C7aF92',
