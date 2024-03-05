@@ -15,6 +15,9 @@ const migrateTreasuryFunds = ({ presetParams, setPresetParams }) => ({
       name: 'tokenAddress',
       component: 'AssetSelection',
       props: {
+        assets: settings.assets.filter(
+          (asset) => asset.symbol === 'pBTC' || asset.symbol === 'ethPNT' || asset.symbol === 'PNT'
+        ),
         onSelect: (_address) =>
           setPresetParams({
             ...presetParams,
