@@ -1,7 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
-import { useAccount, useChainId } from 'wagmi'
+import { useChainId } from 'wagmi'
 import { toast } from 'react-toastify'
 import BigNumber from 'bignumber.js'
 import { gnosis } from 'wagmi/chains'
@@ -43,7 +43,6 @@ const ReceiverInput = styled(Input)`
 const StakeModal = ({ show, onClose }) => {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
   const { pntBalance, formattedPntBalance, formattedDaoPntBalance } = useBalances()
-  const { address } = useAccount()
   const activeChainId = useChainId()
   const isSafe = useIsSafe()
 
@@ -89,10 +88,6 @@ const StakeModal = ({ show, onClose }) => {
       toastifyTransaction(stakeData, isStaking, { chainId: activeChainId })
     }
   }, [stakeData, isStaking, activeChainId])
-
-  useEffect(() => {
-    setReceiver(address)
-  }, [address, setReceiver])
 
   useEffect(() => {
     if (!show) {
