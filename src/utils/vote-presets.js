@@ -1,5 +1,5 @@
 import changeInflationOwner from './presets/changeInflationOwner'
-import migrateTreasuryFunds from './presets/ migrateTreasuryFunds'
+import migrateTreasuryFunds from './presets/migrateTreasuryFunds'
 import createMerklIncentive from './presets/createMerklIncentive'
 import paymentFromTreasury from './presets/paymentFromTreasury'
 import withdrawInflationAndPegin from './presets/withdrawInflationAndPegin'

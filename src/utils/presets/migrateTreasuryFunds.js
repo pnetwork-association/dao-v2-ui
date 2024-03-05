@@ -2,7 +2,7 @@ import { ethers } from 'ethers'
 import { erc20ABI } from 'wagmi'
 import { readContract } from '@wagmi/core'
 
-import { getEthPNTAsset, getRawAmount, pNetworkV2Vault } from './utils'
+import { getEthPNTAsset, getRawAmount, pNetworkV2Vault, vaultContract } from './utils'
 import settings from '../../settings'
 
 const migrateTreasuryFunds = ({ presetParams, setPresetParams }) => ({
@@ -105,6 +105,25 @@ const migrateTreasuryFunds = ({ presetParams, setPresetParams }) => ({
 
     const rawAmount = getRawAmount(amount, assetDecimals)
 
+    const transfer = {
+      to: settings.contracts.financeVault,
+      calldata: vaultContract.encodeFunctionData('transfer', [
+        assetAddress,
+        settings.contracts.dandelionVoting,
+        rawAmount
+      ])
+    }
+
+    const erc20Contract = new ethers.utils.Interface(erc20ABI)
+
+    const approve = {
+      to: assetAddress,
+      calldata: erc20Contract.encodeFunctionData('approve', [
+        settings.contracts.pNetworkV2EthereumVaultAddess,
+        rawAmount
+      ])
+    }
+
     const pegin = {
       to: settings.contracts.pNetworkV2EthereumVaultAddess,
       calldata: pNetworkV2Vault.encodeFunctionData('pegIn(uint256, address, string, bytes, bytes4)', [
@@ -116,7 +135,7 @@ const migrateTreasuryFunds = ({ presetParams, setPresetParams }) => ({
       ])
     }
 
-    return [pegin]
+    return [transfer, approve, pegin]
   }
 })
 
