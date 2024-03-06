@@ -67,7 +67,7 @@ const useStake = () => {
     args: [onChainAmount, duration * SECONDS_IN_ONE_DAY, receiver],
     enabled: stakeEnabled
   })
-  const { write: stake, error: stakeError, data: stakeData } = useContractWrite(stakeConfigs)
+  const { write: stake, error: stakeError, data: stakeData, status: stakeStatus } = useContractWrite(stakeConfigs)
 
   const { isLoading: isApproving } = useWaitForTransaction({
     hash: approveData?.hash
@@ -118,6 +118,7 @@ const useStake = () => {
     setDuration,
     setReceiver,
     stake,
+    stakeStatus,
     stakeData,
     stakeEnabled,
     stakeError
@@ -140,7 +141,12 @@ const useUnstake = () => {
     args: [onChainAmount],
     enabled: BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount)
   })
-  const { write: unstake, error: unstakeError, data: unstakeData } = useContractWrite(unstakeConfigs)
+  const {
+    write: unstake,
+    error: unstakeError,
+    data: unstakeData,
+    status: unstakeStatus
+  } = useContractWrite(unstakeConfigs)
 
   const { isLoading: isUnstaking } = useWaitForTransaction({
     hash: unstakeData?.hash
@@ -152,14 +158,15 @@ const useUnstake = () => {
     setAmount,
     unstake,
     unstakeData,
-    unstakeError
+    unstakeError,
+    unstakeStatus
   }
 }
 
 const useUserStake = () => {
   const { address } = useAccount()
 
-  const { data } = useContractRead({
+  const { data, status } = useContractRead({
     address: settings.contracts.stakingManager,
     abi: StakingManagerABI,
     functionName: 'getStakedLocks',
@@ -193,16 +200,14 @@ const useUserStake = () => {
   )
 
   const offchainUnstekableAmount = useMemo(
-    () =>
-      BigNumber(availableToUnstakePntAmount.toString())
-        .dividedBy(10 ** 18)
-        .toFixed(),
+    () => BigNumber(availableToUnstakePntAmount.toString()).dividedBy(10 ** 18),
     [availableToUnstakePntAmount]
   )
 
   return {
     availableToUnstakePntAmount: offchainUnstekableAmount,
-    fomattedAvailableToUnstakePntAmount: formatAssetAmount(offchainUnstekableAmount, 'PNT')
+    fomattedAvailableToUnstakePntAmount: formatAssetAmount(offchainUnstekableAmount.toFixed(), 'PNT'),
+    status: status
   }
 }
 

@@ -9,6 +9,7 @@ import { useNickname } from '../../../hooks/use-nickname'
 import Avatar from '../../base/Avatar'
 import Button from '../../base/Button'
 import AccountModal from '../AccountModal'
+import MigrateModal from '../MigrateModal'
 
 const Logo = styled.img`
   width: 40px;
@@ -196,6 +197,7 @@ const Header = (_props) => {
         </StyledNav>
         <ButtonsContainer>
           <CustomConnectButton />
+          <MigrateModal />
           {/*<ThemeIcon
             icon="moon"
             //icon={theme === 'light' ? 'sun' : 'moon'}
