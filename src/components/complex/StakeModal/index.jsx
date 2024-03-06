@@ -96,7 +96,7 @@ const StakeModal = ({ show, onClose }) => {
   }, [show, setAmount])
 
   const onMax = useCallback(() => {
-    setAmount(pntBalance)
+    setAmount(pntBalance.toFixed())
   }, [pntBalance, setAmount])
 
   const onShowOrHideAdvancedOptions = useCallback(() => {

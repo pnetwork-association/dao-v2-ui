@@ -200,8 +200,8 @@ const LendModal = ({ show, onClose }) => {
   }, [show, setAmount, setDuration, setAmountEstimatedApy])
 
   const onMax = useCallback(() => {
-    setAmount(pntBalance)
-    setAmountEstimatedApy(pntBalance)
+    setAmount(pntBalance.toFixed())
+    setAmountEstimatedApy(pntBalance.toFixed())
   }, [pntBalance, setAmount, setAmountEstimatedApy])
 
   const onChangeDuration = useCallback(

@@ -11,12 +11,12 @@ const useBalances = () => {
 
   const { data: pntBalanceData } = useBalance({
     token: settings.contracts.pnt,
-    address
+    address: address
   })
 
   const { data: daoPntBalanceData } = useBalance({
     token: settings.contracts.daoPnt,
-    address
+    address: address
   })
 
   const pntBalance = useMemo(
@@ -28,11 +28,12 @@ const useBalances = () => {
     [daoPntBalanceData]
   )
 
+  // const daoPntBalance = daoPntBalanceData ? BigNumber(daoPntBalanceData?.value.toString()).dividedBy(10 ** 18) : BigNumber(null)
   return {
-    daoPntBalance: daoPntBalance.toFixed(),
+    daoPntBalance: daoPntBalance,
     formattedDaoPntBalance: formatAssetAmount(daoPntBalance, 'daoPNT'),
     formattedPntBalance: formatAssetAmount(pntBalance, 'PNT'),
-    pntBalance: pntBalance.toFixed()
+    pntBalance: pntBalance
   }
 }
 
