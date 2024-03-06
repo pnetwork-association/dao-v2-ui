@@ -106,9 +106,10 @@ const settings = {
   ],
   chains: [
     {
-      name: 'BSC',
-      logo: './assets/svg/BSC.svg',
-      chainId: '0x00e4b170'
+      name: 'Gnosis',
+      logo: './assets/svg/GNOSIS.svg',
+      endpoint: 'https://rpc.gnosischain.com',
+      chainId: '0x00f1918e'
     },
     {
       name: 'Ethereum',
@@ -116,10 +117,9 @@ const settings = {
       chainId: '0x005fe7f9'
     },
     {
-      name: 'Gnosis',
-      logo: './assets/svg/GNOSIS.svg',
-      endpoint: 'https://rpc.gnosischain.com',
-      chainId: '0x00f1918e'
+      name: 'BSC',
+      logo: './assets/svg/BSC.svg',
+      chainId: '0x00e4b170'
     },
     {
       name: 'Polygon',
