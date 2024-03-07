@@ -118,7 +118,8 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
               amount,
               duration,
               ownerAddress: receiver,
-              signature
+              signature,
+              fromNative: true
             })
           : '0x'
 
@@ -138,7 +139,8 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
               amount,
               duration,
               ownerAddress: receiver,
-              signature
+              signature,
+              fromNative: false
             })
           : '0x'
 
@@ -168,7 +170,8 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
               amount,
               duration,
               ownerAddress: receiver,
-              signature
+              signature,
+              fromNative: false
             })
           : '0x'
 

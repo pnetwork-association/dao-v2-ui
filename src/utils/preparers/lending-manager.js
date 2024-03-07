@@ -109,7 +109,8 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
           ? getForwarderLendUserData({
               amount,
               duration,
-              receiverAddress: receiver
+              receiverAddress: receiver,
+              fromNative: true
             })
           : '0x'
       return {
@@ -127,7 +128,8 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
           ? getForwarderLendUserData({
               amount,
               duration,
-              receiverAddress: receiver
+              receiverAddress: receiver,
+              fromNative: false
             })
           : '0x'
 
@@ -156,7 +158,8 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
           ? getForwarderLendUserData({
               amount,
               duration,
-              receiverAddress: receiver
+              receiverAddress: receiver,
+              fromNative: false
             })
           : '0x'
 

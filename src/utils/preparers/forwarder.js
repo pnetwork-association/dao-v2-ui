@@ -1,15 +1,15 @@
 import { encodeAbiParameters, encodeFunctionData, parseAbi, parseAbiParameters } from 'viem'
-import BigNumber from 'bignumber.js'
 
 import settings from '../../settings'
 
-const subtractFee = (_amount) => {
-  const amountBn = BigNumber(_amount.toString())
-  return amountBn.minus(amountBn.multipliedBy(0.001)).toFixed()
+const subtractFee = (_amount, _fromNative) => {
+  const amountBn = BigInt(_amount)
+  const bp = _fromNative ? 1000n : 2500n
+  return (amountBn * (1000000n - bp)) / 1000000n
 }
 
-const getForwarderLendUserData = ({ amount, duration, receiverAddress }) => {
-  const amountWithoutFees = subtractFee(amount)
+const getForwarderLendUserData = ({ amount, duration, receiverAddress, fromNative }) => {
+  const amountWithoutFees = subtractFee(amount, fromNative)
 
   return encodeAbiParameters(parseAbiParameters('address[], bytes[]'), [
     [settings.contracts.pntOnGnosis, settings.contracts.lendingManager],
@@ -28,8 +28,8 @@ const getForwarderLendUserData = ({ amount, duration, receiverAddress }) => {
   ])
 }
 
-const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
-  const amountWithoutFees = subtractFee(amount)
+const getForwarderStakeUserData = ({ amount, duration, receiverAddress, fromNative }) => {
+  const amountWithoutFees = subtractFee(amount, fromNative)
 
   return encodeAbiParameters(parseAbiParameters('address[], bytes[]'), [
     [settings.contracts.pntOnGnosis, settings.contracts.stakingManager],
@@ -65,8 +65,14 @@ const getForwarderUnstakeUserData = ({
     ]
   ])
 
-const getForwarderUpdateSentinelRegistrationByStakingUserData = ({ amount, duration, ownerAddress, signature }) => {
-  const amountWithoutFees = subtractFee(amount)
+const getForwarderUpdateSentinelRegistrationByStakingUserData = ({
+  amount,
+  duration,
+  ownerAddress,
+  signature,
+  fromNative
+}) => {
+  const amountWithoutFees = subtractFee(amount, fromNative)
 
   return encodeAbiParameters(parseAbiParameters('address[], bytes[]'), [
     [settings.contracts.pntOnGnosis, settings.contracts.registrationManager],
@@ -138,6 +144,7 @@ const getForwarderIncreaseStakingSentinelRegistrationDurationUserData = ({ durat
   ])
 
 export {
+  subtractFee,
   getForwarderIncreaseDurationLendUserData,
   getForwarderIncreaseStakingSentinelRegistrationDurationUserData,
   getForwarderLendUserData,

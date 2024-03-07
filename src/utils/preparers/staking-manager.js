@@ -105,7 +105,8 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }
           ? getForwarderStakeUserData({
               amount,
               duration,
-              receiverAddress: receiver
+              receiverAddress: receiver,
+              fromNative: true
             })
           : '0x'
 
@@ -123,7 +124,8 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }
           ? getForwarderStakeUserData({
               amount,
               duration,
-              receiverAddress: receiver
+              receiverAddress: receiver,
+              fromNative: false
             })
           : '0x'
 
@@ -150,7 +152,8 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }
           ? getForwarderStakeUserData({
               amount,
               duration,
-              receiverAddress: receiver
+              receiverAddress: receiver,
+              fromNative: false
             })
           : '0x'
 
