@@ -13,7 +13,7 @@ const Disclaimer = () => {
       <Row>
         <Col>
           <InfoBox type="warning">
-            The DAO v2 is released in beta, and the code is not audited; there could be bugs and additional risks.
+            The DAO v3 is released in beta, and the code is not audited; there could be bugs and additional risks.
             Please don't stake large amounts or assets you can't afford to lose. Despite all safety measures and the
             safeguards we have put in place, there is still risk involved in using it, and we advise you to proceed only
             if you are comfortable with the possibility of encountering bugs, glitches and funds loss.
