@@ -15,10 +15,38 @@ import axios from 'axios'
 
 import settings from '../settings'
 import StakingManagerABI from '../utils/abis/StakingManager.json'
+import ForwarderABI from '../utils/abis/Forwarder.json'
 import { formatAssetAmount } from '../utils/amount'
 import { SECONDS_IN_ONE_DAY } from '../utils/time'
 
-const useStake = () => {
+const subtractFee = (_amount) => {
+  const amountBn = BigNumber(_amount.toString())
+  return amountBn.minus(amountBn.multipliedBy(0.001)).toFixed()
+}
+
+const encode = (...params) => new ethers.utils.AbiCoder().encode(...params)
+
+const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
+  const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
+  const stakingManagerInterface = new ethers.utils.Interface([
+    'function stake(address receiver, uint256 amount, uint64 duration)'
+  ])
+
+  const amountWithoutFees = subtractFee(amount)
+
+  return encode(
+    ['address[]', 'bytes[]'],
+    [
+      [settings.contracts.pnt, settings.contracts.stakingManager],
+      [
+        erc20Interface.encodeFunctionData('approve', [settings.contracts.stakingManager, amountWithoutFees]),
+        stakingManagerInterface.encodeFunctionData('stake', [receiverAddress, amountWithoutFees, duration])
+      ]
+    ]
+  )
+}
+
+const useStake = ({ migration = false }) => {
   const [approved, setApproved] = useState(false)
   const [receiver, setReceiver] = useState('')
   const [amount, setAmount] = useState('0')
@@ -30,12 +58,21 @@ const useStake = () => {
     address
   })
 
-  const { data: allowance } = useContractRead({
-    address: settings.contracts.pnt,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, settings.contracts.stakingManager]
-  })
+  const getAllowanceData = migration
+    ? {
+        address: settings.contracts.pnt,
+        abi: erc20ABI,
+        functionName: 'allowance',
+        args: [address, settings.contracts.forwarder]
+      }
+    : {
+        address: settings.contracts.pnt,
+        abi: erc20ABI,
+        functionName: 'allowance',
+        args: [address, settings.contracts.stakingManager]
+      }
+
+  const { data: allowance } = useContractRead(getAllowanceData)
 
   const onChainAmount = useMemo(
     () => (amount.length > 0 ? ethers.utils.parseEther(amount) : ethers.BigNumber.from('0')),
@@ -43,13 +80,22 @@ const useStake = () => {
   )
 
   const approveEnabled = useMemo(() => onChainAmount.gt(0) && !approved, [onChainAmount, approved])
-  const { config: approveConfigs } = usePrepareContractWrite({
-    address: settings.contracts.pnt,
-    abi: erc20ABI,
-    functionName: 'approve',
-    args: [settings.contracts.stakingManager, onChainAmount],
-    enabled: approveEnabled
-  })
+  const getApproveData = migration
+    ? {
+        address: settings.contracts.pnt,
+        abi: erc20ABI,
+        functionName: 'approve',
+        args: [settings.contracts.forwarder, onChainAmount],
+        enabled: approveEnabled
+      }
+    : {
+        address: settings.contracts.pnt,
+        abi: erc20ABI,
+        functionName: 'approve',
+        args: [settings.contracts.stakingManager, onChainAmount],
+        enabled: approveEnabled
+      }
+  const { config: approveConfigs } = usePrepareContractWrite(getApproveData)
   const { write: approve, error: approveError, data: approveData } = useContractWrite(approveConfigs)
 
   const stakeEnabled = useMemo(
@@ -60,13 +106,35 @@ const useStake = () => {
       duration >= settings.stakingManager.minStakeDays,
     [onChainAmount, approved, pntBalanceData, duration]
   )
-  const { config: stakeConfigs } = usePrepareContractWrite({
-    address: settings.contracts.stakingManager,
-    abi: StakingManagerABI,
-    functionName: 'stake',
-    args: [onChainAmount, duration * SECONDS_IN_ONE_DAY, receiver],
-    enabled: stakeEnabled
-  })
+
+  const migrationPrepareData = () => {
+    const userData =
+      onChainAmount && duration && receiver
+        ? getForwarderStakeUserData({
+            amount: onChainAmount,
+            duration: duration,
+            receiverAddress: receiver
+          })
+        : '0x'
+
+    return {
+      address: settings.contracts.forwarderOnMainnet,
+      abi: ForwarderABI,
+      functionName: 'call',
+      args: [amount, settings.contracts.forwarderOnGnosis, userData, settings.pnetworkIds.gnosis],
+      enabled: stakeEnabled
+    }
+  }
+  const getStakeData = migration
+    ? migrationPrepareData()
+    : {
+        address: settings.contracts.stakingManager,
+        abi: StakingManagerABI,
+        functionName: 'stake',
+        args: [onChainAmount, duration * SECONDS_IN_ONE_DAY, receiver],
+        enabled: stakeEnabled
+      }
+  const { config: stakeConfigs } = usePrepareContractWrite(getStakeData)
   const { write: stake, error: stakeError, data: stakeData, status: stakeStatus } = useContractWrite(stakeConfigs)
 
   const { isLoading: isApproving } = useWaitForTransaction({
@@ -204,6 +272,7 @@ const useUserStake = () => {
     [availableToUnstakePntAmount]
   )
 
+  console.log('offchainUnstekableAmount', offchainUnstekableAmount.toFixed())
   return {
     availableToUnstakePntAmount: offchainUnstekableAmount,
     fomattedAvailableToUnstakePntAmount: formatAssetAmount(offchainUnstekableAmount.toFixed(), 'PNT'),

@@ -181,7 +181,7 @@ const MigrateModal = () => {
     stakeData,
     stakeEnabled,
     stakeError
-  } = useStake()
+  } = useStake({ migration: true })
 
   const onShowOrHideAdvancedOptions = useCallback(() => {
     setShowAdvancedOptions(!showAdvancedOptions)

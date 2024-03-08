@@ -24,7 +24,9 @@ const settings = {
     feesManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
     pNetworkAssociationGnosisSafeAddress: '0xf1f6568a76559d85cF68E6597fA587544184dD46',
     pNetworkV2EthereumVaultAddess: '0xe396757ec7e6ac7c8e5abe7285dde47b98f22db8',
-    merklDistributionCreatorAddress: '0x8BB4C975Ff3c250e0ceEA271728547f3802B36Fd'
+    merklDistributionCreatorAddress: '0x8BB4C975Ff3c250e0ceEA271728547f3802B36Fd',
+    // TODO: use real ones once deployed on mainnet
+    forwarder: '0x3E661784267F128e5f706De17Fac1Fc1c9d56f30'
   },
   stakingManager: {
     minStakeDays: 7,
@@ -37,6 +39,13 @@ const settings = {
   },
   explorer: 'https://etherscan.io',
   zeroAddress: '0x0000000000000000000000000000000000000000',
+  pnetworkIds: {
+    mainnet: '0x005fe7f9',
+    interim: '0xffffffff',
+    polygon: '0x0075dd4c',
+    gnosis: '0x00f1918e',
+    bsc: '0x00e4b170'
+  },
   assets: [
     {
       address: '0xf4ea6b892853413bd9d9f1a5d3a620a0ba39c5b2',
