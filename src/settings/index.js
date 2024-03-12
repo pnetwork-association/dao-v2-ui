@@ -25,8 +25,9 @@ const settings = {
     pNetworkAssociationGnosisSafeAddress: '0xf1f6568a76559d85cF68E6597fA587544184dD46',
     pNetworkV2EthereumVaultAddess: '0xe396757ec7e6ac7c8e5abe7285dde47b98f22db8',
     merklDistributionCreatorAddress: '0x8BB4C975Ff3c250e0ceEA271728547f3802B36Fd',
-    // TODO: use real ones once deployed on mainnet
-    forwarder: '0x3E661784267F128e5f706De17Fac1Fc1c9d56f30'
+    // v3 forwarders
+    forwarder: '0xe2cb2C8fDc086FC576b49aCF2F71D44DDe7e3804',
+    forwarderOnGnosis: '0x2422eb5B6a20C7b8e3567C12Ed6f5ED9d1Cf1f79'
   },
   stakingManager: {
     minStakeDays: 7,
