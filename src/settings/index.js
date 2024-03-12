@@ -10,6 +10,7 @@ const settings = {
   },
   contracts: {
     pnt: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
+    pntOnGnosis: '0x8805Aa0C1a8e59b03fA95740F691E28942Cf44f6',
     daoPnt: '0xe824F81cD136BB7a28480baF8d7E5f0E8E4B693E',
     dandelionVoting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
@@ -25,6 +26,8 @@ const settings = {
     pNetworkAssociationGnosisSafeAddress: '0xf1f6568a76559d85cF68E6597fA587544184dD46',
     pNetworkV2EthereumVaultAddess: '0xe396757ec7e6ac7c8e5abe7285dde47b98f22db8',
     merklDistributionCreatorAddress: '0x8BB4C975Ff3c250e0ceEA271728547f3802B36Fd',
+    // v3 staking manager
+    stakingManagerOnGnosis: '0xdEE8ebE2b7152ECCd935fd67134BF1bad55302BC',
     // v3 forwarders
     forwarder: '0xe2cb2C8fDc086FC576b49aCF2F71D44DDe7e3804',
     forwarderOnGnosis: '0x2422eb5B6a20C7b8e3567C12Ed6f5ED9d1Cf1f79'

@@ -37,16 +37,16 @@ const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
   return encode(
     ['address[]', 'bytes[]'],
     [
-      [settings.contracts.pnt, settings.contracts.stakingManager],
+      [settings.contracts.pntOnGnosis, settings.contracts.stakingManagerOnGnosis],
       [
-        erc20Interface.encodeFunctionData('approve', [settings.contracts.stakingManager, amountWithoutFees]),
+        erc20Interface.encodeFunctionData('approve', [settings.contracts.stakingManagerOnGnosis, amountWithoutFees]),
         stakingManagerInterface.encodeFunctionData('stake', [receiverAddress, amountWithoutFees, duration])
       ]
     ]
   )
 }
 
-const useStake = ({ migration = false }) => {
+const useStake = ({ migration = false } = {}) => {
   const [approved, setApproved] = useState(false)
   const [receiver, setReceiver] = useState('')
   const [amount, setAmount] = useState('0')
@@ -112,16 +112,16 @@ const useStake = ({ migration = false }) => {
       onChainAmount && duration && receiver
         ? getForwarderStakeUserData({
             amount: onChainAmount,
-            duration: duration,
+            duration: duration * SECONDS_IN_ONE_DAY,
             receiverAddress: receiver
           })
         : '0x'
 
     return {
-      address: settings.contracts.forwarderOnMainnet,
+      address: settings.contracts.forwarder,
       abi: ForwarderABI,
       functionName: 'call',
-      args: [amount, settings.contracts.forwarderOnGnosis, userData, settings.pnetworkIds.gnosis],
+      args: [onChainAmount, settings.contracts.forwarderOnGnosis, userData, settings.pnetworkIds.gnosis],
       enabled: stakeEnabled
     }
   }
@@ -272,7 +272,6 @@ const useUserStake = () => {
     [availableToUnstakePntAmount]
   )
 
-  console.log('offchainUnstekableAmount', offchainUnstekableAmount.toFixed())
   return {
     availableToUnstakePntAmount: offchainUnstekableAmount,
     fomattedAvailableToUnstakePntAmount: formatAssetAmount(offchainUnstekableAmount.toFixed(), 'PNT'),
