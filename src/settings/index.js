@@ -10,7 +10,7 @@ const settings = {
     docs: 'https://p.network/wiki'
   },
   contracts: {
-    pTokensVault: '0xe396757EC7E6aC7C8E5ABE7285dde47b98F22db8',
+    erc20Vault: '0xe396757EC7E6aC7C8E5ABE7285dde47b98F22db8',
     pntOnGnosis: '0x8805Aa0C1a8e59b03fA95740F691E28942Cf44f6',
     pntOnPolygon: '0xb6bcae6468760bc0cdfb9c8ef4ee75c9dd23e1ed',
     pntOnEthereum: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
@@ -27,12 +27,12 @@ const settings = {
     epochsManager: '0xFDD7d2f23F771F05C6CEbFc9f9bC2A771FAE302e',
     registrationManager: '0x08342a325630bE00F55A7Bc5dD64D342B1D3d23D',
     feesManager: '0x053b3d59F06601dF87D9EdD24CB2a81FAE93405f',
-    forwarderOnGnosis: '0x13D272775434B468D762ce626cafB9276ba94B96',
-    forwarderOnMainnet: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
-    forwarderOnPolygon: '0xc85cd78555df9991245f15c7aa6c4edbb7791c19',
-    forwarderOnBsc: '0x728Ee450B8c75699149dd297ED6Ec4176D8DF65E',
+    forwarderOnGnosis: '0x2422eb5B6a20C7b8e3567C12Ed6f5ED9d1Cf1f79',
+    forwarderOnMainnet: '0xe2cb2C8fDc086FC576b49aCF2F71D44DDe7e3804',
+    forwarderOnPolygon: '0xC4A989fcb73c6563580dfe9d5439088a98D6C1de',
+    forwarderOnBsc: '0x545d1Da3095a74336D121a8e2078104DDC64AfCE',
     financeVault: '0x6239968e6231164687CB40f8389d933dD7f7e0A5',
-    crossExecutor: '0x0123456789012345678901234567890123456789' // THIS IS AN ADRESS PLACEHOLDER
+    crossExecutor: '0x6a4Bd6DE0de7b80F24A307f31B40856da975b5A7'
   },
   pnetworkIds: {
     mainnet: '0x005fe7f9',

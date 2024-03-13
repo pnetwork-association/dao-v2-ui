@@ -2,7 +2,7 @@ import { encodeFunctionData } from 'viem'
 
 import EthPNTABI from '../abis/EthPNT.json'
 import pNetworkV2VaultABI from '../abis/PNetworkV2Vault.json'
-import pTokenV2ABI from '../abis/PTokenV2.json'
+import ForwarderABI from '../abis/Forwarder.json'
 import settings from '../../settings'
 
 export const prepareInflationData = (amount) => {
@@ -27,7 +27,7 @@ export const prepareCrossChainInflationProposal = (
   _rawAmount,
   _destinationNetworkId
 ) => [
-  [_ethPNTAddress, _ethPNTAddress, settings.contracts.pTokensVault],
+  [_ethPNTAddress, _ethPNTAddress, settings.contracts.erc20Vault],
   [
     encodeFunctionData({
       abi: EthPNTABI,
@@ -37,7 +37,7 @@ export const prepareCrossChainInflationProposal = (
     encodeFunctionData({
       abi: EthPNTABI,
       functionName: 'approve',
-      args: [settings.contracts.pTokensVault, _rawAmount]
+      args: [settings.contracts.erc20Vault, _rawAmount]
     }),
     encodeFunctionData({
       abi: pNetworkV2VaultABI,
@@ -49,11 +49,11 @@ export const prepareCrossChainInflationProposal = (
 
 export const crossExecute = (_executorContract, _executionNetworkId, _calls) => {
   return {
-    to: settings.contracts.pntOnGnosis,
+    to: settings.contracts.forwarderOnGnosis,
     calldata: encodeFunctionData({
-      abi: pTokenV2ABI,
-      functionName: 'redeem',
-      args: [1, _calls, _executorContract, _executionNetworkId]
+      abi: ForwarderABI,
+      functionName: 'call',
+      args: [0, _executorContract, _calls, _executionNetworkId]
     })
   }
 }
