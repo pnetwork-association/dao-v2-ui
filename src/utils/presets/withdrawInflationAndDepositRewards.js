@@ -1,7 +1,8 @@
 import { ethers } from 'ethers'
 
-import { ethPNTContract, forwarder, rewardsManager, prepareInflationData, prepareInflationProposal } from './utils'
+import { ethPNTContract, forwarder, prepareInflationData, prepareInflationProposal } from './utils'
 import settings from '../../settings'
+import { getForwarderDepositRewardsUserData } from '../preparers'
 
 const withdrawInflationAndDepositRewards = ({ presetParams, setPresetParams }) => ({
   id: 'withdrawInflationAndDepositRewards',
@@ -65,23 +66,12 @@ const withdrawInflationAndDepositRewards = ({ presetParams, setPresetParams }) =
       ])
     }
 
-    const depositRewards = new ethers.utils.AbiCoder().encode(
-      ['address[]', 'bytes[]'],
-      [
-        [settings.contracts.pntOnGnosis, settings.contracts.rewardsManagerOnGnosis],
-        [
-          ethPNTContract.encodeFunctionData('approve', [settings.contracts.rewardsManagerOnGnosis, amount]),
-          rewardsManager.encodeFunctionData('depositForEpoch', [epoch, amount])
-        ]
-      ]
-    )
-
     const forwarderCall = {
       to: settings.contracts.forwarderEthPNT,
       calldata: forwarder.encodeFunctionData('call', [
         amount,
         settings.contracts.forwarderOnGnosis,
-        depositRewards,
+        getForwarderDepositRewardsUserData({ amount, epoch }),
         settings.pnetworkIds.gnosis
       ])
     }

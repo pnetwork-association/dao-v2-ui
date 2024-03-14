@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 
 import settings from '../settings'
+import { rewardsManager } from './presets/utils'
 
 export const subtractFee = (_amount) => {
   const amountBn = BigInt(_amount)
@@ -10,6 +11,23 @@ export const subtractFee = (_amount) => {
 }
 
 const encode = (...params) => new ethers.utils.AbiCoder().encode(...params)
+
+export const getForwarderDepositRewardsUserData = ({ amount, epoch }) => {
+  const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
+
+  const amountWithoutFees = subtractFee(amount)
+
+  return encode(
+    ['address[]', 'bytes[]'],
+    [
+      [settings.contracts.pntOnGnosis, settings.contracts.rewardsManagerOnGnosis],
+      [
+        erc20Interface.encodeFunctionData('approve', [settings.contracts.rewardsManagerOnGnosis, amountWithoutFees]),
+        rewardsManager.encodeFunctionData('depositForEpoch', [epoch, amountWithoutFees])
+      ]
+    ]
+  )
+}
 
 export const getForwarderStakeUserData = ({ amount, duration, receiverAddress }) => {
   const erc20Interface = new ethers.utils.Interface(['function approve(address spender, uint256 amount)'])
