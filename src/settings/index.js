@@ -30,7 +30,9 @@ const settings = {
     stakingManagerOnGnosis: '0xdEE8ebE2b7152ECCd935fd67134BF1bad55302BC',
     // v3 forwarders
     forwarder: '0xe2cb2C8fDc086FC576b49aCF2F71D44DDe7e3804',
-    forwarderOnGnosis: '0x2422eb5B6a20C7b8e3567C12Ed6f5ED9d1Cf1f79'
+    forwarderEthPNT: '0xD60792770ca2B54b9231041c8AF641f48818dA8D',
+    forwarderOnGnosis: '0x2422eb5B6a20C7b8e3567C12Ed6f5ED9d1Cf1f79',
+    rewardsManagerOnGnosis: '0x2ec44F9F31a55b52b3c1fF98647E38d63f829fb7'
   },
   stakingManager: {
     minStakeDays: 7,
