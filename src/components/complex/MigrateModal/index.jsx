@@ -84,6 +84,7 @@ const MigrateButton = styled.button`
 
 const ControlButton = styled(MigrateButton)`
   margin-top: 15px;
+  margin-bottom: 15px;
   width: 100%;
 `
 const StepsBadge = styled(Badge)`
@@ -354,13 +355,18 @@ const MigrateModal = () => {
           <StyledIcon icon="upgrade" />
         </UpgradeButton>
         <MyModal
-          title={'Upgrade to pNetwork DAO v3!'}
+          title={'Migrate to the new pNetwork DAO (v3)'}
           show={showUpgradeModal}
           size="md"
           onClose={() => setShowUpgradeModal(false)}
         >
           <Text variant={'text4'}>
+            Introducing the new pNetwork DAO, native on the Gnosis chain and compatible with Ethereum, BSC, and Polygon.
+            Members will benefit from low-cost operations and earn a 27% APY enabled by voting partecipation.
+            <br />
             {fomattedAvailableToUnstakePntAmount} are eligible to be staked to the new pNetwork DAO v3.
+            <br />
+            Migrate now and start voting to earn rewards.
           </Text>
           <MigrationContainer>
             {step !== '' ? (
@@ -373,7 +379,7 @@ const MigrateModal = () => {
             ) : null}
             {!status ? (
               <ButtonsContainer>
-                <ControlButton onClick={begin}>Begin</ControlButton>
+                <ControlButton onClick={begin}>Migrate {fomattedAvailableToUnstakePntAmount}</ControlButton>
               </ButtonsContainer>
             ) : status === MIGRATION_TRACKER.staked ? (
               <ButtonsContainer>
