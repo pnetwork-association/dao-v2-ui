@@ -41,6 +41,8 @@ export const colors = (_darkMode) => ({
   yellow: '#E3B203',
   red: '#E4383A',
   lightRed: '#f98181',
+  darkerBlue: '#025CAD',
+  darkBlue: '#118CFB',
   blue: '#66B8FF',
   lightBlue: '#66b8ff40',
   orange: '#FBA21D',

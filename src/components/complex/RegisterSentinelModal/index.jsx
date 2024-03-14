@@ -133,7 +133,7 @@ const RegisterSentinelModal = ({ show, onClose, type = 'stake' }) => {
   }, [updateSentinelRegistrationByBorrowingData, setEpochs])
 
   const onMax = useCallback(() => {
-    setAmount(pntBalance)
+    setAmount(pntBalance.toFixed())
   }, [pntBalance, setAmount])
 
   useEffect(() => {

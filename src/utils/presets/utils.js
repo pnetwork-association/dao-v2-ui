@@ -2,6 +2,8 @@ import VaultABI from '../abis/Vault.json'
 import DandelionVotingABI from '../abis/DandelionVoting.json'
 import EthPNTABI from '../abis/EthPNT.json'
 import pNetworkV2VaultABI from '../abis/pNetworkV2Vault.json'
+import ForwarderABI from '../abis/Forwarder.json'
+import RewardsManagerABI from '../abis/RewardsManager.json'
 import MerklDistributionCreatorABI from '../abis/MerklDistributionCreator.json'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
@@ -12,6 +14,8 @@ import settings from '../../settings'
 export const vaultContract = new ethers.utils.Interface(VaultABI)
 export const ethPNTContract = new ethers.utils.Interface(EthPNTABI)
 export const pNetworkV2Vault = new ethers.utils.Interface(pNetworkV2VaultABI)
+export const rewardsManager = new ethers.utils.Interface(RewardsManagerABI)
+export const forwarder = new ethers.utils.Interface(ForwarderABI)
 export const distributionCreator = new ethers.utils.Interface(MerklDistributionCreatorABI)
 export const dandelionVotingContract = new ethers.utils.Interface(DandelionVotingABI)
 

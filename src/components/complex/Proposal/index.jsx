@@ -3,7 +3,6 @@ import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 import { usePrepareContractWrite, useContractWrite } from 'wagmi'
 import { toast } from 'react-toastify'
-import BigNumber from 'bignumber.js'
 
 import DandelionVotingABI from '../../../utils/abis/DandelionVoting'
 import { toastifyTransaction } from '../../../utils/transaction'
@@ -174,10 +173,7 @@ const Proposal = ({
     setReadMoreContent(url)
   }, [url])
 
-  const canVote = useMemo(
-    () => open && vote === 0 && BigNumber(daoPntBalance).isGreaterThan(0),
-    [open, daoPntBalance, vote]
-  )
+  const canVote = useMemo(() => open && vote === 0 && daoPntBalance.isGreaterThan(0), [open, daoPntBalance, vote])
 
   const { config: configYes } = usePrepareContractWrite({
     address: settings.contracts.dandelionVoting,
