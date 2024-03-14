@@ -1,5 +1,5 @@
 {
-  "name": "dao-v2-ui",
+  "name": "dao-v3-dapp",
   "version": "0.1.0",
   "private": true,
   "homepage": ".",
@@ -40,9 +40,9 @@
     "stream": "^0.0.2",
     "styled-components": "^5.3.6",
     "unique-names-generator": "^4.7.1",
-    "vite": "^5.0.11",
-    "vite-plugin-node-polyfills": "^0.19.0",
-    "vite-tsconfig-paths": "^4.2.3",
+    "vite": "^5.1.6",
+    "vite-plugin-node-polyfills": "^0.21.0",
+    "vite-tsconfig-paths": "^4.3.1",
     "wagmi": "^2.5.7",
     "web-vitals": "^2.1.4"
   },
@@ -71,15 +71,13 @@
     "*.+(js|jsx|ts|json)": "prettier --config ./.prettierrc.js --write"
   },
   "scripts": {
-    "start": "vite",
-    "start:https": "HTTPS=true SSL_CRT_FILE=localhost.pem SSL_KEY_FILE=localhost-key.pem react-scripts start",
+    "dev": "npm run create-version-file && vite",
+    "build": "npm run create-version-file && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
     "format": "prettier --config ./.prettierrc.js --write  \"./*/**/*.+(js|json|jsx)\"",
-    "build": "node scripts/generate-buildno && GENERATE_SOURCEMAP=false react-scripts build",
-    "analyze:bundle": "node ./scripts/bundle-analyzer.js",
-    "build-and-deploy": "npm run build && npm run deploy",
-    "deploy": "node ./scripts/deploy.js",
-    "postinstall": "./scripts/postinstall.sh",
-    "test": "vitest"
+    "create-version-file": "node ./scripts/generate-buildno.js"
   },
   "eslintConfig": {
     "extends": [
