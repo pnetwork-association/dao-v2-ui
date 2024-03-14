@@ -6,73 +6,6 @@ const wagmi = require('wagmi')
 import MigrateModal from '..'
 import * as useStakingManager from '../../../../hooks/use-staking-manager'
 
-// const useContractReadMock = jest.fn(({address, abi, functionName, args, enabled, watch}) => {
-//   if (address === settings.contracts.stakingManager && functionName === 'getStakedLocks' && enabled) {
-//     return {
-//       data: [
-//         {
-//           0: EthersBigNumber.from('1671880343'),
-//           1: EthersBigNumber.from('604800'),
-//           2: EthersBigNumber.from('1000000000000000000000'),
-//           lockDate: EthersBigNumber.from('1671880343'),
-//           duration: EthersBigNumber.from('604800'),
-//           amount: EthersBigNumber.from('1000000000000000000000'),
-//         },
-//         {
-//           0: EthersBigNumber.from('1683142595'),
-//           1: EthersBigNumber.from('8640000'),
-//           2: EthersBigNumber.from('1998792631540000000000000'),
-//           lockDate: EthersBigNumber.from('1683142595'),
-//           duration: EthersBigNumber.from('8640000'),
-//           amount: EthersBigNumber.from('1998792631540000000000000'),
-//         }
-//       ],
-//       status: 'success'
-//     }
-//   }
-//   if (address === settings.contracts.pnt && functionName === 'allowance')
-//     return {data: EthersBigNumber.from('2000'), status: 'success'}
-//   return {data: null, status: 'fail'}
-// })
-
-// const usePrepareContractWriteMock = jest.fn(({address, abi, functionName, args, enabled}) => {
-//   if (enabled === false)
-//     return {config: 'disabled'}
-//   if (address === settings.contracts.stakingManager && functionName === 'unstake' && enabled === true)
-//     return {
-//       config: 'unstake'
-//     }
-//   if (address === settings.contracts.pnt && functionName === 'approve' && enabled === true && args[0] === settings.contracts.forwarder)
-//     return {
-//       config: 'approve-forwarder'
-//     }
-//   if (address === settings.contracts.pnt && functionName === 'approve' && enabled === true && args[0] === settings.contracts.stakingManager)
-//     return {
-//       config: 'approve-stakingManager'
-//     }
-//   return {config: null}
-// })
-
-// const useContractWriteMock = jest.fn((config) => {
-//   if (config === 'disabled')
-//     return {write: () => null, error: undefined, data: undefined}
-//   if (config === 'unstake')
-//     return {write: () => null, error: undefined, data: { hash: 'unstake-txHash', wait: () => new Promise(resolve => setTimeout(() => resolve('approve-forwarder-data'), 1000)), status: 'success' }}
-//   if (config === 'approve-forwarder')
-//     return {write: () => null, error: undefined, data: { hash: 'approve-forwarder-txHash', wait: () => new Promise(resolve => setTimeout(() => resolve('approve-forwarder-data'), 1000)) }}
-//   if (config === 'approve-stakingManager')
-//     return {write: () => null, error: undefined, data:  { hash: 'approve-stakingManager-txHash' }}
-//   return {config: null}
-// })
-
-// const useWaitForTransactionMock = jest.fn(({hash}) => {
-//   if (hash === 'approve-forwarder-txHash')
-//     return {isLoading: false}
-//   if (hash === 'approve-stakingManager-txHash')
-//     return {isLoading: false}
-//   return {isLoading: undefined}
-// })
-
 jest.mock('../../../../hooks/use-staking-manager', () => {
   return {
     useUserStake: jest.fn(),
@@ -201,8 +134,8 @@ describe('MigrateModal', () => {
     await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
-    const beginButton = screen.getByText('Begin')
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
+    const beginButton = screen.getByText('Migrate 1,999,792.632 PNT')
     expect(beginButton).toBeInTheDocument()
     localStorageCheck = { ...localStorage }
     expect(localStorage.length).toBe(0)
@@ -271,7 +204,7 @@ describe('MigrateModal', () => {
     await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
     // stakeAmount is 0: the component should try to set it to the localStorage found amount
     expect(setStakeAmountSpy).toHaveBeenLastCalledWith('1999792.63154')
     expect(setReceiverSpy).toHaveBeenLastCalledWith('0x1234567890123456789012345678901234567890')
@@ -334,7 +267,7 @@ describe('MigrateModal', () => {
     await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
     // stakeAmount is 0: the component should try to set it to the localStorage found amount
     expect(setStakeAmountSpy).toHaveBeenLastCalledWith('1999792.63154')
     expect(setUnstakeAmountSpy).not.toHaveBeenCalled()
@@ -398,7 +331,7 @@ describe('MigrateModal', () => {
     await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
     localStorageCheck = { ...localStorage }
     expect(localStorageCheck).toEqual({
       'migration-status': 'unstaked',
@@ -462,7 +395,7 @@ describe('MigrateModal', () => {
     await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
     expect(setStakeAmountSpy).not.toHaveBeenCalled()
     expect(setUnstakeAmountSpy).not.toHaveBeenCalled()
     const approveButton = screen.getByRole('button', { name: 'Approve stake' })
@@ -526,7 +459,7 @@ describe('MigrateModal', () => {
     await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
     expect(setStakeAmountSpy).not.toHaveBeenCalled()
     expect(setUnstakeAmountSpy).not.toHaveBeenCalled()
     expect(setReceiverSpy).not.toHaveBeenCalled()
@@ -591,7 +524,7 @@ describe('MigrateModal', () => {
     await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
     expect(setStakeAmountSpy).not.toHaveBeenCalled()
     expect(setUnstakeAmountSpy).not.toHaveBeenCalled()
     expect(setReceiverSpy).not.toHaveBeenCalled()
@@ -656,7 +589,7 @@ describe('MigrateModal', () => {
     await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
     expect(setStakeAmountSpy).not.toHaveBeenCalled()
     expect(setUnstakeAmountSpy).not.toHaveBeenCalled()
     expect(setReceiverSpy).not.toHaveBeenCalled()
@@ -721,7 +654,7 @@ describe('MigrateModal', () => {
     await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
     expect(setStakeAmountSpy).not.toHaveBeenCalled()
     expect(setUnstakeAmountSpy).not.toHaveBeenCalled()
     expect(setReceiverSpy).not.toHaveBeenCalled()
@@ -789,7 +722,7 @@ describe('MigrateModal', () => {
     const { container } = await act(async () => render(<MigrateModal />))
 
     let localStorageCheck
-    await waitFor(() => expect(screen.getByText(/Upgrade to pNetwork DAO v3/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Migrate to the new pNetwork DAO/)).toBeInTheDocument())
     localStorageCheck = { ...localStorage }
     expect(localStorageCheck).toEqual({
       'migration-status': 'staked',
