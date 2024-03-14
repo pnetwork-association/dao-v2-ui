@@ -3,9 +3,10 @@ import { ethers } from 'ethers'
 
 import settings from '../settings'
 
-const subtractFee = (_amount) => {
-  const amountBn = BigNumber(_amount.toString())
-  return amountBn.minus(amountBn.multipliedBy(0.001)).toFixed()
+export const subtractFee = (_amount) => {
+  const amountBn = BigInt(_amount)
+  const bp = 1000n
+  return (amountBn * (1000000n - bp)) / 1000000n
 }
 
 const encode = (...params) => new ethers.utils.AbiCoder().encode(...params)
