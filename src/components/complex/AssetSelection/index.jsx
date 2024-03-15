@@ -39,12 +39,12 @@ const SelectContainer = styled.div`
   display: ${({ mode }) => (mode === 'normal' ? 'normal' : 'none')};
 `
 
-const AssetSelection = ({ onSelect: _onSelect }) => {
+const AssetSelection = ({ onSelect: _onSelect, assets: _assets = settings.assets }) => {
   const [mode, setMode] = useState('normal')
   const [customValue, setCustomValue] = useState('')
   const [lastOption, setLastOption] = useState(null)
 
-  const options = [...settings.assets, { name: 'custom' }].map(({ address, logo, name, symbol }) => ({
+  const options = [..._assets, { name: 'custom' }].map(({ address, logo, name, symbol }) => ({
     option: name === 'custom' ? name : address,
     component:
       name === 'custom' ? (
