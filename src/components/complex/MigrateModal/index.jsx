@@ -361,12 +361,11 @@ const MigrateModal = () => {
           onClose={() => setShowUpgradeModal(false)}
         >
           <Text variant={'text4'}>
-            Introducing the new pNetwork DAO, native on the Gnosis chain and compatible with Ethereum, BSC, and Polygon.
-            Members will benefit from low-cost operations and earn a 27% APY enabled by voting partecipation.
+            Important Update: The pNetwork Community Association has launched the new pNetwork DAO, native on Gnosis and
+            available on Ethereum, Polygon, and BNB chains. Please migrate your tokens to continue participating. Future
+            proposals will only be open on the new DAO. Active users who stake and vote will earn a 27% APY. Migrate now
+            to ensure your participation!
             <br />
-            {fomattedAvailableToUnstakePntAmount} are eligible to be staked to the new pNetwork DAO v3.
-            <br />
-            Migrate now and start voting to earn rewards.
           </Text>
           <MigrationContainer>
             {step !== '' ? (
