@@ -112,6 +112,20 @@ const CreateProposalModal = ({ show, onClose }) => {
         return <AssetSelection key={id} {...props} />
       case 'Input':
         return <Input key={id} {...props} />
+      case 'InputNewInflationOwner':
+        return (
+          <div key={id}>
+            <Text size="sm">Change Inflation Owner</Text>
+            <Input {...props} />
+          </div>
+        )
+      case 'InputAmountRewards':
+        return (
+          <div key={id}>
+            <Text size="sm">Withdraw Inflation and Deposit Rewards</Text>
+            <Input {...props} />
+          </div>
+        )
       default:
         return null
     }
