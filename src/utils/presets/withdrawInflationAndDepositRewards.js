@@ -4,6 +4,25 @@ import { ethPNTContract, forwarder, prepareInflationData, prepareInflationPropos
 import settings from '../../settings'
 import { getForwarderDepositRewardsUserData } from '../preparers'
 
+export const prepareDepositRewardsProposal = (ethPNTAddress, rawAmount, epoch) => {
+  const approve = {
+    to: ethPNTAddress,
+    calldata: ethPNTContract.encodeFunctionData('approve', [settings.contracts.forwarderEthPNT, rawAmount])
+  }
+
+  const forwarderCall = {
+    to: settings.contracts.forwarderEthPNT,
+    calldata: forwarder.encodeFunctionData('call', [
+      rawAmount,
+      settings.contracts.forwarderOnGnosis,
+      getForwarderDepositRewardsUserData({ amount: rawAmount, epoch: epoch }),
+      settings.pnetworkIds.gnosis
+    ])
+  }
+
+  return [approve, forwarderCall]
+}
+
 const withdrawInflationAndDepositRewards = ({ presetParams, setPresetParams }) => ({
   id: 'withdrawInflationAndDepositRewards',
   name: 'Withdraw Inflation and Deposit Rewards',
@@ -52,31 +71,16 @@ const withdrawInflationAndDepositRewards = ({ presetParams, setPresetParams }) =
     const epoch = presetParams[1]
 
     const inflationData = prepareInflationData(amount)
-    const inflationProposal = await prepareInflationProposal(
+    const withdrawInflation = await prepareInflationProposal(
       inflationData.ethPNTAddress,
       settings.contracts.dandelionVoting,
       inflationData.rawAmount
     )
 
-    const approve = {
-      to: inflationData.ethPNTAddress,
-      calldata: ethPNTContract.encodeFunctionData('approve', [
-        settings.contracts.forwarderEthPNT,
-        inflationData.rawAmount
-      ])
-    }
-
-    const forwarderCall = {
-      to: settings.contracts.forwarderEthPNT,
-      calldata: forwarder.encodeFunctionData('call', [
-        amount,
-        settings.contracts.forwarderOnGnosis,
-        getForwarderDepositRewardsUserData({ amount, epoch }),
-        settings.pnetworkIds.gnosis
-      ])
-    }
-
-    return [...inflationProposal, approve, forwarderCall]
+    return [
+      ...withdrawInflation,
+      ...prepareDepositRewardsProposal(inflationData.ethPNTAddress, inflationData.rawAmount, epoch)
+    ]
   }
 })
 
