@@ -2,6 +2,19 @@ import { ethers } from 'ethers'
 import { ethPNTContract } from './utils'
 import settings from '../../settings'
 
+export const prepareChangeInflationOwnerProposal = (ethPNTAddress, destinationAddress) => {
+  return [
+    {
+      to: ethPNTAddress,
+      calldata: ethPNTContract.encodeFunctionData('whitelistInflationRecipient', [destinationAddress])
+    },
+    {
+      to: ethPNTAddress,
+      calldata: ethPNTContract.encodeFunctionData('setInflationOwner', [destinationAddress])
+    }
+  ]
+}
+
 const changeInflationOwner = ({ presetParams, setPresetParams }) => ({
   id: 'changeInflationOwner',
   name: 'Change ethPNT inflation owner',
@@ -26,25 +39,16 @@ const changeInflationOwner = ({ presetParams, setPresetParams }) => ({
     }
   ],
   prepare: async () => {
-    const params = Object.values(presetParams)
-    if (params.length === 0) return null
+    if (Object.values(presetParams).length === 0) return null
+    const newInflationOwnerAddress = presetParams[0]
 
-    if (!ethers.utils.isAddress(params[0])) throw new Error('Inserted destination address is not valid')
+    if (!ethers.utils.isAddress(newInflationOwnerAddress)) throw new Error('Inserted destination address is not valid')
 
     const ethPNTAsset = settings.assets.find((asset) => asset.symbol == 'ethPNT')
     if (!ethPNTAsset) throw new Error('ethPNT asset config not found!')
     const ethPNTAddress = ethPNTAsset.address
 
-    return [
-      {
-        to: ethPNTAddress,
-        calldata: ethPNTContract.encodeFunctionData('whitelistInflationRecipient', [params[0]])
-      },
-      {
-        to: ethPNTAddress,
-        calldata: ethPNTContract.encodeFunctionData('setInflationOwner', [params[0]])
-      }
-    ]
+    return prepareChangeInflationOwnerProposal(ethPNTAddress, newInflationOwnerAddress)
   }
 })
 

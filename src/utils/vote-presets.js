@@ -5,6 +5,7 @@ import withdrawInflationAndPegin from './presets/withdrawInflationAndPegin'
 import withdrawInflationAndDepositRewards from './presets/withdrawInflationAndDepositRewards'
 import withdrawInflationToAssociation from './presets/withdrawInflationToAssociation'
 import withdrawInflationToRecipient from './presets/withdrawInflationToRecipient'
+import withdrawInflationAndDepositRewardsAndChangeInflationOwner from './presets/withdrawInflationAndDepositRewardsAndChangeInflationOwner'
 
 const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
   return {
@@ -15,6 +16,8 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
     withdrawInflationAndDepositRewards: withdrawInflationAndDepositRewards({ presetParams, setPresetParams }),
     createMerklIncentive: createMerklIncentive({ presetParams, setPresetParams }),
     changeInflationOwner: changeInflationOwner({ presetParams, setPresetParams }),
+    withdrawInflationAndDepositRewardsAndChangeInflationOwner:
+      withdrawInflationAndDepositRewardsAndChangeInflationOwner({ presetParams, setPresetParams }),
     custom: {
       id: 'custom',
       name: 'Custom - encoded script',
