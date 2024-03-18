@@ -218,7 +218,7 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
           : '0x'
 
       return {
-        address: settings.contracts.forwarderOnGnosis,
+        address: settings.contracts.forwarderOnPolygon,
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
