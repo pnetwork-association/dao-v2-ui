@@ -27,7 +27,6 @@ const options = {
       type: 'linear',
       display: true,
       position: 'right',
-      min: 0,
       ticks: {
         display: true
       },
@@ -54,7 +53,6 @@ const HistoricalDaoPntTotalSupplyChart = () => {
 
   const data = useMemo(() => {
     const labels = daoPntTotalSupply.map((_val) => moment(_val[0]).format('MM/DD'))
-
     return {
       labels,
       datasets: [
@@ -63,6 +61,7 @@ const HistoricalDaoPntTotalSupplyChart = () => {
           backgroundColor: theme.primary1,
           borderColor: theme.primary1,
           data: daoPntTotalSupply.map((_val) => _val[1]),
+          tension: 0,
           yAxisID: 'y',
           label: 'PNT'
         }
