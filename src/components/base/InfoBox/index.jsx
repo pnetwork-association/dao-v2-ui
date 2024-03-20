@@ -28,7 +28,7 @@ const Banner = styled.div`
         return theme.blue
     }
   }};
-  text-align: center;
+  text-align: left;
 
   font-size: ${({ size }) => {
     switch (size) {

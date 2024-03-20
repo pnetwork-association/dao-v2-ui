@@ -2,27 +2,31 @@ import React, { useState } from 'react'
 import { Row, Col } from 'react-bootstrap'
 
 import Modal from '../../base/Modal'
-import InfoBox from '../../base/InfoBox'
 import Button from '../../base/Button'
+import Text from '../../base/Text'
 
 const Disclaimer = () => {
   const [show, setShow] = useState(true)
 
   return (
-    <Modal show={show} title="Disclaimer" size="md">
+    <Modal show={show} title="Welcome to the new pNetwork DAO" size="md">
       <Row>
         <Col>
-          <InfoBox type="warning">
-            The DAO v2 is released in beta, and the code is not audited; there could be bugs and additional risks.
-            Please don't stake large amounts or assets you can't afford to lose. Despite all safety measures and the
-            safeguards we have put in place, there is still risk involved in using it, and we advise you to proceed only
-            if you are comfortable with the possibility of encountering bugs, glitches and funds loss.
-          </InfoBox>
+          <Text>
+            The new pNetwork DAO is hosted on Gnosis Chain and implements new features:
+            <br />
+            - Stake from Gnosis, Bsc, Polygon, Ethereum chains.
+            <br />
+            - Vote to accrue rewards up to 27% APY.
+            <br />
+            - Lend your staked PNT.
+            <br />- Borrow staked PNT to start your own node.
+          </Text>
         </Col>
       </Row>
       <Row className="mt-2 mb-2">
         <Col>
-          <Button onClick={() => setShow(false)}>Proceed</Button>
+          <Button onClick={() => setShow(false)}>Get started</Button>
         </Col>
       </Row>
     </Modal>
