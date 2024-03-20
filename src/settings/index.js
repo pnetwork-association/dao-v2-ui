@@ -11,7 +11,7 @@ const settings = {
   },
   contracts: {
     erc20Vault: '0xe396757EC7E6aC7C8E5ABE7285dde47b98F22db8',
-    pntOnGnosis: '0x8805Aa0C1a8e59b03fA95740F691E28942Cf44f6',
+    pntOnGnosis: '0xbB43F6EAEE709f238fA7FECaF007123600b48Ee2',
     pntOnPolygon: '0xb6bcae6468760bc0cdfb9c8ef4ee75c9dd23e1ed',
     pntOnEthereum: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
     pntOnBsc: '0xdaacB0Ab6Fb34d24E8a67BfA14BF4D95D4C7aF92',
@@ -27,7 +27,7 @@ const settings = {
     epochsManager: '0xFDD7d2f23F771F05C6CEbFc9f9bC2A771FAE302e',
     registrationManager: '0x08342a325630bE00F55A7Bc5dD64D342B1D3d23D',
     feesManager: '0x053b3d59F06601dF87D9EdD24CB2a81FAE93405f',
-    forwarderOnGnosis: '0x2422eb5B6a20C7b8e3567C12Ed6f5ED9d1Cf1f79',
+    forwarderOnGnosis: '0x120C983Ebcb151bdfB270c012c3d8b15bb47D5E5',
     forwarderOnMainnet: '0xe2cb2C8fDc086FC576b49aCF2F71D44DDe7e3804',
     forwarderOnPolygon: '0xC4A989fcb73c6563580dfe9d5439088a98D6C1de',
     forwarderOnBsc: '0x545d1Da3095a74336D121a8e2078104DDC64AfCE',
