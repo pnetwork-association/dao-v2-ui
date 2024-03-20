@@ -46,7 +46,7 @@ const Lenders = ({ ..._props }) => {
       </Row>
       <Line />
       {lenders.map(({ address, nickname, formattedAmount, formattedPoolPercentage, remainingTime }) => (
-        <Row className="mt-1">
+        <Row key={address} className="mt-1">
           <Col xs={3}>
             <A href={getAddressExplorerUrl(address, { chainId: activeChainId })} target="_blank">
               {nickname}
