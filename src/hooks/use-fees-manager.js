@@ -14,7 +14,7 @@ import { useRates } from './use-crypto-compare'
 import { useEpochs } from './use-epochs'
 import { useSentinel } from './use-registration-manager'
 import { formatAssetAmount, formatCurrency } from '../utils/amount'
-import { BORROWING_SENTINEL, STAKING_SENTINEL } from '../contants'
+import { BORROWING_NODE, STAKING_NODE } from '../contants'
 import { useSentinelLastEpochReward } from './use-sentinels-historical-data'
 
 const useFeesDistributionByMonthlyRevenues = ({
@@ -152,8 +152,8 @@ const useClaimableFeesAssetsByEpochs = (_opts = {}) => {
   )
 
   const enabled = useMemo(() => {
-    if (type === 'stakingSentinel' && kind !== STAKING_SENTINEL) return false
-    if (type === 'borrowingSentinel' && kind !== BORROWING_SENTINEL) return false
+    if (type === 'stakingSentinel' && kind !== STAKING_NODE) return false
+    if (type === 'borrowingSentinel' && kind !== BORROWING_NODE) return false
 
     return Boolean(sentinelAddress) && Boolean(currentEpoch || currentEpoch === 0)
   }, [sentinelAddress, currentEpoch, type, kind])
@@ -310,7 +310,7 @@ const useStakingSentinelEstimatedRevenues = () => {
   const { value: mr } = useSentinelLastEpochReward()
 
   const { startEpoch, endEpoch } = useMemo(() => {
-    if (kind !== STAKING_SENTINEL) {
+    if (kind !== STAKING_NODE) {
       return {
         startEpoch: null,
         endEpoch: null
@@ -350,7 +350,7 @@ const useStakingSentinelEstimatedRevenues = () => {
 
   const revenues = useMemo(
     () =>
-      (startEpoch || startEpoch === 0) && endEpoch && kind === STAKING_SENTINEL
+      (startEpoch || startEpoch === 0) && endEpoch && kind === STAKING_NODE
         ? range(startEpoch, endEpoch + 1).map((_epoch) => {
             const stakingSentinelsRevenuesAmount =
               feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_epoch]
@@ -382,7 +382,7 @@ const useBorrowingSentinelEstimatedRevenues = () => {
   const { value: mr } = useSentinelLastEpochReward()
 
   const { startEpoch, endEpoch } = useMemo(() => {
-    if (kind !== BORROWING_SENTINEL) {
+    if (kind !== BORROWING_NODE) {
       return {
         startEpoch: null,
         endEpoch: null
@@ -421,7 +421,7 @@ const useBorrowingSentinelEstimatedRevenues = () => {
 
   const revenues = useMemo(
     () =>
-      (startEpoch || startEpoch === 0) && endEpoch && kind === BORROWING_SENTINEL
+      (startEpoch || startEpoch === 0) && endEpoch && kind === BORROWING_NODE
         ? range(startEpoch, endEpoch + 1).map((_epoch, _index) => {
             const borrowingSentinelsRevenuesAmount =
               feeDistributionByMonthlyRevenues && feeDistributionByMonthlyRevenues[_epoch]

@@ -6,7 +6,7 @@ import { useChainId } from 'wagmi'
 import settings from '../../../settings'
 import { getAddressExplorerUrl } from '../../../utils/explorer'
 import { formatAssetAmount } from '../../../utils/amount'
-import { BORROWING_SENTINEL } from '../../../contants'
+import { BORROWING_NODE } from '../../../contants'
 
 import A from '../../base/A'
 import Text from '../../base/Text'
@@ -170,7 +170,7 @@ const Action = ({ action }) => {
             {ownerNickname}
           </A>
           <Text>&nbsp;registered a sentinel&nbsp;</Text>
-          {kind === BORROWING_SENTINEL && (
+          {kind === BORROWING_NODE && (
             <Text>
               by borrowing{' '}
               <Text variant="text2">{formatAssetAmount(settings.registrationManager.minStakeAmount, 'PNT')}</Text>&nbsp;

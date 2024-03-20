@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom'
 import styled, { ThemeContext } from 'styled-components'
 import { useAccount } from 'wagmi'
 
-import { BORROWING_SENTINEL, STAKING_SENTINEL } from '../../../contants'
+import { BORROWING_NODE, STAKING_NODE } from '../../../contants'
 import { useEpochs } from '../../../hooks/use-epochs'
 import { useSentinel } from '../../../hooks/use-registration-manager'
 
@@ -16,7 +16,7 @@ import Text from '../../base/Text'
 import BorrowingSentinelRevenuesChart from '../../complex/BorrowingSentinelRevenuesChart'
 import ClaimFees from '../../complex/ClaimFees'
 import SentinelHistoricalChart from '../../complex/SentinelHistoricalChart'
-import SentinelStats from '../../complex/SentinelStats'
+import NodeStats from '../../complex/NodeStats'
 import StakingSentinelRevenuesChart from '../../complex/StakingSentinelRevenuesChart'
 import PageTemplate from '../../templates/PageTemplate'
 
@@ -43,15 +43,15 @@ const Nodes = () => {
     <PageTemplate bgThemeColor="transparent" removePaddingOnMobile>
       <Box bodyStyle={{ padding: 0 }}>
         <Tabs
-          defaultActiveKey={searchParams.get('selected') || 'sentinel'}
+          defaultActiveKey={searchParams.get('selected') || 'node'}
           fill
           onSelect={(_key) => setSearchParams({ selected: _key })}
         >
-          <Tab eventKey="sentinel" title="Sentinel">
+          <Tab eventKey="node" title="Node">
             <InnerTabContainer>
-              <SentinelStats type="stake" />
+              <NodeStats type="stake" />
               <Box className="mt-4">
-                {kind === STAKING_SENTINEL && (
+                {kind === STAKING_NODE && (
                   <div className="d-flex justify-content-end align-items-center">
                     <Text size="sm">History&nbsp;&nbsp;&nbsp;</Text>
                     <Switch checked={stakingSwitchChecked} onChange={setStakingSwitchChecked} />
@@ -59,8 +59,8 @@ const Nodes = () => {
                   </div>
                 )}
                 {!address ||
-                kind !== STAKING_SENTINEL ||
-                (kind === STAKING_SENTINEL && endEpoch < currentEpoch) ||
+                kind !== STAKING_NODE ||
+                (kind === STAKING_NODE && endEpoch < currentEpoch) ||
                 stakingSwitchChecked ? (
                   <SentinelHistoricalChart />
                 ) : (
@@ -68,15 +68,15 @@ const Nodes = () => {
                 )}
               </Box>
               <Box className="mt-4" bodyStyle={{ padding: 0 }}>
-                <ClaimFees type="stakingSentinel" />
+                <ClaimFees type="stakingNode" />
               </Box>
             </InnerTabContainer>
           </Tab>
-          <Tab eventKey="borrowed-sentinel" title="Borrowed Sentinel">
+          <Tab eventKey="borrowed-sentinel" title="Borrowed Node">
             <InnerTabContainer>
-              <SentinelStats type="borrow" />
+              <NodeStats type="borrow" />
               <Box className="mt-4">
-                {kind === BORROWING_SENTINEL && (
+                {kind === BORROWING_NODE && (
                   <div className="d-flex justify-content-end align-items-center">
                     <Text size="sm">History&nbsp;&nbsp;&nbsp;</Text>
                     <Switch
@@ -88,8 +88,8 @@ const Nodes = () => {
                   </div>
                 )}
                 {!address ||
-                kind !== BORROWING_SENTINEL ||
-                (kind === BORROWING_SENTINEL && endEpoch < currentEpoch) ||
+                kind !== BORROWING_NODE ||
+                (kind === BORROWING_NODE && endEpoch < currentEpoch) ||
                 borrowingSwitchChecked ? (
                   <SentinelHistoricalChart />
                 ) : (

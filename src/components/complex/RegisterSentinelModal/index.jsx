@@ -19,7 +19,7 @@ import settings from '../../../settings'
 import { range } from '../../../utils/time'
 import { toastifyTransaction } from '../../../utils/transaction'
 import { formatAssetAmount } from '../../../utils/amount'
-import { STAKING_SENTINEL, BORROWING_SENTINEL } from '../../../contants'
+import { STAKING_NODE, BORROWING_NODE } from '../../../contants'
 import { useIsSafe } from '../../../hooks/use-safe-check'
 
 import Button from '../../base/Button'
@@ -82,7 +82,7 @@ const chartOptions = {
   }
 }
 
-const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) => {
+const RegisterNodeModal = ({ show, onClose = () => null, type = 'stake' }) => {
   const theme = useContext(ThemeContext)
   const activeChainId = useChainId()
   const { formattedDaoPntBalance, formattedPntBalance, pntBalance } = useBalances()
@@ -114,8 +114,8 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
 
   const { kind, endEpoch: currentEndEpoch = 0 } = useSentinel()
   const enabled = useMemo(() => {
-    if (type === 'stake' && kind === STAKING_SENTINEL) return true
-    if (type === 'borrow' && kind === BORROWING_SENTINEL) return true
+    if (type === 'stake' && kind === STAKING_NODE) return true
+    if (type === 'borrow' && kind === BORROWING_NODE) return true
   }, [type, kind])
 
   const {
@@ -249,7 +249,7 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
   }, [effectiveStartEpoch, effectiveEndEpoch, epochsBorrowableAmount, type])
 
   return (
-    <Modal show={show} title="Register Sentinel" onClose={onClose} size="lg">
+    <Modal show={show} title="Register Node" onClose={onClose} size="lg">
       <Row className="mt-2">
         <Col xs={6}>
           <Text>PNT balance</Text>
@@ -284,7 +284,7 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
       </Row>
       <Row>
         <Col xs={8}>
-          <Text>Estimated running Sentinel cost</Text>
+          <Text>Estimated running Node cost</Text>
         </Col>
         <Col xs={4} className="text-end">
           <Text variant={'text2'}>{settings.registrationManager.estimatedSentinelRunningCost} USD</Text>
@@ -359,7 +359,7 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
       <Line />
       <Row>
         <Col xs={6}>
-          <Text>Sentinel signature</Text>
+          <Text>Node signature</Text>
         </Col>
       </Row>
       <Row className="mt-1">
@@ -370,8 +370,7 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
       <Row>
         <Col>
           <Text size="sm">
-            Learn more about nodes and how to become a pNetwork node operator (Sentinel) in the dedicated section of the
-            Wiki:{' '}
+            Learn more about nodes and how to become a pNetwork node operator in the dedicated section of the Wiki:{' '}
             <A href={settings.links.docs} target="_blank" size="sm">
               {settings.links.docs}
             </A>{' '}
@@ -435,4 +434,4 @@ const RegisterSentinelModal = ({ show, onClose = () => null, type = 'stake' }) =
   )
 }
 
-export default RegisterSentinelModal
+export default RegisterNodeModal

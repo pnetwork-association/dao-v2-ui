@@ -4,7 +4,7 @@ import { Col, Row } from 'react-bootstrap'
 
 import { useEpochs } from '../../../hooks/use-epochs'
 import { useSentinel } from '../../../hooks/use-registration-manager'
-import { BORROWING_SENTINEL, STAKING_SENTINEL } from '../../../contants'
+import { BORROWING_NODE, STAKING_NODE } from '../../../contants'
 import settings from '../../../settings'
 
 import Box from '../../base/Box'
@@ -12,10 +12,10 @@ import Text from '../../base/Text'
 import Line from '../../base/Line'
 import RegisterSentinelModal from '../RegisterSentinelModal'
 import SentinelDurationModal from '../SentinelDurationModal'
-import UnstakeModal from '../../complex/UnstakeModal'
+import UnstakeModal from '../UnstakeModal'
 import Button from '../../base/Button'
 
-const SentinelStats = ({ type = 'stake' }) => {
+const NodeStats = ({ type = 'stake' }) => {
   // const { address } = useAccount()
   const [showUnstakeModal, setShowUnstakeModal] = useState(false)
   const [showDurationModal, setShowDurationModal] = useState(false)
@@ -25,8 +25,8 @@ const SentinelStats = ({ type = 'stake' }) => {
 
   const enabled = useMemo(() => {
     if (!kind) return true
-    if (type === 'stake' && kind === STAKING_SENTINEL) return true
-    if (type === 'borrow' && kind === BORROWING_SENTINEL) return true
+    if (type === 'stake' && kind === STAKING_NODE) return true
+    if (type === 'borrow' && kind === BORROWING_NODE) return true
     return false
   }, [type, kind])
 
@@ -44,7 +44,7 @@ const SentinelStats = ({ type = 'stake' }) => {
         <Line />
         <Row>
           <Col xs={6}>
-            <Text>Your Sentinel</Text>
+            <Text>Your Node</Text>
           </Col>
           <Col xs={6} className="text-end">
             <Text variant={'text2'}>{enabled ? sentinelNickname : '-'}</Text>
@@ -53,7 +53,7 @@ const SentinelStats = ({ type = 'stake' }) => {
         <Line />
         <Row>
           <Col xs={6}>
-            <Text>Your Sentinel registration starts at epoch</Text>
+            <Text>Your Node registration starts at epoch</Text>
           </Col>
           <Col xs={6} className="text-end">
             <Text variant={'text2'}>{enabled && startEpoch ? `#${startEpoch}` : '-'}</Text>
@@ -62,7 +62,7 @@ const SentinelStats = ({ type = 'stake' }) => {
         <Line />
         <Row>
           <Col xs={6}>
-            <Text>Your Sentinel registration ends at epoch</Text>
+            <Text>Your Node registration ends at epoch</Text>
           </Col>
           <Col xs={6} className="text-end">
             <Text variant={'text2'}>{enabled && endEpoch ? `#${endEpoch}` : '-'}</Text>
@@ -113,4 +113,4 @@ const SentinelStats = ({ type = 'stake' }) => {
   )
 }
 
-export default SentinelStats
+export default NodeStats
