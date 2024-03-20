@@ -272,6 +272,15 @@ const Header = (_props) => {
           <StyledLink withmargin="true" to={'/staking'} active={(pathname === '/staking').toString()}>
             Staking
           </StyledLink>
+          <StyledLink withmargin="true" to={'/lending'} active={(pathname === '/lending').toString()}>
+            Lending
+          </StyledLink>
+          <StyledLink withmargin="true" to={'/nodes'} active={(pathname === '/nodes').toString()}>
+            Nodes
+          </StyledLink>
+          <StyledLink withmargin="true" to={'/rewards'} active={(pathname === '/rewards').toString()}>
+            Rewards
+          </StyledLink>
         </StyledNav>
         <ButtonsContainer>
           <CustomConnectButton />

@@ -14,6 +14,9 @@ import EventsProvider from './context/Events'
 import Avatar from './base/Avatar'
 import Overview from './pages/Overview'
 import Staking from './pages/Staking'
+import Lending from './pages/Lending'
+import Nodes from './pages/Nodes'
+import Rewards from './pages/Rewards/rewards'
 import Disclaimer from './complex/Disclaimer'
 import SettingsDrawer from './complex/Settings'
 import wagmiConfig from '../utils/wagmiConfig'
@@ -26,6 +29,18 @@ const router = createHashRouter([
   {
     path: '/staking',
     element: <Staking />
+  },
+  {
+    path: '/lending',
+    element: <Lending />
+  },
+  {
+    path: '/nodes',
+    element: <Nodes />
+  },
+  {
+    path: '/rewards',
+    element: <Rewards />
   }
 ])
 
