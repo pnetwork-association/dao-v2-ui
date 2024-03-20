@@ -61,25 +61,25 @@ const useActivities = () => {
   const stakingManager = getContract({
     address: settings.contracts.stakingManager,
     abi: StakingManagerABI,
-    client: client,
+    client: client
   })
 
   const lendingManager = getContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
-    client: client,
+    client: client
   })
 
   const registrationManager = getContract({
     address: settings.contracts.registrationManager,
     abi: RegistrationManagerABI,
-    client: client,
+    client: client
   })
 
   const dandelionVotingV3 = getContract({
     address: settings.contracts.dandelionVotingV3,
     abi: DandelionVotingABI,
-    client: client,
+    client: client
   })
 
   const { fromBlock, toBlock } = useMemo(
@@ -87,7 +87,7 @@ const useActivities = () => {
       fromBlock: blockNumber
         ? cachedLastBlock === 0
           ? blockNumber - BigInt(settings.activities.blocksWindow)
-          : cachedLastBlock + 1
+          : cachedLastBlock + 1n
         : 0,
       toBlock: blockNumber ? blockNumber + 1n : 0n
     }),
@@ -106,11 +106,11 @@ const useActivities = () => {
             {
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
-                  retry(() => stakingManager.getEvents.Staked({fromBlock: _fromBlock, toBlock: _toBlock}), {
+                  retry(() => stakingManager.getEvents.Staked({ fromBlock: _fromBlock, toBlock: _toBlock }), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   }),
-                  retry(() => stakingManager.getEvents.Unstaked({fromBlock: _fromBlock, toBlock: _toBlock}), {
+                  retry(() => stakingManager.getEvents.Unstaked({ fromBlock: _fromBlock, toBlock: _toBlock }), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   })
@@ -137,14 +137,17 @@ const useActivities = () => {
             {
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
-                  retry(() => lendingManager.getEvents.Lended({fromBlock: _fromBlock, toBlock: _toBlock}), {
+                  retry(() => lendingManager.getEvents.Lended({ fromBlock: _fromBlock, toBlock: _toBlock }), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   }),
-                  retry(() => lendingManager.getEvents.DurationIncreased({fromBlock: _fromBlock, toBlock: _toBlock}), {
-                    retries: 2,
-                    minTimeout: 1 * 1000
-                  })
+                  retry(
+                    () => lendingManager.getEvents.DurationIncreased({ fromBlock: _fromBlock, toBlock: _toBlock }),
+                    {
+                      retries: 2,
+                      minTimeout: 1 * 1000
+                    }
+                  )
                 ]),
               canProoced: ([_lendEvents, _increaseLendDurationEvents]) =>
                 _lendEvents.length === 0 && _increaseLendDurationEvents.length === 0
@@ -169,11 +172,11 @@ const useActivities = () => {
             {
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
-                  retry(() => dandelionVotingV3.getEvents.CastVote({fromBlock: _fromBlock, toBlock: _toBlock}), {
+                  retry(() => dandelionVotingV3.getEvents.CastVote({ fromBlock: _fromBlock, toBlock: _toBlock }), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   }),
-                  retry(() => dandelionVotingV3.getEvents.StartVote({fromBlock: _fromBlock, toBlock: _toBlock}), {
+                  retry(() => dandelionVotingV3.getEvents.StartVote({ fromBlock: _fromBlock, toBlock: _toBlock }), {
                     retries: 2,
                     minTimeout: 1 * 1000
                   })
@@ -199,10 +202,17 @@ const useActivities = () => {
             {
               fetchData: (_fromBlock, _toBlock) =>
                 Promise.all([
-                  retry(() => registrationManager.getEvents.SentinelRegistrationUpdated({fromBlock: _fromBlock, toBlock: _toBlock}), {
-                    retries: 2,
-                    minTimeout: 1 * 1000
-                  })
+                  retry(
+                    () =>
+                      registrationManager.getEvents.SentinelRegistrationUpdated({
+                        fromBlock: _fromBlock,
+                        toBlock: _toBlock
+                      }),
+                    {
+                      retries: 2,
+                      minTimeout: 1 * 1000
+                    }
+                  )
                 ]),
               canProoced: ([_sentinelRegistrationEvents]) => _sentinelRegistrationEvents.length === 0
             }
@@ -255,12 +265,6 @@ const useActivities = () => {
       lendingManagerActivities &&
       registrationManagerActivities
     ) {
-      /*console.log(
-        'storing',
-        stakingManagerActivities.length,
-        lendingManagerActivities.length,
-        dandelionVotingActivities.length
-      )*/
       setLocalActivities([
         ...stakingManagerActivities,
         ...lendingManagerActivities,
@@ -279,12 +283,11 @@ const useActivities = () => {
       cacheActivities(localActivities)
       cacheLastBlock(toBlock)
       setLocalActivities(null)
-      // console.log('cache')
     }
   }, [toBlock, cacheActivities, localActivities, cacheLastBlock, cachedLastBlock])
 
   return {
-    activities: activities.sort((_b, _a) => _a?.timestamp - _b?.timestamp),
+    activities: activities.sort((_b, _a) => Number(_a?.timestamp) - Number(_b?.timestamp)),
     isLoading: activities.length === 0
   }
 }
