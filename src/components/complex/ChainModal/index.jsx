@@ -103,7 +103,6 @@ const ChainModal = ({ show, onClose }) => {
                     ? undefined
                     : () => {
                         setSwitchingToChain(_chain.id)
-                        console.log(_chain.id)
                         switchChain({ chainId: _chain.id })
                       }
                 }
