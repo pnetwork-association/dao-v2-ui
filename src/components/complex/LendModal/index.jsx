@@ -193,7 +193,7 @@ const LendModal = ({ show, onClose = () => null }) => {
   useEffect(() => {
     if (lendData && !isAutoClosing.current) {
       isAutoClosing.current = true
-      lendData.wait(1).then(onClose).catch(console.error)
+      onClose()
     }
   }, [lendData, onClose])
 
@@ -201,7 +201,7 @@ const LendModal = ({ show, onClose = () => null }) => {
     if (!show) {
       setAmount('0')
       setAmountEstimatedApy('0')
-      setDuration(7)
+      setDuration(60)
     } else {
       isAutoClosing.current = false
     }
@@ -289,7 +289,7 @@ const LendModal = ({ show, onClose = () => null }) => {
       </Row>
       <Row className="mb-2">
         <Col>
-          <Slider min={7} max={730} defaultValue={duration} value={duration} onChange={onChangeDuration} />
+          <Slider min={60} max={730} defaultValue={duration} value={duration} onChange={onChangeDuration} />
         </Col>
       </Row>
       <Row className="mt-3">

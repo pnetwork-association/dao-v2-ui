@@ -45,6 +45,10 @@ const settings = {
     minStakeDays: 7,
     minStakeSeconds: 604800
   },
+  lendingManager: {
+    minStakeDays: 60,
+    minStakeSeconds: 5184000
+  },
   registrationManager: {
     borrowAmount: 200000,
     minStakeAmount: 200000,

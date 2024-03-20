@@ -12,9 +12,9 @@ import {
   useBlockNumber
 } from 'wagmi'
 import { gnosis } from 'wagmi/chains'
+import { decodeEventLog } from 'viem'
 import { useQueryClient } from '@tanstack/react-query'
 import moment from 'moment'
-
 import settings from '../settings'
 import { getPntAddressByChainId } from '../utils/preparers/balance'
 import LendingManagerABI from '../utils/abis/LendingManager.json'
@@ -40,7 +40,7 @@ const useLend = () => {
   const [amount, setAmount] = useState('0')
   const [receiver, setReceiver] = useState('')
   const [approved, setApproved] = useState(false)
-  const [duration, setDuration] = useState(settings.stakingManager.minStakeDays)
+  const [duration, setDuration] = useState(settings.lendingManager.minStakeDays)
   const [epochs, setEpochs] = useState(0)
   const { address } = useAccount()
   const activeChainId = useChainId()
@@ -693,7 +693,7 @@ const useEstimateApyIncreaseDuration = () => {
     }
 
     const startEpoch = currentEpoch + 1
-    const newEndDate = stake?.endDate.toNumber() + duration * SECONDS_IN_ONE_DAY
+    const newEndDate = Number(stake?.endDate) + duration * SECONDS_IN_ONE_DAY
     const numberOfEpochs = Math.round((newEndDate - moment().unix()) / epochDuration) - 1
     const endEpoch = startEpoch + numberOfEpochs - 1
 
@@ -979,15 +979,15 @@ const useLenders = () => {
               const finishesAt = startFirstEpochTimestamp + endEpoch * epochDuration
               const remainingTime = moment.unix(finishesAt).fromNow()
               const poolPercentage = lendedAmountByEpoch[currentEpoch]
-                .dividedBy(totalLendedAmountByEpoch[currentEpoch])
-                .toFixed(5)
+                ? lendedAmountByEpoch[currentEpoch].dividedBy(totalLendedAmountByEpoch[currentEpoch]).toFixed(5)
+                : null
 
               return {
                 address: lender,
                 amount: amount.toFixed(),
                 endEpoch,
                 formattedAmount: formatAssetAmount(amount, 'PNT'),
-                formattedPoolPercentage: `${poolPercentage * 100}%`,
+                formattedPoolPercentage: poolPercentage ? `${poolPercentage * 100}%` : '-',
                 nickname: lenderNickname,
                 poolPercentage,
                 remainingTime
@@ -1009,21 +1009,28 @@ const useLenders = () => {
 const useTotalNumberOfLendersInEpochs = () => {
   const { lendedEvents } = useContext(EventsContext)
   const decodedEvents = useMemo(
-    () => lendedEvents.map(({ decode, data, topics }) => decode(data, topics)),
+    () =>
+      lendedEvents.map(({ data, topics }) =>
+        decodeEventLog({
+          abi: LendingManagerABI,
+          data: data,
+          topics: topics
+        })
+      ),
     [lendedEvents]
   )
 
   return useMemo(() => {
     const doubleLenders = {}
     return decodedEvents.reduce((_acc, _event) => {
-      const lender = _event.lender
+      const lender = _event.args.lender
       if (!doubleLenders[lender]) {
         doubleLenders[lender] = {}
       }
 
       Array.from(
-        { length: _event.endEpoch.toNumber() - _event.startEpoch.toNumber() + 1 },
-        (_, i) => i + _event.startEpoch.toNumber()
+        { length: Number(_event.args.endEpoch - _event.args.startEpoch) + 1 },
+        (_, i) => i + Number(_event.args.startEpoch)
       ).forEach((_epoch) => {
         if (!_acc[_epoch]) {
           _acc[_epoch] = 0
