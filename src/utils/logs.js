@@ -1,12 +1,24 @@
 import { trim } from 'viem'
+import { getBlock } from '@wagmi/core'
 import moment from 'moment'
 import BigNumber from 'bignumber.js'
 
 import { getNickname } from './nicknames'
 import { parseSeconds } from './time'
 import { formatAssetAmount } from './amount'
+import wagmiConfig from './wagmiConfig'
 
 const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+
+const getBlockTimestamp = async (blockNumber) => {
+  try {
+    const block = await getBlock(wagmiConfig, { blockNumber })
+    return block.timestamp
+  } catch (_err) {
+    console.error(_err.message)
+    return null
+  }
+}
 
 const extractActionsFromTransaction = (_transaction) => {
   const { logs } = _transaction
@@ -36,26 +48,25 @@ const extractActionsFromTransaction = (_transaction) => {
 }
 
 const extractActivityFromEvents = async (_events) => {
-  const blocks = await Promise.all(_events.map(({ getBlock }) => getBlock()))
+  const blocksTimestamp = await Promise.all(_events.map(({ blockNumber }) => getBlockTimestamp(blockNumber)))
   return _events
-    .map(({ decode, data, event, topics }) => ({ data: decode(data, topics), event }))
-    .map(({ data, event }, _index) => {
-      const timestamp = blocks[_index].timestamp
-      const formattedDateFromNow = moment.unix(timestamp).fromNow()
+    .map(({ args, eventName }) => ({ data: args, eventName }))
+    .map(({ data, eventName }, _index) => {
+      const timestamp = blocksTimestamp[_index]
+      const formattedDateFromNow = moment.unix(timestamp.toString()).fromNow()
 
-      if (event === 'Staked') {
+      if (eventName === 'Staked') {
         const { amount, duration, receiver } = data
         const am = BigNumber(amount?.toString())
           .dividedBy(10 ** 18)
           .toFixed()
-
         return {
           amount: am,
-          duration: BigNumber(duration?.toString()).toNumber(),
+          duration: Number(duration),
           formattedAmount: formatAssetAmount(am, 'PNT', { decimals: 2 }),
-          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDate: moment.unix(timestamp.toString()).format('MMM DD - HH:mm'),
           formattedDateFromNow,
-          formattedDuration: parseSeconds(duration),
+          formattedDuration: parseSeconds(Number(duration)),
           receiver,
           receiverNickname: getNickname(receiver),
           timestamp,
@@ -63,7 +74,7 @@ const extractActivityFromEvents = async (_events) => {
         }
       }
 
-      if (event === 'Unstaked') {
+      if (eventName === 'Unstaked') {
         const { amount, receiver } = data
         const am = BigNumber(amount?.toString())
           .dividedBy(10 ** 18)
@@ -72,7 +83,7 @@ const extractActivityFromEvents = async (_events) => {
         return {
           amount: am,
           formattedAmount: formatAssetAmount(am, 'PNT'),
-          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDate: moment.unix(timestamp.toString()).format('MMM DD - HH:mm'),
           formattedDateFromNow,
           receiver,
           receiverNickname: getNickname(receiver),
@@ -81,7 +92,7 @@ const extractActivityFromEvents = async (_events) => {
         }
       }
 
-      if (event === 'Lended') {
+      if (eventName === 'Lended') {
         const { amount, endEpoch, lender, startEpoch } = data
         const am = BigNumber(amount?.toString())
           .dividedBy(10 ** 18)
@@ -89,24 +100,24 @@ const extractActivityFromEvents = async (_events) => {
 
         return {
           amount: am,
-          endEpoch: endEpoch.toNumber(),
+          endEpoch: Number(endEpoch),
           formattedAmount: formatAssetAmount(am, 'PNT'),
-          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDate: moment.unix(timestamp.toString()).format('MMM DD - HH:mm'),
           formattedDateFromNow,
           lender,
           lenderNickname: getNickname(lender),
-          startEpoch: startEpoch.toNumber(),
+          startEpoch: Number(startEpoch),
           timestamp,
           type: 'Lended'
         }
       }
 
-      if (event === 'StartVote') {
+      if (eventName === 'StartVote') {
         const { creator, metadata, voteId } = data
         return {
           creator,
           creatorNickname: getNickname(creator),
-          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDate: moment.unix(timestamp.toString()).format('MMM DD - HH:mm'),
           formattedDateFromNow,
           metadata: metadata,
           timestamp,
@@ -115,12 +126,12 @@ const extractActivityFromEvents = async (_events) => {
         }
       }
 
-      if (event === 'CastVote') {
+      if (eventName === 'CastVote') {
         const { voter, voteId, supports } = data
         return {
           voter,
           voterNickname: getNickname(voter),
-          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDate: moment.unix(timestamp.toString()).format('MMM DD - HH:mm'),
           formattedDateFromNow,
           supports,
           timestamp,
@@ -129,24 +140,24 @@ const extractActivityFromEvents = async (_events) => {
         }
       }
 
-      if (event === 'DurationIncreased') {
+      if (eventName === 'DurationIncreased') {
         const { lender, endEpoch } = data
         return {
           lender,
           lenderNickname: getNickname(lender),
           endEpoch,
-          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDate: moment.unix(timestamp.toString()).format('MMM DD - HH:mm'),
           formattedDateFromNow,
           timestamp,
           type: 'DurationIncreased'
         }
       }
 
-      if (event === 'SentinelRegistrationUpdated') {
+      if (eventName === 'SentinelRegistrationUpdated') {
         const { owner, startEpoch, endEpoch, sentinel, kind, amount } = data
         return {
           amount,
-          formattedDate: moment.unix(timestamp).format('MMM DD - HH:mm'),
+          formattedDate: moment.unix(timestamp.toString()).format('MMM DD - HH:mm'),
           formattedDateFromNow,
           kind,
           numberOfEpochs: endEpoch - startEpoch + 1,
