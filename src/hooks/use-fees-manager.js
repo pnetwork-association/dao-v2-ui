@@ -163,8 +163,10 @@ const useClaimableFeesAssetsByEpochs = (_opts = {}) => {
     abi: FeesManagerABI,
     functionName: 'claimableFeesByEpochsRangeOf',
     args: [sentinelAddress, assets.map(({ address }) => address), 0, currentEpoch],
-    enabled,
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: enabled
+    }
   })
 
   return useMemo(() => {
@@ -326,8 +328,10 @@ const useStakingSentinelEstimatedRevenues = () => {
     abi: LendingManagerABI,
     functionName: 'totalBorrowedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
-    enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0)
+    }
   })
 
   const borrowedAmount = settings.registrationManager.borrowAmount
@@ -395,8 +399,10 @@ const useBorrowingSentinelEstimatedRevenues = () => {
     abi: LendingManagerABI,
     functionName: 'totalBorrowedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
-    enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0)
+    }
   })
 
   const borrowedAmount = settings.registrationManager.borrowAmount

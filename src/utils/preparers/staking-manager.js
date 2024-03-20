@@ -50,7 +50,7 @@ const prepareContractReadAllowanceApproveStake = ({ activeChainId, address }) =>
   }
 }
 
-const prepareContractWriteApproveStake = ({ activeChainId, amount, account }) => {
+const prepareContractWriteApproveStake = ({ activeChainId, amount, account, enabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       return {
@@ -59,7 +59,10 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, account }) =>
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
         account: account,
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -69,7 +72,10 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, account }) =>
         functionName: 'approve',
         args: [settings.contracts.stakingManager, amount],
         account: account,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -79,7 +85,10 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, account }) =>
         functionName: 'approve',
         args: [settings.contracts.forwarderOnPolygon, amount],
         account: account,
-        chainId: polygon.id
+        chainId: polygon.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -89,7 +98,10 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, account }) =>
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
         account: account,
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:
@@ -97,7 +109,7 @@ const prepareContractWriteApproveStake = ({ activeChainId, amount, account }) =>
   }
 }
 
-const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }) => {
+const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver, enabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
@@ -114,7 +126,10 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -132,7 +147,10 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -141,7 +159,10 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }
         abi: StakingManagerABI,
         functionName: 'stake',
         args: [receiver, amount, duration],
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -159,7 +180,10 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        chainId: polygon.id
+        chainId: polygon.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:
@@ -167,7 +191,7 @@ const prepareContractWriteStake = ({ activeChainId, amount, duration, receiver }
   }
 }
 
-const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver, contractAddress }) => {
+const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver, contractAddress, enabled }) => {
   switch (activeChainId) {
     case mainnet.id: {
       const userData =
@@ -185,7 +209,10 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -204,7 +231,10 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -213,7 +243,10 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         abi: StakingManagerABI,
         functionName: 'unstake',
         args: [amount, chainId],
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -232,7 +265,10 @@ const prepareContractWriteUnstake = ({ activeChainId, amount, chainId, receiver,
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        chainId: polygon.id
+        chainId: polygon.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:

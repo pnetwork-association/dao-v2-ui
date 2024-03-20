@@ -63,8 +63,10 @@ const prepareContractWriteApproveUpdateSentinelRegistrationByStaking = ({ active
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
-        enabled: approveEnabled,
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: approveEnabled
+        }
       }
     }
     case gnosis.id: {
@@ -73,8 +75,10 @@ const prepareContractWriteApproveUpdateSentinelRegistrationByStaking = ({ active
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.registrationManager, amount],
-        enabled: approveEnabled,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: approveEnabled
+        }
       }
     }
     case polygon.id: {
@@ -83,8 +87,10 @@ const prepareContractWriteApproveUpdateSentinelRegistrationByStaking = ({ active
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.registrationManager, amount],
-        enabled: approveEnabled,
-        chainId: polygon.id
+        chainId: polygon.id,
+        query: {
+          enabled: approveEnabled
+        }
       }
     }
     case bsc.id: {
@@ -93,8 +99,10 @@ const prepareContractWriteApproveUpdateSentinelRegistrationByStaking = ({ active
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
-        enabled: approveEnabled,
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: approveEnabled
+        }
       }
     }
     default:
@@ -127,8 +135,10 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -147,8 +157,10 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -157,8 +169,10 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         abi: RegistrationManagerABI,
         functionName: 'updateSentinelRegistrationByStaking',
         args: [receiver, amount, duration, isValidHexString(signature) ? signature : '0x'],
-        enabled,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -177,8 +191,10 @@ const prepareContractWriteUpdateSentinelRegistrationByStaking = ({
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: polygon.id
+        chainId: polygon.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:
@@ -209,8 +225,10 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -228,8 +246,10 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -238,8 +258,10 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         abi: RegistrationManagerABI,
         functionName: 'updateSentinelRegistrationByBorrowing',
         args: [numberOfEpochs, signature],
-        enabled,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -257,8 +279,10 @@ const prepareContractWriteUpdateSentinelRegistrationByBorrowing = ({
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: polygon.id
+        chainId: polygon.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:
@@ -284,8 +308,10 @@ export const prepareContractWriteIncreaseStakingSentinelRegistrationDuration = (
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -301,8 +327,10 @@ export const prepareContractWriteIncreaseStakingSentinelRegistrationDuration = (
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -311,8 +339,10 @@ export const prepareContractWriteIncreaseStakingSentinelRegistrationDuration = (
         abi: RegistrationManagerABI,
         functionName: 'increaseSentinelRegistrationDuration',
         args: [duration],
-        enabled,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -328,8 +358,10 @@ export const prepareContractWriteIncreaseStakingSentinelRegistrationDuration = (
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: polygon.id
+        chainId: polygon.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:

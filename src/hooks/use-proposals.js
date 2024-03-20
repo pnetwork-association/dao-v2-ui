@@ -227,8 +227,10 @@ const useCreateProposal = () => {
         false
       ],
       account: address,
-      enabled: canCreateProposal,
-      chainId: gnosis.id
+      chainId: gnosis.id,
+      query: {
+        enabled: canCreateProposal
+      }
     })
   // simulationNewProposalData?.request)
 

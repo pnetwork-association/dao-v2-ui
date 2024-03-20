@@ -212,8 +212,10 @@ const useSentinel = () => {
     abi: RegistrationManagerABI,
     functionName: 'sentinelOf',
     args: [address],
-    enabled: address,
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: address
+    }
   })
 
   const sentinelAddress =
@@ -226,8 +228,10 @@ const useSentinel = () => {
     abi: RegistrationManagerABI,
     functionName: 'sentinelRegistration',
     args: [sentinelAddress],
-    enabled: sentinelAddress,
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: sentinelAddress
+    }
   })
 
   return {
@@ -272,8 +276,10 @@ const useBorrowingSentinelProspectus = () => {
         abi: LendingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [startEpoch, endEpoch],
-        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0)
+        }
       }
     ]
   })

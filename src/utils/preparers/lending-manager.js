@@ -16,7 +16,9 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabl
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnMainnet],
         chainId: mainnet.id,
-        enabled
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -26,7 +28,9 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabl
         functionName: 'allowance',
         args: [address, settings.contracts.lendingManager],
         chainId: gnosis.id,
-        enabled
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -36,7 +40,9 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabl
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnPolygon],
         chainId: polygon.id,
-        enabled
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -46,7 +52,9 @@ const prepareContractReadAllowanceApproveLend = ({ activeChainId, address, enabl
         functionName: 'allowance',
         args: [address, settings.contracts.forwarderOnBsc],
         chainId: bsc.id,
-        enabled
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:
@@ -62,8 +70,10 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnMainnet, amount],
-        enabled,
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -72,8 +82,10 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.lendingManager, amount],
-        enabled,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -82,8 +94,10 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnPolygon, amount],
-        enabled,
-        chainId: polygon.id
+        chainId: polygon.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -92,8 +106,10 @@ const prepareContractWriteApproveLend = ({ activeChainId, amount, enabled }) => 
         abi: erc20Abi,
         functionName: 'approve',
         args: [settings.contracts.forwarderOnBsc, amount],
-        enabled,
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:
@@ -117,8 +133,10 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -136,8 +154,10 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -146,8 +166,10 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         abi: LendingManagerABI,
         functionName: 'lend',
         args: [receiver, amount, duration],
-        enabled,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -165,8 +187,10 @@ const prepareContractWriteLend = ({ activeChainId, amount, duration, receiver, e
         abi: ForwarderABI,
         functionName: 'call',
         args: [amount, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:
@@ -188,8 +212,10 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: mainnet.id
+        chainId: mainnet.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case bsc.id: {
@@ -205,8 +231,10 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: bsc.id
+        chainId: bsc.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case polygon.id: {
@@ -222,8 +250,10 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
         abi: ForwarderABI,
         functionName: 'call',
         args: [0, settings.contracts.forwarderOnGnosis, userData, pNetworkNetworkIds.gnosis],
-        enabled,
-        chainId: polygon.id
+        chainId: polygon.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     case gnosis.id: {
@@ -232,8 +262,10 @@ const prepareContractWriteIncreaseLendDuration = ({ activeChainId, duration, ena
         abi: LendingManagerABI,
         functionName: 'increaseDuration',
         args: [duration],
-        enabled,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: enabled
+        }
       }
     }
     default:

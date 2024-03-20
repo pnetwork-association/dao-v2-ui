@@ -7,9 +7,11 @@ import {
   useChainId,
   useReadContract,
   useWriteContract,
-  useWaitForTransactionReceipt
+  useWaitForTransactionReceipt,
+  useBlockNumber
 } from 'wagmi'
 import { gnosis } from 'wagmi/chains'
+import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 
 import settings from '../settings'
@@ -32,30 +34,38 @@ const useStake = () => {
   const [amount, setAmount] = useState('0')
   const [duration, setDuration] = useState(settings.stakingManager.minStakeDays)
   const { address } = useAccount()
+  const queryClient = useQueryClient()
+  const { data: blockNumber } = useBlockNumber({ watch: true })
   const activeChainId = useChainId()
 
-  const { data: pntBalanceData } = useBalance({
+  const { data: pntBalanceData, queryKey } = useBalance({
     token: getPntAddressByChainId(activeChainId),
-    address,
-    watch: true
+    address
   })
+
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey })
+  }, [blockNumber, queryClient])
+
+  const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
+
+  const approveEnabled = useMemo(() => onChainAmount > 0 && !approved, [onChainAmount, approved])
 
   const { data: allowance, refetch: refetchAllowance } = useReadContract(
     prepareContractReadAllowanceApproveStake({ activeChainId, address })
   )
 
-  const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
-
-  const approveEnabled = useMemo(() => onChainAmount > 0 && !approved, [onChainAmount, approved])
   const { writeContract: callApprove, error: approveError, data: approveData } = useWriteContract()
   const approve = () =>
     callApprove(
       prepareContractWriteApproveStake({
         activeChainId,
         amount: onChainAmount,
-        account: address
+        account: address,
+        enabled: approveEnabled
       })
     )
+
   const stakeEnabled = useMemo(
     () =>
       onChainAmount > 0 &&
@@ -72,7 +82,8 @@ const useStake = () => {
         activeChainId,
         amount: onChainAmount,
         duration: duration * SECONDS_IN_ONE_DAY,
-        receiver
+        receiver,
+        enabled: stakeEnabled
       })
     )
 
@@ -136,15 +147,15 @@ const useUnstake = (_opts = {}) => {
   const [amount, setAmount] = useState('0')
   const activeChainId = useChainId()
   const [chainId, setChainId] = useState(1) // NOTE: ChainSelection starts with eth
-  // const { availableToUnstakePntAmount } = useUserStake()
+  const { availableToUnstakePntAmount } = useUserStake()
   const { address } = useAccount()
 
   const onChainAmount = useMemo(() => getEthersOnChainAmount(amount), [amount])
 
-  // const unstakeEnabled = useMemo(
-  //   () => BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
-  //   [amount, availableToUnstakePntAmount]
-  // )
+  const unstakeEnabled = useMemo(
+    () => BigNumber(amount).isGreaterThan(0) && BigNumber(amount).isLessThanOrEqualTo(availableToUnstakePntAmount),
+    [amount, availableToUnstakePntAmount]
+  )
 
   const { writeContract: callUnstake, error: unstakeError, data: unstakeData } = useWriteContract()
   const unstake = () =>
@@ -154,7 +165,8 @@ const useUnstake = (_opts = {}) => {
         amount: onChainAmount,
         chainId: chainIdToPNetworkNetworkId[chainId],
         receiver: address,
-        contractAddress
+        contractAddress,
+        enabled: unstakeEnabled
       })
     )
 
@@ -178,16 +190,23 @@ const useUnstake = (_opts = {}) => {
 const useUserStake = (_opts = {}) => {
   const { contractAddress = settings.contracts.stakingManager } = _opts
   const { address } = useAccount()
+  const queryClient = useQueryClient()
+  const { data: blockNumber } = useBlockNumber({ watch: true })
 
-  const { data } = useReadContract({
+  const { data, queryKey } = useReadContract({
     address: contractAddress,
     abi: StakingManagerABI,
     functionName: 'stakeOf',
     args: [address],
-    enabled: address,
-    watch: true,
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: address
+    }
   })
+
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey })
+  }, [blockNumber, queryClient])
 
   const availableToUnstakePntAmount = useMemo(() => {
     if (!data) return

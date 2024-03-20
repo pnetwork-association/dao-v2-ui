@@ -8,9 +8,11 @@ import {
   useReadContract,
   useReadContracts,
   useWriteContract,
-  useWaitForTransactionReceipt
+  useWaitForTransactionReceipt,
+  useBlockNumber
 } from 'wagmi'
 import { gnosis } from 'wagmi/chains'
+import { useQueryClient } from '@tanstack/react-query'
 import moment from 'moment'
 
 import settings from '../settings'
@@ -138,18 +140,22 @@ const useLend = () => {
 }
 
 const useAccountLoanEndEpoch = () => {
+  const queryClient = useQueryClient()
+  const { data: blockNumber } = useBlockNumber({ watch: true })
   const { address } = useAccount()
   const { currentEpoch } = useEpochs()
 
-  const { data } = useReadContract({
+  const { data, queryKey } = useReadContract({
     address: settings.contracts.lendingManager,
     abi: LendingManagerABI,
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 24],
-    enabled: (currentEpoch || currentEpoch === 0) && address,
-    chainId: gnosis.id,
-    watch: true
+    chainId: gnosis.id
   })
+
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey })
+  }, [blockNumber, queryClient])
 
   const endEpoch = useMemo(
     () => (data ? data.length - 1 - data.findIndex((_, _index) => data[data.length - 1 - _index] > 0) : null),
@@ -171,8 +177,10 @@ const useAccountLoanStartEpoch = () => {
     abi: LendingManagerABI,
     functionName: 'weightByEpochsRangeOf',
     args: [address, 0, currentEpoch + 24],
-    enabled: (currentEpoch || currentEpoch === 0) && address,
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: (currentEpoch || currentEpoch === 0) && address
+    }
   })
 
   const startEpoch = useMemo(() => {
@@ -241,8 +249,10 @@ const useTotalLendedAmountByStartAndEndEpochs = () => {
     abi: LendingManagerABI,
     functionName: 'totalLendedAmountByEpochsRange',
     args: [startEpoch, endEpoch],
-    enabled: startEpoch && endEpoch,
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: startEpoch && endEpoch
+    }
   })
 
   const lendedAmount = useMemo(() => {
@@ -271,8 +281,10 @@ const useUtilizationRatio = () => {
     abi: LendingManagerABI,
     functionName: 'utilizationRatioByEpochsRange',
     args: [currentEpoch, currentEpoch + 12],
-    enabled: currentEpoch || currentEpoch === 0,
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: currentEpoch || currentEpoch === 0
+    }
   })
 
   return data?.reduce((_acc, _amount, _index) => {
@@ -295,8 +307,10 @@ const useUtilizationRatioInTheCurrentEpoch = () => {
     abi: LendingManagerABI,
     functionName: 'utilizationRatioByEpoch',
     args: [currentEpoch],
-    enabled: currentEpoch || currentEpoch === 0,
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: currentEpoch || currentEpoch === 0
+    }
   })
 
   const ratio = BigNumber(data?.toString()).dividedBy(10 ** 4)
@@ -317,8 +331,10 @@ const useAccountUtilizationRatio = () => {
     abi: LendingManagerABI,
     functionName: 'utilizationRatioOf',
     args: [address, startEpoch, endEpoch],
-    enabled: startEpoch && endEpoch && address,
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: startEpoch && endEpoch && address
+    }
   })
 
   return data?.reduce((_acc, _amount, _index) => {
@@ -349,8 +365,10 @@ const useClaimableRewardsAssetsByEpochs = () => {
     abi: LendingManagerABI,
     functionName: 'claimableAssetsAmountByEpochsRangeOf',
     args: [address, assets.map(({ address }) => address), 0, currentEpoch],
-    enabled: address && (currentEpoch || currentEpoch === 0),
-    chainId: gnosis.id
+    chainId: gnosis.id,
+    query: {
+      enabled: address && (currentEpoch || currentEpoch === 0)
+    }
   })
 
   return useMemo(() => {
@@ -501,16 +519,20 @@ const useEstimateApy = () => {
         abi: LendingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
-        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        }
       },
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
-        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        }
       }
     ]
   })
@@ -624,24 +646,30 @@ const useEstimateApyIncreaseDuration = () => {
         abi: LendingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [_startEpoch, _endEpoch],
-        enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        }
       },
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, _startEpoch, _endEpoch],
-        enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0),
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: address && (_startEpoch || _startEpoch === 0) && (_endEpoch || _endEpoch === 0)
+        }
       },
       {
         address: settings.contracts.stakingManagerLM,
         abi: StakingManagerABI,
         functionName: 'stakeOf',
         args: [address],
-        enabled: address,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: address
+        }
       }
     ]
   })
@@ -756,24 +784,30 @@ const useApy = () => {
         abi: StakingManagerABI,
         functionName: 'stakeOf',
         args: [address],
-        enabled: address,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: address
+        }
       },
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'totalWeightByEpochsRange',
         args: [startEpoch, endEpoch],
-        enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0)
+        }
       },
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'weightByEpochsRangeOf',
         args: [address, startEpoch, endEpoch],
-        enabled: address && (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0),
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: address && (startEpoch || startEpoch === 0) && (endEpoch || endEpoch === 0)
+        }
       }
     ]
   })
@@ -858,16 +892,20 @@ const useEpochsBorrowableAmount = () => {
         abi: LendingManagerABI,
         functionName: 'totalLendedAmountByEpochsRange',
         args: [0, 24],
-        enabled: true,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: true
+        }
       },
       {
         address: settings.contracts.lendingManager,
         abi: LendingManagerABI,
         functionName: 'totalBorrowedAmountByEpochsRange',
         args: [0, 24],
-        enabled: true,
-        chainId: gnosis.id
+        chainId: gnosis.id,
+        query: {
+          enabled: true
+        }
       }
     ]
   })
