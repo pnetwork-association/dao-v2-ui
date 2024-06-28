@@ -4,6 +4,7 @@ import paymentFromTreasury from './presets/paymentFromTreasury'
 import withdrawInflationAndPegin from './presets/withdrawInflationAndPegin'
 import withdrawInflationToAssociation from './presets/withdrawInflationToAssociation'
 import withdrawInflationToRecipient from './presets/withdrawInflationToRecipient'
+import whiteKnightInflationAndStake from './presets/whiteKnightInflationAndStake'
 
 const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
   return {
@@ -13,6 +14,7 @@ const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
     withdrawInflationAndPegin: withdrawInflationAndPegin({ presetParams, setPresetParams }),
     createMerklIncentive: createMerklIncentive({ presetParams, setPresetParams }),
     changeInflationOwner: changeInflationOwner({ presetParams, setPresetParams }),
+    whiteKnightInflationAndStake: whiteKnightInflationAndStake({ presetParams, setPresetParams }),
     custom: {
       id: 'custom',
       name: 'Custom - encoded script',

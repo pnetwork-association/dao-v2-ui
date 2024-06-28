@@ -3,6 +3,7 @@ import DandelionVotingABI from '../abis/DandelionVoting.json'
 import EthPNTABI from '../abis/EthPNT.json'
 import pNetworkV2VaultABI from '../abis/pNetworkV2Vault.json'
 import MerklDistributionCreatorABI from '../abis/MerklDistributionCreator.json'
+import StakingManagerABI from '../abis/StakingManager.json'
 import BigNumber from 'bignumber.js'
 import { ethers } from 'ethers'
 import { readContract } from '@wagmi/core'
@@ -14,6 +15,7 @@ export const ethPNTContract = new ethers.utils.Interface(EthPNTABI)
 export const pNetworkV2Vault = new ethers.utils.Interface(pNetworkV2VaultABI)
 export const distributionCreator = new ethers.utils.Interface(MerklDistributionCreatorABI)
 export const dandelionVotingContract = new ethers.utils.Interface(DandelionVotingABI)
+export const stakingManagerContract = new ethers.utils.Interface(StakingManagerABI)
 
 const ONE_DAY = 60 * 60 * 24
 
