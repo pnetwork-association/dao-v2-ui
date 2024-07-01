@@ -17,7 +17,12 @@ export const dandelionVotingContract = new ethers.utils.Interface(DandelionVotin
 
 const ONE_DAY = 60 * 60 * 24
 
-export const prepareInflationData = (amount) => {
+export const computeRawAmount = (amount, decimals) =>
+  BigNumber(amount)
+    .multipliedBy(10 ** decimals)
+    .toFixed()
+
+export const getEthPNTdata = () => {
   const ethPNTAsset = settings.assets.find((asset) => asset.symbol == 'ethPNT')
   if (!ethPNTAsset) throw new Error('ethPNT asset config not found!')
   const ethPNTAddress = ethPNTAsset.address
@@ -25,26 +30,41 @@ export const prepareInflationData = (amount) => {
   const ethPNTDecimals = ethPNTAsset.decimals
   if (!ethPNTDecimals) throw new Error('ethPNT asset decimals not found!')
 
-  const rawAmount = BigNumber(amount)
-    .multipliedBy(10 ** ethPNTDecimals)
-    .toFixed()
+  return {
+    ethPNTAddress: ethPNTAddress,
+    ethPNTDecimals: ethPNTDecimals
+  }
+}
 
+export const prepareInflationData = (amount) => {
+  const { ethPNTAddress, ethPNTDecimals } = getEthPNTdata()
+  const rawAmount = computeRawAmount(amount, ethPNTDecimals)
   return {
     rawAmount: rawAmount,
     ethPNTAddress: ethPNTAddress
   }
 }
 
-export const prepareInflationProposal = async (ethPNTAddress, receiverAddress, rawAmount) => [
+export const prepareWithdrawInflation = (ethPNTAddress, rawAmount) => [
   {
     to: ethPNTAddress,
     calldata: ethPNTContract.encodeFunctionData('withdrawInflation', [settings.contracts.financeVault, rawAmount])
-  },
+  }
+]
+
+export const prepareTransfer = (ethPNTAddress, receiverAddress, rawAmount) => [
   {
     to: settings.contracts.financeVault,
     calldata: vaultContract.encodeFunctionData('transfer', [ethPNTAddress, receiverAddress, rawAmount])
   }
 ]
+
+export const prepareInflationProposal = async (ethPNTAddress, receiverAddress, rawAmount) => {
+  return _.flattenDeep([
+    prepareWithdrawInflation(ethPNTAddress, receiverAddress),
+    prepareTransfer(ethPNTAddress, receiverAddress, rawAmount)
+  ])
+}
 
 const sha3 = (_string) => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(_string))
 
