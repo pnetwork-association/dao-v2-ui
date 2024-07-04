@@ -1,3 +1,5 @@
+import { ethers } from 'ethers'
+
 import { prepareInflationData, prepareInflationProposal } from './utils'
 
 const withdrawInflationToRecipient = ({ presetParams, setPresetParams }) => ({
