@@ -38,7 +38,10 @@ const options = {
     }
   },
   scales: {
-    totalEarnedFees: {
+    y: {
+      display: false
+    },
+    totalAccruedFees: {
       display: true,
       min: 0,
       position: 'left',
@@ -99,7 +102,7 @@ const SentinelHistoricalChart = () => {
           type: 'bar',
           backgroundColor: theme.blue,
           data: numberOfNodes.slice(-10),
-          yAxisID: 'y',
+          yAxisID: 'totalNumberOfNodes',
           label: '# nodes',
           stack: '0'
         }
