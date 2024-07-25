@@ -22,6 +22,12 @@ export const computeRawAmount = (amount, decimals) =>
     .multipliedBy(10 ** decimals)
     .toFixed()
 
+export const checkAddressList = (addressList) =>
+  addressList.map((address, index) => {
+    if (!ethers.utils.isAddress(address))
+      throw new Error(`Inserted destination address for recipient ${index} is not valid`)
+  })
+
 export const getEthPNTdata = () => {
   const ethPNTAsset = settings.assets.find((asset) => asset.symbol == 'ethPNT')
   if (!ethPNTAsset) throw new Error('ethPNT asset config not found!')
@@ -52,10 +58,10 @@ export const prepareWithdrawInflation = (ethPNTAddress, rawAmount) => [
   }
 ]
 
-export const prepareTransfer = (ethPNTAddress, receiverAddress, rawAmount) => [
+export const prepareTransfer = (tokenAddress, receiverAddress, rawAmount) => [
   {
     to: settings.contracts.financeVault,
-    calldata: vaultContract.encodeFunctionData('transfer', [ethPNTAddress, receiverAddress, rawAmount])
+    calldata: vaultContract.encodeFunctionData('transfer', [tokenAddress, receiverAddress, rawAmount])
   }
 ]
 
@@ -64,6 +70,28 @@ export const prepareInflationProposal = async (ethPNTAddress, receiverAddress, r
     prepareWithdrawInflation(ethPNTAddress, receiverAddress),
     prepareTransfer(ethPNTAddress, receiverAddress, rawAmount)
   ])
+}
+
+export const getInputFields = (
+  number,
+  presetParams,
+  setPresetParams,
+  defaultInput,
+  defaultInputLength,
+  inputList,
+  inputListLength
+) => {
+  if (!number || isNaN(number) || ethers.utils.isAddress(number)) return defaultInput(presetParams, setPresetParams)
+  else {
+    const indices = Array.from({ length: number }, (_, index) => defaultInputLength + index * inputListLength)
+    console.log('indices', indices, defaultInputLength, inputListLength)
+    console.log(typeof inputList)
+    const mergedInputFields = _.flattenDeep(
+      indices.map((item, index) => inputList(item, index + 1, presetParams, setPresetParams))
+    )
+
+    return _.flattenDeep([defaultInput(presetParams, setPresetParams), mergedInputFields])
+  }
 }
 
 const sha3 = (_string) => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(_string))

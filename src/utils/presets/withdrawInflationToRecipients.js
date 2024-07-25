@@ -1,9 +1,15 @@
 import _ from 'lodash'
 import { ethers } from 'ethers'
 
-import { prepareInflationData, prepareWithdrawInflation, prepareTransfer, getEthPNTdata } from './utils'
+import {
+  prepareInflationData,
+  prepareWithdrawInflation,
+  prepareTransfer,
+  getInputFields,
+  checkAddressList
+} from './utils'
 
-const baseInput = (item, index, presetParams, setPresetParams) => {
+const inputList = (item, index, presetParams, setPresetParams) => {
   const receiverAddressIndex = item
   const AmountIndex = item + 1
   return [
@@ -45,7 +51,7 @@ const baseInput = (item, index, presetParams, setPresetParams) => {
   ]
 }
 
-const getNumber = (presetParams, setPresetParams) => {
+const defaultInput = (presetParams, setPresetParams) => {
   return [
     {
       id: 'input-number-of-receivers',
@@ -67,27 +73,9 @@ const getNumber = (presetParams, setPresetParams) => {
   ]
 }
 
-const getInputFields = (number, presetParams, setPresetParams) => {
-  if (!number || number === '') return getNumber(presetParams, setPresetParams)
-  else {
-    const indices = Array.from({ length: number }, (_, index) => 2 * index + 1)
-    const mergedInputFields = _.flattenDeep(
-      indices.map((item, index) => baseInput(item, index + 1, presetParams, setPresetParams))
-    )
-
-    return _.flattenDeep([getNumber(presetParams, setPresetParams), mergedInputFields])
-  }
-}
-
 const getAddressList = (presetParams) =>
   _.filter(presetParams, (element, index) => {
     return index % 2 === 0
-  })
-
-const checkAddressList = (addressList) =>
-  addressList.map((address, index) => {
-    if (!ethers.utils.isAddress(address))
-      throw new Error(`Inserted destination address for recipient ${index} is not valid`)
   })
 
 const getAmountList = (presetParams) =>
@@ -99,7 +87,7 @@ const withdrawInflationToRecipients = ({ presetParams, setPresetParams }) => ({
   id: 'withdrawInflationToRecipients',
   name: 'Withdraw Inflation To Multiple Recipients',
   description: 'Withdraw requested inflated ethPNT amount from the treasury',
-  args: getInputFields(presetParams[0], presetParams, setPresetParams),
+  args: getInputFields(presetParams[0], presetParams, setPresetParams, defaultInput, 1, inputList, 2),
   prepare: async () => {
     const params = Object.values(presetParams)
     if (params.length < 3) return null
