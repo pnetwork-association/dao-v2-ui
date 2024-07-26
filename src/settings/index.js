@@ -107,6 +107,16 @@ const settings = {
       borrowingManagerClaimEnabled: true,
       feesManagerClaimEnabled: true,
       symbolPrice: 'ARB'
+    },
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      name: 'Eth',
+      decimals: 18,
+      symbol: 'ETH',
+      logo: './assets/svg/ETH.svg',
+      borrowingManagerClaimEnabled: true,
+      feesManagerClaimEnabled: true,
+      symbolPrice: 'ETH'
     }
   ],
   chains: [
