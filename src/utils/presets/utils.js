@@ -1,12 +1,13 @@
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+import { getProvider, readContract } from '@wagmi/core'
+import { mainnet } from 'wagmi'
+
 import VaultABI from '../abis/Vault.json'
 import DandelionVotingABI from '../abis/DandelionVoting.json'
 import EthPNTABI from '../abis/EthPNT.json'
 import pNetworkV2VaultABI from '../abis/pNetworkV2Vault.json'
 import MerklDistributionCreatorABI from '../abis/MerklDistributionCreator.json'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-import { readContract } from '@wagmi/core'
-
 import settings from '../../settings'
 
 export const vaultContract = new ethers.utils.Interface(VaultABI)
@@ -27,6 +28,14 @@ export const checkAddressList = (addressList) =>
     if (!ethers.utils.isAddress(address))
       throw new Error(`Inserted destination address for recipient ${index} is not valid`)
   })
+
+export const isContract = async (address) => {
+  checkAddressList([address])
+  const provider = getProvider({ chainId: mainnet.id })
+  const code = await provider.getCode(address)
+  if (code === '0x') return false
+  else return true
+}
 
 export const getEthPNTdata = () => {
   const ethPNTAsset = settings.assets.find((asset) => asset.symbol == 'ethPNT')
@@ -84,8 +93,6 @@ export const getInputFields = (
   if (!number || isNaN(number) || ethers.utils.isAddress(number)) return defaultInput(presetParams, setPresetParams)
   else {
     const indices = Array.from({ length: number }, (_, index) => defaultInputLength + index * inputListLength)
-    console.log('indices', indices, defaultInputLength, inputListLength)
-    console.log(typeof inputList)
     const mergedInputFields = _.flattenDeep(
       indices.map((item, index) => inputList(item, index + 1, presetParams, setPresetParams))
     )
