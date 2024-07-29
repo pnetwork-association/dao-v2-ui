@@ -1,12 +1,13 @@
+import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
+import { getProvider, readContract } from '@wagmi/core'
+import { mainnet } from 'wagmi'
+
 import VaultABI from '../abis/Vault.json'
 import DandelionVotingABI from '../abis/DandelionVoting.json'
 import EthPNTABI from '../abis/EthPNT.json'
 import pNetworkV2VaultABI from '../abis/pNetworkV2Vault.json'
 import MerklDistributionCreatorABI from '../abis/MerklDistributionCreator.json'
-import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
-import { readContract } from '@wagmi/core'
-
 import settings from '../../settings'
 
 export const vaultContract = new ethers.utils.Interface(VaultABI)
@@ -21,6 +22,20 @@ export const computeRawAmount = (amount, decimals) =>
   BigNumber(amount)
     .multipliedBy(10 ** decimals)
     .toFixed()
+
+export const checkAddressList = (addressList) =>
+  addressList.map((address, index) => {
+    if (!ethers.utils.isAddress(address))
+      throw new Error(`Inserted destination address for recipient ${index} is not valid`)
+  })
+
+export const isContract = async (address) => {
+  checkAddressList([address])
+  const provider = getProvider({ chainId: mainnet.id })
+  const code = await provider.getCode(address)
+  if (code === '0x') return false
+  else return true
+}
 
 export const getEthPNTdata = () => {
   const ethPNTAsset = settings.assets.find((asset) => asset.symbol == 'ethPNT')
@@ -52,10 +67,10 @@ export const prepareWithdrawInflation = (ethPNTAddress, rawAmount) => [
   }
 ]
 
-export const prepareTransfer = (ethPNTAddress, receiverAddress, rawAmount) => [
+export const prepareTransfer = (tokenAddress, receiverAddress, rawAmount) => [
   {
     to: settings.contracts.financeVault,
-    calldata: vaultContract.encodeFunctionData('transfer', [ethPNTAddress, receiverAddress, rawAmount])
+    calldata: vaultContract.encodeFunctionData('transfer', [tokenAddress, receiverAddress, rawAmount])
   }
 ]
 
@@ -64,6 +79,26 @@ export const prepareInflationProposal = async (ethPNTAddress, receiverAddress, r
     prepareWithdrawInflation(ethPNTAddress, receiverAddress),
     prepareTransfer(ethPNTAddress, receiverAddress, rawAmount)
   ])
+}
+
+export const getInputFields = (
+  number,
+  presetParams,
+  setPresetParams,
+  defaultInput,
+  defaultInputLength,
+  inputList,
+  inputListLength
+) => {
+  if (!number || isNaN(number) || ethers.utils.isAddress(number)) return defaultInput(presetParams, setPresetParams)
+  else {
+    const indices = Array.from({ length: number }, (_, index) => defaultInputLength + index * inputListLength)
+    const mergedInputFields = _.flattenDeep(
+      indices.map((item, index) => inputList(item, index + 1, presetParams, setPresetParams))
+    )
+
+    return _.flattenDeep([defaultInput(presetParams, setPresetParams), mergedInputFields])
+  }
 }
 
 const sha3 = (_string) => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(_string))

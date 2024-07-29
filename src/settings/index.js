@@ -87,6 +87,36 @@ const settings = {
       borrowingManagerClaimEnabled: true,
       feesManagerClaimEnabled: true,
       symbolPrice: 'USDC'
+    },
+    {
+      address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+      name: 'Tether USD',
+      decimals: 6,
+      symbol: 'USDT',
+      logo: './assets/svg/USDT.svg',
+      borrowingManagerClaimEnabled: true,
+      feesManagerClaimEnabled: true,
+      symbolPrice: 'USDT'
+    },
+    {
+      address: '0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1',
+      name: 'Arbitrum',
+      decimals: 18,
+      symbol: 'ARB',
+      logo: './assets/svg/ARBITRUM.svg',
+      borrowingManagerClaimEnabled: true,
+      feesManagerClaimEnabled: true,
+      symbolPrice: 'ARB'
+    },
+    {
+      address: '0x0000000000000000000000000000000000000000',
+      name: 'Eth',
+      decimals: 18,
+      symbol: 'ETH',
+      logo: './assets/svg/ETH.svg',
+      borrowingManagerClaimEnabled: true,
+      feesManagerClaimEnabled: true,
+      symbolPrice: 'ETH'
     }
   ],
   chains: [

@@ -1,6 +1,7 @@
 import changeInflationOwner from './presets/changeInflationOwner'
 import createMerklIncentive from './presets/createMerklIncentive'
 import paymentFromTreasury from './presets/paymentFromTreasury'
+import paymentsFromTreasury from './presets/paymentsFromTreasury'
 import withdrawInflationAndPegin from './presets/withdrawInflationAndPegin'
 import withdrawInflationToAssociation from './presets/withdrawInflationToAssociation'
 import withdrawInflationToRecipient from './presets/withdrawInflationToRecipient'
@@ -9,6 +10,7 @@ import withdrawInflationToRecipients from './presets/withdrawInflationToRecipien
 const getVotePresets = ({ presetParams, setPresetParams, provider }) => {
   return {
     paymentFromTreasury: paymentFromTreasury({ presetParams, setPresetParams, provider }),
+    paymentsFromTreasury: paymentsFromTreasury({ presetParams, setPresetParams, provider }),
     withdrawInflationToRecipient: withdrawInflationToRecipient({ presetParams, setPresetParams }),
     withdrawInflationToRecipients: withdrawInflationToRecipients({ presetParams, setPresetParams }),
     withdrawInflationToAssociation: withdrawInflationToAssociation({ presetParams, setPresetParams }),
