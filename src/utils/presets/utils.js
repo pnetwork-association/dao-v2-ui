@@ -76,7 +76,7 @@ export const prepareTransfer = (tokenAddress, receiverAddress, rawAmount) => [
 
 export const prepareInflationProposal = async (ethPNTAddress, receiverAddress, rawAmount) => {
   return _.flattenDeep([
-    prepareWithdrawInflation(ethPNTAddress, receiverAddress),
+    prepareWithdrawInflation(ethPNTAddress, rawAmount),
     prepareTransfer(ethPNTAddress, receiverAddress, rawAmount)
   ])
 }
