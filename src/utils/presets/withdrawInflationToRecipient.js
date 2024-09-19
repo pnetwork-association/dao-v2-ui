@@ -16,11 +16,11 @@ const withdrawInflationToRecipient = ({ presetParams, setPresetParams }) => ({
           fontSize: 15
         },
         placeholder: 'Receiver address ...',
-        value: presetParams[1] || '',
+        value: presetParams[0] || '',
         onChange: (_e) =>
           setPresetParams({
             ...presetParams,
-            1: _e.target.value
+            0: _e.target.value
           })
       }
     },
@@ -34,11 +34,11 @@ const withdrawInflationToRecipient = ({ presetParams, setPresetParams }) => ({
           fontSize: 15
         },
         placeholder: 'Amount ...',
-        value: presetParams[2] || '',
+        value: presetParams[1] || '',
         onChange: (_e) =>
           setPresetParams({
             ...presetParams,
-            2: _e.target.value
+            1: _e.target.value
           })
       }
     }
