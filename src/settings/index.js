@@ -10,6 +10,7 @@ const settings = {
   },
   contracts: {
     pnt: '0x89Ab32156e46F46D02ade3FEcbe5Fc4243B9AAeD',
+    pntOnGnosis: '0x8805Aa0C1a8e59b03fA95740F691E28942Cf44f6',
     daoPnt: '0xe824F81cD136BB7a28480baF8d7E5f0E8E4B693E',
     dandelionVoting: '0x2211bFD97b1c02aE8Ac305d206e9780ba7D8BfF4',
     acl: '0xFDcae423E5e92B76FE7D1e2bcabd36fca8a6a8Fe',
@@ -24,7 +25,14 @@ const settings = {
     feesManager: '0xDf951d2061b12922BFbF22cb17B17f3b39183570',
     pNetworkAssociationGnosisSafeAddress: '0xf1f6568a76559d85cF68E6597fA587544184dD46',
     pNetworkV2EthereumVaultAddess: '0xe396757ec7e6ac7c8e5abe7285dde47b98f22db8',
-    merklDistributionCreatorAddress: '0x8BB4C975Ff3c250e0ceEA271728547f3802B36Fd'
+    merklDistributionCreatorAddress: '0x8BB4C975Ff3c250e0ceEA271728547f3802B36Fd',
+    // v3 staking manager
+    stakingManagerOnGnosis: '0xdEE8ebE2b7152ECCd935fd67134BF1bad55302BC',
+    // v3 forwarders
+    forwarder: '0xe2cb2C8fDc086FC576b49aCF2F71D44DDe7e3804',
+    forwarderEthPNT: '0xD60792770ca2B54b9231041c8AF641f48818dA8D',
+    forwarderOnGnosis: '0x2422eb5B6a20C7b8e3567C12Ed6f5ED9d1Cf1f79',
+    rewardsManagerOnGnosis: '0x2ec44F9F31a55b52b3c1fF98647E38d63f829fb7'
   },
   stakingManager: {
     minStakeDays: 7,
@@ -37,6 +45,13 @@ const settings = {
   },
   explorer: 'https://etherscan.io',
   zeroAddress: '0x0000000000000000000000000000000000000000',
+  pnetworkIds: {
+    mainnet: '0x005fe7f9',
+    interim: '0xffffffff',
+    polygon: '0x0075dd4c',
+    gnosis: '0x00f1918e',
+    bsc: '0x00e4b170'
+  },
   assets: [
     {
       address: '0xf4ea6b892853413bd9d9f1a5d3a620a0ba39c5b2',

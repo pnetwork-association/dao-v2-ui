@@ -312,7 +312,7 @@ const useCreateProposal = () => {
   const hasPermissionOrEnoughBalance = useMemo(
     () =>
       hasPermission ||
-      BigNumber(daoPntBalance).isGreaterThanOrEqualTo(BigNumber(minOpenVoteAmount?.toString()).dividedBy(10 ** 18)),
+      daoPntBalance.isGreaterThanOrEqualTo(BigNumber(minOpenVoteAmount?.toString()).dividedBy(10 ** 18)),
     [hasPermission, minOpenVoteAmount, daoPntBalance]
   )
 

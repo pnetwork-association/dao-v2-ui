@@ -50,7 +50,7 @@ const UnstakeModal = ({ show, onClose }) => {
   }, [show, setAmount])
 
   const onMax = useCallback(() => {
-    setAmount(availableToUnstakePntAmount)
+    setAmount(availableToUnstakePntAmount.toFixed())
   }, [availableToUnstakePntAmount, setAmount])
 
   const unstakeButtonDisabled = useMemo(

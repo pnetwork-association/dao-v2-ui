@@ -22,7 +22,7 @@ const InfoText = styled(Text)`
   font-size: 12px;
 `
 
-const AdvancedOptionsText = styled(Text)`
+export const AdvancedOptionsText = styled(Text)`
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -31,7 +31,7 @@ const AdvancedOptionsText = styled(Text)`
   }
 `
 
-const ReceiverInput = styled(Input)`
+export const ReceiverInput = styled(Input)`
   height: 50px;
   font-size: 17px;
 `
@@ -96,7 +96,7 @@ const StakeModal = ({ show, onClose }) => {
   }, [show, setAmount])
 
   const onMax = useCallback(() => {
-    setAmount(pntBalance)
+    setAmount(pntBalance.toFixed())
   }, [pntBalance, setAmount])
 
   const onShowOrHideAdvancedOptions = useCallback(() => {
